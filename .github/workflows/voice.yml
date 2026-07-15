@@ -1,0 +1,197 @@
+name: 生成女声6测试语音
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/voice.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: generate-nemo-female-6-samples
+  cancel-in-progress: false
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: 读取仓库文件
+        uses: actions/checkout@v4
+
+      - name: 启动固定日语语音引擎
+        run: |
+          docker pull voicevox/voicevox_nemo_engine:cpu-ubuntu20.04-latest
+          docker run --detach --name voicevox-nemo --publish 127.0.0.1:50021:50021 voicevox/voicevox_nemo_engine:cpu-ubuntu20.04-latest
+
+      - name: 生成20个女声6测试语音
+        run: |
+          python3 - <<'PY'
+          import json
+          import subprocess
+          import tempfile
+          import time
+          import urllib.error
+          import urllib.parse
+          import urllib.request
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          ENGINE_URL = "http://127.0.0.1:50021"
+          OUTPUT_DIR = Path("audio/nemo-f6")
+          SAMPLES = [
+              {"id": "taberu", "label": "食べる", "text": "たべる"},
+              {"id": "taberareru", "label": "食べられる", "text": "たべられる"},
+              {"id": "tabesaserareru", "label": "食べさせられる", "text": "たべさせられる"},
+              {"id": "iku", "label": "行く", "text": "いく"},
+              {"id": "itte", "label": "行って", "text": "いって"},
+              {"id": "itta", "label": "行った", "text": "いった"},
+              {"id": "konai", "label": "来ない", "text": "こない"},
+              {"id": "korareru", "label": "来られる", "text": "こられる"},
+              {"id": "suru", "label": "する", "text": "する"},
+              {"id": "dekiru", "label": "できる", "text": "できる"},
+              {"id": "yomu", "label": "読む", "text": "よむ"},
+              {"id": "yonde", "label": "読んで", "text": "よんで"},
+              {"id": "kaku", "label": "書く", "text": "かく"},
+              {"id": "kakeba", "label": "書けば", "text": "かけば"},
+              {"id": "hanasu", "label": "話す", "text": "はなす"},
+              {"id": "hanasaserareru", "label": "話させられる", "text": "はなさせられる"},
+              {"id": "miru", "label": "見る", "text": "みる"},
+              {"id": "minai", "label": "見ない", "text": "みない"},
+              {"id": "okiyou", "label": "起きよう", "text": "おきよう"},
+              {"id": "oyoida", "label": "泳いだ", "text": "およいだ"},
+          ]
+
+          def request(path, payload=None, content_type=None):
+              headers = {}
+              if content_type:
+                  headers["Content-Type"] = content_type
+              method = "POST" if payload is not None else "GET"
+              req = urllib.request.Request(
+                  ENGINE_URL + path,
+                  data=payload,
+                  headers=headers,
+                  method=method,
+              )
+              with urllib.request.urlopen(req, timeout=180) as response:
+                  return response.read()
+
+          deadline = time.time() + 300
+          last_error = None
+          while time.time() < deadline:
+              try:
+                  print("VOICEVOX Nemo 引擎版本：", request("/version").decode("utf-8"))
+                  break
+              except (OSError, urllib.error.URLError) as exc:
+                  last_error = exc
+                  time.sleep(5)
+          else:
+              raise RuntimeError(f"语音引擎未能启动：{last_error}")
+
+          speakers = json.loads(request("/speakers"))
+          speaker = next(
+              (item for item in speakers if item.get("name") in {"女声6", "女性6"}),
+              None,
+          )
+          if speaker is None:
+              female_speakers = [
+                  item
+                  for item in speakers
+                  if "女声" in item.get("name", "") or "女性" in item.get("name", "")
+              ]
+              if len(female_speakers) >= 6:
+                  speaker = female_speakers[5]
+          if speaker is None or not speaker.get("styles"):
+              raise RuntimeError(
+                  "没有找到女声6。可用声音：" + str([item.get("name") for item in speakers])
+              )
+
+          style = speaker["styles"][0]
+          style_id = int(style["id"])
+          OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+          items = {}
+
+          for index, sample in enumerate(SAMPLES, start=1):
+              print(f"[{index:02d}/{len(SAMPLES)}] {sample['label']}（{sample['text']}）")
+              query_string = urllib.parse.urlencode(
+                  {"text": sample["text"], "speaker": style_id}
+              )
+              query = json.loads(request(f"/audio_query?{query_string}", payload=b""))
+              query.update(
+                  {
+                      "speedScale": 0.88,
+                      "pitchScale": 0.0,
+                      "intonationScale": 1.0,
+                      "volumeScale": 1.0,
+                      "prePhonemeLength": 0.08,
+                      "postPhonemeLength": 0.16,
+                      "outputSamplingRate": 24000,
+                      "outputStereo": False,
+                  }
+              )
+              body = json.dumps(query, ensure_ascii=False).encode("utf-8")
+              wav_bytes = request(
+                  f"/synthesis?speaker={style_id}",
+                  payload=body,
+                  content_type="application/json; charset=utf-8",
+              )
+
+              output_path = OUTPUT_DIR / f"{sample['id']}.mp3"
+              with tempfile.NamedTemporaryFile(suffix=".wav") as wav_file:
+                  wav_file.write(wav_bytes)
+                  wav_file.flush()
+                  subprocess.run(
+                      [
+                          "ffmpeg", "-hide_banner", "-loglevel", "error", "-y",
+                          "-i", wav_file.name, "-ac", "1", "-ar", "24000",
+                          "-codec:a", "libmp3lame", "-b:a", "48k", str(output_path),
+                      ],
+                      check=True,
+                  )
+              if output_path.stat().st_size < 500:
+                  raise RuntimeError(f"生成的音频异常：{output_path}")
+              items[sample["text"]] = {
+                  "label": sample["label"],
+                  "src": output_path.as_posix(),
+              }
+
+          manifest = {
+              "version": 1,
+              "voice": "VOICEVOX Nemo 女声6",
+              "credit": "VOICEVOX Nemo",
+              "speaker_name": speaker.get("name"),
+              "style_name": style.get("name"),
+              "style_id": style_id,
+              "generated_at": datetime.now(timezone.utc).isoformat(),
+              "items": items,
+          }
+          (OUTPUT_DIR / "manifest.json").write_text(
+              json.dumps(manifest, ensure_ascii=False, indent=2) + "\n",
+              encoding="utf-8",
+          )
+          print(f"完成：使用 {speaker.get('name')} 生成 {len(items)} 个测试音频")
+          PY
+
+      - name: 检查生成结果
+        run: |
+          test -f audio/nemo-f6/manifest.json
+          test "$(find audio/nemo-f6 -name '*.mp3' | wc -l)" -eq 20
+          if find audio/nemo-f6 -name '*.mp3' -size -500c -print -quit | grep -q .; then
+            echo "发现异常的小型音频文件"
+            exit 1
+          fi
+
+      - name: 保存语音文件
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add audio/nemo-f6
+          if git diff --cached --quiet; then
+            echo "语音文件没有变化"
+          else
+            git commit -m "生成女声6测试语音 [skip ci]"
+            git push
+          fi
