@@ -1,0 +1,1827 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>动词变形练习 · 全功能版</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:sans-serif;background:#f5f2eb;display:flex;justify-content:center;padding:8px;min-height:100vh}
+    .container{max-width:400px;width:100%;background:#fff;border-radius:20px;padding:16px;box-shadow:0 10px 30px rgba(0,0,0,0.05)}
+    h2{font-size:1.2rem;color:#3d3929;margin-bottom:4px;text-align:center}
+    .global-bar-wrap{background:#f1ede4;height:6px;border-radius:6px;margin-bottom:4px;overflow:hidden}
+    .global-bar{height:100%;width:0;background:#a3b89b;border-radius:6px}
+    .bar-wrap{background:#f1ede4;height:6px;border-radius:6px;margin-bottom:8px;overflow:hidden}
+    .bar{height:100%;width:0;background:#c2a771;border-radius:6px}
+    .entry-title{display:flex;align-items:center;justify-content:space-between;font-size:.72rem;color:#7c705b;margin:9px 0 5px}
+    .entry-title span:last-child{font-size:.64rem;color:#ad9070}
+    .entry-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-bottom:7px}
+    .entry-card{display:block;min-width:0;min-height:74px;padding:9px 10px;border:2px solid #e7dfd2;border-radius:14px;background:#fff;text-align:left;color:#4b3f2f;cursor:pointer}
+    .entry-card.on{border-color:#c7a66c;background:linear-gradient(145deg,#fffaf0,#f3e6cf);box-shadow:0 5px 14px rgba(116,86,43,.09)}
+    .entry-card .entry-icon{display:block;font-size:1.05rem;line-height:1;margin-bottom:5px}
+    .entry-card strong{display:block;font-size:.78rem;line-height:1.2}
+    .entry-card small{display:block;margin-top:3px;font-size:.62rem;line-height:1.3;color:#8a7b68;font-weight:500}
+    .preset-note{background:#faf6ee;border-radius:10px;padding:7px 9px;margin-bottom:8px;font-size:.67rem;line-height:1.45;color:#806c50}
+    .mode-row{display:flex;gap:6px;margin-bottom:8px}
+    .mode-btn{flex:1;background:white;border:2px solid #e3dacb;padding:6px;border-radius:14px;font-size:0.75rem;font-weight:600;color:#4b3f2f;text-align:center;cursor:pointer}
+    .mode-btn.on{background:#ebddc6;border-color:#d2b88a}
+    .top-actions{display:flex;gap:6px;margin-bottom:8px}
+    .btn-small{flex:1;background:white;border:1px solid #e3dacb;padding:6px 10px;border-radius:12px;font-size:0.75rem;font-weight:600;color:#4b3f2f;cursor:pointer;text-align:center}
+    .collapsible{background:#faf8f3;border:1px solid #efe8da;border-radius:12px;padding:8px;margin-bottom:8px}
+    .chip-row{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:4px}
+    .chip{background:white;border:2px solid #e3dacb;padding:4px 10px;border-radius:14px;font-size:0.7rem;font-weight:600;color:#4b3f2f;cursor:pointer}
+    .chip.on{background:#ebddc6;border-color:#d2b88a}
+    .label{font-size:0.7rem;color:#7c705b;margin-bottom:2px}
+    .filter-summary{background:#f2eee6;border-radius:10px;padding:8px 9px;margin-top:7px;font-size:.68rem;line-height:1.45;color:#6f604d}
+    .pilot-note{font-size:.64rem;line-height:1.45;color:#9b7c56;margin:2px 0 8px;padding-left:2px}
+    .card{text-align:center;background:#fdfcfa;border:1px solid #ede7db;border-radius:16px;padding:20px 10px;margin-bottom:12px;position:relative}
+    .verb{font-size:2.5rem;font-weight:700;color:#2b2a24}
+    .kana{color:#9b8e7c;font-size:0.9rem;margin:4px 0}
+    .form-badge{display:inline-block;background:#e5ded0;color:#4e4334;padding:3px 16px;border-radius:20px;font-size:0.9rem;font-weight:600;margin:8px 0}
+    .question-tags{display:flex;flex-wrap:wrap;justify-content:center;gap:5px;min-height:21px;margin:7px 0 1px}
+    .meta-tag{display:inline-flex;align-items:center;padding:3px 8px;border-radius:999px;font-size:.62rem;line-height:1.2;font-weight:700;border:1px solid transparent}
+    .tag-level{background:#eee9df;color:#6f6250}
+    .tag-daily-high{background:#e2f2df;color:#416d3a}.tag-daily-normal{background:#edf4e9;color:#607a56}.tag-daily-low{background:#f0efed;color:#79746d}.tag-daily-pending{background:#f6f3ee;color:#a0988d}
+    .tag-exam-focus{background:#fff0d4;color:#96601d;border-color:#f1d39d}.tag-exam-common{background:#fff6e6;color:#9a733d}.tag-exam-supplement{background:#f7f1e6;color:#8d7d63}.tag-exam-pending{background:#f6f3ee;color:#a0988d}
+    .tag-form-core{background:#dfeee9;color:#397064}.tag-form-exam{background:#eee6f7;color:#6b4e87}.tag-form-rare{background:#f2eeee;color:#8b6969}
+    .speak-btn{position:absolute;top:8px;left:10px;display:flex;align-items:center;justify-content:center;flex:none;width:38px;height:38px;padding:0;border:1px solid #d5dfd0;border-radius:50%;background:#f1f7ee;color:#4e7047;font-size:1.08rem;line-height:1;cursor:pointer}
+    .speak-btn:hover{background:#e4f0df}.speak-btn.speaking{background:#d4e8cc;border-color:#9fbe94;transform:scale(1.04)}
+    .speak-btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+    .rule-btn{position:absolute;top:8px;right:10px;background:none;border:none;font-size:1.1rem;cursor:pointer;color:#b0a590;padding:2px 6px;border-radius:8px}
+    .rule-btn:hover{background:#f0ebe0}
+    .rule-box{background:#fdf9f0;border:1px solid #e8dfcc;border-radius:10px;padding:10px;margin-top:8px;text-align:left;font-size:0.7rem;color:#5f5340;line-height:1.5}
+    .rule-box strong{color:#8b6f4b;font-size:0.75rem}
+    .rule-box em{color:#b85c3a;font-style:normal;font-weight:600}
+    input{width:100%;font-size:1.2rem;padding:10px;border:2px solid #e3dacb;border-radius:14px;text-align:center;outline:none;margin:8px 0}
+    input.wrong{border-color:#e0887a;background:#fff8f7}
+    .msg{min-height:24px;font-weight:600;text-align:center;margin-bottom:4px}
+    .green{color:#4a7345}.red{color:#bc4a3c}
+    .btn-row{display:flex;gap:6px}
+    button{flex:1;background:#ebddc6;border:1px solid #d2b88a;padding:10px;border-radius:20px;font-weight:600;font-size:0.9rem;color:#3f3221;cursor:pointer}
+    button.next{background:#d4e8cc;border-color:#a3c497;color:#3a5532}
+    .info{background:#f0f7ed;border-radius:10px;padding:8px;font-size:0.8rem;margin-top:8px;color:#4a6b3a}
+    #meaning{background:#edf7e9;border:1px solid #cfe1c8;border-left:5px solid #79a56f;padding:12px 14px;text-align:left}
+    .meaning-label{display:block;font-size:.76rem;font-weight:700;color:#66805f;letter-spacing:.02em}
+    .meaning-answer{display:block;margin-top:4px;font-size:1.38rem;line-height:1.45;font-weight:800;color:#285227;word-break:break-word}
+    .meaning-origin{display:block;margin-top:5px;font-size:.78rem;line-height:1.45;color:#71806d}
+    .example{background:#f5f0e7;border-radius:10px;padding:8px;font-size:0.8rem;margin-top:4px;color:#7b6e5b}
+    .stats{display:flex;justify-content:space-between;font-size:0.7rem;background:#f9f6f0;padding:6px 12px;border-radius:14px;margin-top:8px}
+    .hidden{display:none !important}
+    .result-box{text-align:center;padding:20px;background:#fdfcfa;border-radius:16px;margin-bottom:12px}
+    .result-box h3{color:#4a7345;margin-bottom:8px}
+    .result-box p{font-size:0.9rem;color:#3d3929}
+    .modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;z-index:100}
+    .modal-box{background:white;border-radius:16px;padding:16px;max-width:340px;width:90%;max-height:70vh;overflow-y:auto}
+    .modal-box h3{font-size:0.9rem;margin-bottom:8px}
+    .err-item{display:flex;justify-content:space-between;align-items:center;background:#fdf5f5;padding:6px 10px;border-radius:10px;margin-bottom:4px;font-size:0.65rem;gap:6px}
+    .err-item button{padding:3px 8px;font-size:0.6rem;flex:0}
+    html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+    button,.chip,.mode-btn{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+
+    /* 手机：满屏显示，入口改为两列，避免四个按钮被挤扁 */
+    @media (max-width:599px){
+      body{display:block;padding:0;background:#fff}
+      .container{max-width:none;min-height:100vh;min-height:100dvh;border-radius:0;box-shadow:none;padding:max(14px,env(safe-area-inset-top)) max(14px,env(safe-area-inset-right)) max(14px,env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left))}
+      h2{font-size:1.25rem;margin-bottom:7px}
+      .entry-grid{gap:8px;margin-bottom:8px}.entry-card{min-height:82px;padding:11px}.entry-card strong{font-size:.82rem}.entry-card small{font-size:.66rem}
+      .mode-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:10px}
+      .mode-btn{min-height:43px;padding:9px 5px;border-radius:12px;font-size:.8rem}
+      .top-actions{gap:8px;margin-bottom:10px}.btn-small{min-height:43px;font-size:.8rem}
+      .collapsible{padding:10px;border-radius:14px;margin-bottom:10px}
+      .chip-row{gap:6px;margin-bottom:7px}.chip{display:inline-flex;align-items:center;min-height:36px;padding:7px 10px;font-size:.75rem}
+      .label{font-size:.75rem;margin-bottom:4px}
+      .preset-note,.filter-summary{font-size:.72rem;padding:9px 10px}.pilot-note{font-size:.68rem}.meta-tag{font-size:.67rem;padding:4px 9px}
+      .card{padding:22px 10px 18px;border-radius:16px;margin-bottom:10px}
+      .verb{font-size:clamp(2.25rem,12vw,3.15rem)}.kana{font-size:.82rem;line-height:1.5}.form-badge{font-size:.86rem;margin:7px 0}
+      input{min-height:52px;font-size:1.15rem;margin:10px 0}
+      .btn-row{gap:8px}.btn-row button,#retryBtn,#resetBtn{min-height:48px}
+      .stats{gap:5px;padding:8px 9px;font-size:.7rem;white-space:nowrap}
+      .rule-box{font-size:.75rem;line-height:1.65}.info,.example{font-size:.78rem;line-height:1.5}
+      #meaning{padding:13px 14px}.meaning-answer{font-size:1.48rem}.meaning-origin{font-size:.8rem}
+      .modal-box{width:94%;max-width:none;max-height:84vh;max-height:84dvh;border-radius:18px}
+      .err-item{font-size:.72rem;padding:9px}.err-item button{min-height:34px;font-size:.68rem}
+    }
+
+    /* 平板：利用更宽屏幕，放大文字和触控区域 */
+    @media (min-width:600px) and (max-width:1024px){
+      body{padding:20px;align-items:flex-start}
+      .container{max-width:760px;border-radius:26px;padding:24px;box-shadow:0 14px 42px rgba(0,0,0,.07)}
+      h2{font-size:1.45rem;margin-bottom:8px}
+      .entry-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:10px}.entry-card{min-height:94px;padding:13px}.entry-card .entry-icon{font-size:1.25rem}.entry-card strong{font-size:.9rem}.entry-card small{font-size:.7rem}
+      .mode-row,.top-actions{gap:10px;margin-bottom:12px}
+      .mode-btn,.btn-small{min-height:48px;padding:10px;font-size:.86rem}
+      .collapsible{padding:15px;border-radius:18px;margin-bottom:14px}
+      .chip-row{gap:8px;margin-bottom:9px}.chip{display:inline-flex;align-items:center;min-height:40px;padding:8px 13px;font-size:.8rem}
+      .label{font-size:.78rem;margin-bottom:5px}
+      .preset-note,.filter-summary{font-size:.78rem;padding:11px 13px}.pilot-note{font-size:.72rem}.meta-tag{font-size:.72rem;padding:5px 10px}
+      .card{padding:30px 16px;border-radius:22px;margin-bottom:16px}.verb{font-size:3.35rem}.kana{font-size:1rem}.form-badge{font-size:1rem;padding:5px 20px}
+      input{min-height:58px;font-size:1.35rem;margin:12px 0}.btn-row{gap:10px}.btn-row button{min-height:52px;font-size:1rem}
+      .rule-box{font-size:.82rem;padding:14px}.info,.example{font-size:.88rem;padding:11px}.stats{font-size:.8rem;padding:9px 16px}
+      #meaning{padding:16px 18px}.meaning-label{font-size:.86rem}.meaning-answer{font-size:1.7rem}.meaning-origin{font-size:.9rem}
+      .modal-box{max-width:620px;width:88%;max-height:78vh}.err-item{font-size:.76rem;padding:10px 13px}
+    }
+
+    /* 电脑与大屏平板不再被限制为狭窄的手机宽度 */
+    @media (min-width:1025px){
+      body{padding:26px}.container{max-width:760px;padding:26px}.entry-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.entry-card{min-height:96px;padding:14px}.entry-card strong{font-size:.92rem}.entry-card small{font-size:.72rem}.mode-btn,.btn-small{min-height:46px}.chip{min-height:38px;padding:7px 12px}.verb{font-size:3.4rem}
+    }
+
+    /* 手机横屏时压缩纵向空白，避免题目按钮落到屏幕外 */
+    @media (orientation:landscape) and (max-height:520px){
+      body{padding:8px}.container{max-width:780px;min-height:0;padding:12px 16px;border-radius:16px}
+      h2{font-size:1.05rem}.mode-row{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.mode-btn{min-height:36px;padding:5px}
+      .top-actions{margin-bottom:6px}.btn-small{min-height:36px;padding:5px}.card{padding:12px 10px;margin-bottom:5px}.verb{font-size:2.25rem}.kana{margin:2px 0}.form-badge{margin:3px 0}
+      input{min-height:42px;margin:5px 0}.btn-row button{min-height:40px;padding:6px}.stats{margin-top:5px}
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h2>📘 动词变形练习</h2>
+  
+  <div class="label" style="display:flex;justify-content:space-between">
+    <span>📊 全局掌握</span><span id="globalProgressText">0/0</span>
+  </div>
+  <div class="global-bar-wrap"><div class="global-bar" id="globalProgressBar"></div></div>
+  <div class="bar-wrap"><div class="bar" id="progressBar"></div></div>
+
+  <div class="entry-title"><span>选择练习入口</span><span>初稿测试版</span></div>
+  <div class="entry-grid" id="entryGrid">
+    <button type="button" class="entry-card on" data-entry="daily">
+      <span class="entry-icon">🌿</span><strong>日常核心</strong><small>常用词 × 常用变形</small>
+    </button>
+    <button type="button" class="entry-card" data-entry="jlpt">
+      <span class="entry-icon">🎯</span><strong>JLPT重点</strong><small>重点词 × 考试保留形</small>
+    </button>
+    <button type="button" class="entry-card" data-entry="forms">
+      <span class="entry-icon">🧩</span><strong>变形专项</strong><small>按等级与变形筛选</small>
+    </button>
+    <button type="button" class="entry-card" data-entry="mistakes">
+      <span class="entry-icon">🔥</span><strong>错题强化</strong><small>集中重练错误组合</small>
+    </button>
+  </div>
+  <div class="preset-note" id="presetNote">日常核心：先练已标记的常用词和常用变形。</div>
+  
+  <div class="label">练习方式</div>
+  <div class="mode-row">
+    <div class="mode-btn on" data-mode="new">新单词</div>
+    <div class="mode-btn" data-mode="review">复习</div>
+    <div class="mode-btn" data-mode="error">错题</div>
+    <div class="mode-btn" data-mode="classify">动词区分</div>
+  </div>
+
+  <div class="top-actions">
+    <button class="btn-small" id="settingsToggle">⚙️ 练习设置</button>
+    <button class="btn-small" id="errBookBtn">📋 错题本</button>
+  </div>
+
+  <div class="collapsible hidden" id="settingsPanel">
+    <div class="label">日常使用频率（可多选）</div>
+    <div class="chip-row" id="usageChips">
+      <span class="chip on" data-usage="high">常用</span>
+      <span class="chip on" data-usage="normal">一般</span>
+      <span class="chip" data-usage="low">不常用</span>
+      <span class="chip" data-usage="pending">待补充</span>
+    </div>
+    <div class="label">JLPT重要度（初稿，可多选）</div>
+    <div class="chip-row" id="examChips">
+      <span class="chip on" data-exam="focus">考试重点</span>
+      <span class="chip on" data-exam="common">考试常见</span>
+      <span class="chip on" data-exam="supplement">补充词</span>
+      <span class="chip on" data-exam="pending">待补充</span>
+    </div>
+    <div class="label">变形练习价值（可多选）</div>
+    <div class="chip-row" id="formStatusChips">
+      <span class="chip on" data-form-status="core">常用变形</span>
+      <span class="chip" data-form-status="exam">考试保留</span>
+      <span class="chip" data-form-status="rare">低频变形</span>
+    </div>
+    <div class="pilot-note" id="pilotNote">初稿只标记一部分代表词；未标记内容显示“待补充”。</div>
+    <div class="label">变形种类（可多选）</div>
+    <div class="chip-row" id="formChips">
+      <span class="chip on" data-form="masu">礼貌形（ます）</span>
+      <span class="chip on" data-form="te">て形（连接）</span>
+      <span class="chip on" data-form="ta">た形（过去）</span>
+      <span class="chip on" data-form="nai">ない形（否定）</span>
+      <span class="chip on" data-form="potential">可能</span>
+      <span class="chip on" data-form="volitional">意志</span>
+      <span class="chip on" data-form="passive">被动态</span>
+      <span class="chip on" data-form="causative">使役态</span>
+      <span class="chip on" data-form="ba">假定形（ば）</span>
+      <span class="chip on" data-form="imperative">命令</span>
+      <span class="chip on" data-form="causativePassive">使役被动态</span>
+      <span class="chip on" data-form="prohibition">禁止形（な）</span>
+    </div>
+    <div class="label">难度</div>
+    <div class="chip-row" id="levelChips">
+      <span class="chip on" data-level="N5">N5</span>
+      <span class="chip on" data-level="N4">N4</span>
+      <span class="chip on" data-level="N3">N3</span>
+      <span class="chip on" data-level="N2">N2</span>
+    </div>
+    <div class="label">活用分类（可多选）</div>
+    <div class="chip-row" id="typeChips">
+      <span class="chip on" data-type="I">一类动词</span>
+      <span class="chip on" data-type="II">二类动词</span>
+      <span class="chip on" data-type="III">三类动词</span>
+    </div>
+    <div class="label">自他分类（可多选）</div>
+    <div class="chip-row" id="transChips">
+      <span class="chip on" data-trans="vi">自动词</span>
+      <span class="chip on" data-trans="vt">他动词</span>
+    </div>
+    <div class="label">单词朗读</div>
+    <div class="chip-row" id="speechChips">
+      <span class="chip" id="autoSpeakChip" role="button" tabindex="0" aria-pressed="false">🔊 出题时自动朗读</span>
+    </div>
+    <div class="pilot-note">答题前朗读原形；答案出现后可朗读正确变形，不会提前泄题。</div>
+    <div class="label">每轮数量</div>
+    <div class="chip-row" id="numChips">
+      <span class="chip on" data-num="10">10</span>
+      <span class="chip" data-num="20">20</span>
+      <span class="chip" data-num="30">30</span>
+      <span class="chip" data-num="50">50</span>
+    </div>
+    <div class="filter-summary" id="filterSummary">正在计算当前范围…</div>
+  </div>
+
+  <div id="practiceArea">
+    <div class="card">
+      <button type="button" class="speak-btn" id="speakBtn" title="朗读当前单词" aria-label="朗读当前单词">🔊</button>
+      <button class="rule-btn" id="ruleBtn" title="变形规则">📖</button>
+      <div class="verb" id="verb"></div>
+      <div class="kana" id="kana"></div>
+      <div class="question-tags" id="verbTags"></div>
+      <div class="form-badge" id="form"></div>
+      <div class="rule-box hidden" id="ruleBox"></div>
+    </div>
+    <div class="collapsible hidden" id="classifyArea">
+      <div class="label">选择活用分类</div>
+      <div class="chip-row" id="classTypeAnswers">
+        <span class="chip" data-answer-type="I">一类动词</span>
+        <span class="chip" data-answer-type="II">二类动词</span>
+        <span class="chip" data-answer-type="III">三类动词</span>
+      </div>
+      <div class="label">选择自他分类</div>
+      <div class="chip-row" id="classTransAnswers">
+        <span class="chip" data-answer-trans="vi">自动词</span>
+        <span class="chip" data-answer-trans="vt">他动词</span>
+      </div>
+    </div>
+    <input type="text" id="answer" placeholder="">
+    <div class="msg" id="msg"></div>
+    <div class="btn-row">
+      <button id="submitBtn">决定</button>
+      <button id="nextBtn" class="next hidden">下一题</button>
+    </div>
+    <div id="resultInfo" class="hidden">
+      <div class="info" id="meaning"></div>
+      <div class="example" id="example"></div>
+    </div>
+    <div class="stats">
+      <span>✅ <span id="ok">0</span></span>
+      <span>❌ <span id="ng">0</span></span>
+      <span>首次正确率 <span id="rate">-</span>%</span>
+    </div>
+  </div>
+
+  <div id="resultArea" class="hidden">
+    <div class="result-box">
+      <h3>🎉 本轮完成</h3>
+      <p id="resultText"></p>
+    </div>
+    <button id="retryBtn" style="width:100%;margin-bottom:6px">同样条件再来一组</button>
+    <button id="resetBtn" style="width:100%;background:white;border:1px solid #ccc">返回设置</button>
+  </div>
+</div>
+
+<div class="modal hidden" id="errModal">
+  <div class="modal-box">
+    <h3>📋 错题本</h3>
+    <div id="errList"></div>
+    <button id="closeErrBtn" style="width:100%;margin-top:8px">关闭</button>
+    <button id="clearErrBtn" style="width:100%;background:#fae3e3;margin-top:4px">清空错题</button>
+  </div>
+</div>
+
+<script>
+// ========== 动词库（N5～N2 参考等级，持续补充） ==========
+var verbs = [
+  { kanji:'会う', kana:'あう', type:'I', level:'N5', meaning:'见面' },
+  { kanji:'開く', kana:'あく', type:'I', level:'N5', meaning:'开（自动）' },
+  { kanji:'開ける', kana:'あける', type:'II', level:'N5', meaning:'打开（他动）' },
+  { kanji:'上げる', kana:'あげる', type:'II', level:'N5', meaning:'举起、给' },
+  { kanji:'遊ぶ', kana:'あそぶ', type:'I', level:'N5', meaning:'玩' },
+  { kanji:'洗う', kana:'あらう', type:'I', level:'N5', meaning:'洗' },
+  { kanji:'ある', kana:'ある', type:'I', level:'N5', exceptions:{nai:'ない'}, meaning:'有、在（无生命）' },
+  { kanji:'歩く', kana:'あるく', type:'I', level:'N5', meaning:'走路' },
+  { kanji:'言う', kana:'いう', type:'I', level:'N5', meaning:'说' },
+  { kanji:'行く', kana:'いく', type:'I', level:'N5', exceptions:{te:'いって',ta:'いった'}, meaning:'去' },
+  { kanji:'いる', kana:'いる', type:'II', level:'N5', meaning:'在（有生命）' },
+  { kanji:'入れる', kana:'いれる', type:'II', level:'N5', meaning:'放入' },
+  { kanji:'歌う', kana:'うたう', type:'I', level:'N5', meaning:'唱歌' },
+  { kanji:'生まれる', kana:'うまれる', type:'II', level:'N5', meaning:'出生' },
+  { kanji:'売る', kana:'うる', type:'I', level:'N5', meaning:'卖' },
+  { kanji:'起きる', kana:'おきる', type:'II', level:'N5', meaning:'起床' },
+  { kanji:'置く', kana:'おく', type:'I', level:'N5', meaning:'放置' },
+  { kanji:'教える', kana:'おしえる', type:'II', level:'N5', meaning:'教' },
+  { kanji:'押す', kana:'おす', type:'I', level:'N5', meaning:'推、按' },
+  { kanji:'覚える', kana:'おぼえる', type:'II', level:'N5', meaning:'记住' },
+  { kanji:'思う', kana:'おもう', type:'I', level:'N5', meaning:'想、认为' },
+  { kanji:'買う', kana:'かう', type:'I', level:'N5', meaning:'买' },
+  { kanji:'返す', kana:'かえす', type:'I', level:'N5', meaning:'归还' },
+  { kanji:'帰る', kana:'かえる', type:'I', level:'N5', meaning:'回去' },
+  { kanji:'書く', kana:'かく', type:'I', level:'N5', meaning:'写' },
+  { kanji:'かける', kana:'かける', type:'II', level:'N5', meaning:'打（电话）' },
+  { kanji:'貸す', kana:'かす', type:'I', level:'N5', meaning:'借出' },
+  { kanji:'被る', kana:'かぶる', type:'I', level:'N5', meaning:'戴（帽子）' },
+  { kanji:'借りる', kana:'かりる', type:'II', level:'N5', meaning:'借入' },
+  { kanji:'消える', kana:'きえる', type:'II', level:'N5', meaning:'消失' },
+  { kanji:'聞く', kana:'きく', type:'I', level:'N5', meaning:'听、问' },
+  { kanji:'切る', kana:'きる', type:'I', level:'N5', meaning:'切、剪' },
+  { kanji:'着る', kana:'きる', type:'II', level:'N5', meaning:'穿（衣服）' },
+  { kanji:'来る', kana:'くる', type:'III', level:'N5', meaning:'来' },
+  { kanji:'消す', kana:'けす', type:'I', level:'N5', meaning:'关掉、删除' },
+  { kanji:'答える', kana:'こたえる', type:'II', level:'N5', meaning:'回答' },
+  { kanji:'困る', kana:'こまる', type:'I', level:'N5', meaning:'为难' },
+  { kanji:'咲く', kana:'さく', type:'I', level:'N5', meaning:'开花' },
+  { kanji:'差す', kana:'さす', type:'I', level:'N5', meaning:'撑（伞）' },
+  { kanji:'死ぬ', kana:'しぬ', type:'I', level:'N5', meaning:'死' },
+  { kanji:'閉まる', kana:'しまる', type:'I', level:'N5', meaning:'关闭（自动）' },
+  { kanji:'閉める', kana:'しめる', type:'II', level:'N5', meaning:'关闭（他动）' },
+  { kanji:'知る', kana:'しる', type:'I', level:'N5', meaning:'知道' },
+  { kanji:'吸う', kana:'すう', type:'I', level:'N5', meaning:'吸' },
+  { kanji:'住む', kana:'すむ', type:'I', level:'N5', meaning:'居住' },
+  { kanji:'する', kana:'する', type:'III', level:'N5', meaning:'做' },
+  { kanji:'座る', kana:'すわる', type:'I', level:'N5', meaning:'坐下' },
+  { kanji:'出す', kana:'だす', type:'I', level:'N5', meaning:'拿出、寄出' },
+  { kanji:'立つ', kana:'たつ', type:'I', level:'N5', meaning:'站立' },
+  { kanji:'頼む', kana:'たのむ', type:'I', level:'N5', meaning:'请求' },
+  { kanji:'食べる', kana:'たべる', type:'II', level:'N5', meaning:'吃' },
+  { kanji:'違う', kana:'ちがう', type:'I', level:'N5', meaning:'不同' },
+  { kanji:'使う', kana:'つかう', type:'I', level:'N5', meaning:'使用' },
+  { kanji:'作る', kana:'つくる', type:'I', level:'N5', meaning:'制作' },
+  { kanji:'付ける', kana:'つける', type:'II', level:'N5', meaning:'打开（灯）' },
+  { kanji:'勤める', kana:'つとめる', type:'II', level:'N5', meaning:'工作' },
+  { kanji:'出る', kana:'でる', type:'II', level:'N5', meaning:'出去' },
+  { kanji:'飛ぶ', kana:'とぶ', type:'I', level:'N5', meaning:'飞' },
+  { kanji:'止まる', kana:'とまる', type:'I', level:'N5', meaning:'停下' },
+  { kanji:'取る', kana:'とる', type:'I', level:'N5', meaning:'拿、取' },
+  { kanji:'撮る', kana:'とる', type:'I', level:'N5', meaning:'拍照' },
+  { kanji:'直す', kana:'なおす', type:'I', level:'N5', meaning:'修理' },
+  { kanji:'無くなる', kana:'なくなる', type:'I', level:'N5', meaning:'丢失、没有了（自动）' },
+  { kanji:'並ぶ', kana:'ならぶ', type:'I', level:'N5', meaning:'排队' },
+  { kanji:'並べる', kana:'ならべる', type:'II', level:'N5', meaning:'排列' },
+  { kanji:'なる', kana:'なる', type:'I', level:'N5', meaning:'变成' },
+  { kanji:'脱ぐ', kana:'ぬぐ', type:'I', level:'N5', meaning:'脱' },
+  { kanji:'寝る', kana:'ねる', type:'II', level:'N5', meaning:'睡觉' },
+  { kanji:'登る', kana:'のぼる', type:'I', level:'N5', meaning:'攀登' },
+  { kanji:'飲む', kana:'のむ', type:'I', level:'N5', meaning:'喝' },
+  { kanji:'入る', kana:'はいる', type:'I', level:'N5', meaning:'进入' },
+  { kanji:'履く', kana:'はく', type:'I', level:'N5', meaning:'穿（鞋/裤）' },
+  { kanji:'始まる', kana:'はじまる', type:'I', level:'N5', meaning:'开始（自动）' },
+  { kanji:'始める', kana:'はじめる', type:'II', level:'N5', meaning:'开始（他动）' },
+  { kanji:'走る', kana:'はしる', type:'I', level:'N5', meaning:'跑' },
+  { kanji:'働く', kana:'はたらく', type:'I', level:'N5', meaning:'工作' },
+  { kanji:'話す', kana:'はなす', type:'I', level:'N5', meaning:'说、讲' },
+  { kanji:'払う', kana:'はらう', type:'I', level:'N5', meaning:'支付' },
+  { kanji:'降る', kana:'ふる', type:'I', level:'N5', meaning:'下（雨/雪）' },
+  { kanji:'曲がる', kana:'まがる', type:'I', level:'N5', meaning:'转弯' },
+  { kanji:'待つ', kana:'まつ', type:'I', level:'N5', meaning:'等待' },
+  { kanji:'磨く', kana:'みがく', type:'I', level:'N5', meaning:'刷、擦' },
+  { kanji:'見せる', kana:'みせる', type:'II', level:'N5', meaning:'给…看' },
+  { kanji:'見る', kana:'みる', type:'II', level:'N5', meaning:'看' },
+  { kanji:'持つ', kana:'もつ', type:'I', level:'N5', meaning:'拿、持有' },
+  { kanji:'休む', kana:'やすむ', type:'I', level:'N5', meaning:'休息' },
+  { kanji:'呼ぶ', kana:'よぶ', type:'I', level:'N5', meaning:'叫、称呼' },
+  { kanji:'読む', kana:'よむ', type:'I', level:'N5', meaning:'读' },
+  { kanji:'分かる', kana:'わかる', type:'I', level:'N5', meaning:'明白' },
+  { kanji:'渡る', kana:'わたる', type:'I', level:'N5', meaning:'渡过' },
+  { kanji:'渡す', kana:'わたす', type:'I', level:'N5', meaning:'交给' },
+  // ===== N4 =====
+  { kanji:'合う', kana:'あう', type:'I', level:'N4', meaning:'合适、符合' },
+  { kanji:'上がる', kana:'あがる', type:'I', level:'N4', meaning:'上升' },
+  { kanji:'集まる', kana:'あつまる', type:'I', level:'N4', meaning:'聚集' },
+  { kanji:'集める', kana:'あつめる', type:'II', level:'N4', meaning:'收集' },
+  { kanji:'謝る', kana:'あやまる', type:'I', level:'N4', meaning:'道歉' },
+  { kanji:'安心する', kana:'あんしんする', type:'III', level:'N4', meaning:'放心' },
+  { kanji:'行う', kana:'おこなう', type:'I', level:'N4', meaning:'举行' },
+  { kanji:'怒る', kana:'おこる', type:'I', level:'N4', meaning:'生气' },
+  { kanji:'落ちる', kana:'おちる', type:'II', level:'N4', meaning:'掉落' },
+  { kanji:'思い出す', kana:'おもいだす', type:'I', level:'N4', meaning:'想起' },
+  { kanji:'片付ける', kana:'かたづける', type:'II', level:'N4', meaning:'整理' },
+  { kanji:'勝つ', kana:'かつ', type:'I', level:'N4', meaning:'赢' },
+  { kanji:'通う', kana:'かよう', type:'I', level:'N4', meaning:'来往（上学/上班）' },
+  { kanji:'決まる', kana:'きまる', type:'I', level:'N4', meaning:'决定（自动）' },
+  { kanji:'決める', kana:'きめる', type:'II', level:'N4', meaning:'决定（他动）' },
+  { kanji:'暮れる', kana:'くれる', type:'II', level:'N4', meaning:'天黑、岁末' },
+  { kanji:'くれる', kana:'くれる', type:'II', level:'N4', exceptions:{imperative:'くれ'}, meaning:'给（我）' },
+  { kanji:'下がる', kana:'さがる', type:'I', level:'N4', meaning:'下降' },
+  { kanji:'下げる', kana:'さげる', type:'II', level:'N4', meaning:'降低' },
+  { kanji:'差し上げる', kana:'さしあげる', type:'II', level:'N4', meaning:'奉上' },
+  { kanji:'騒ぐ', kana:'さわぐ', type:'I', level:'N4', meaning:'吵闹' },
+  { kanji:'触る', kana:'さわる', type:'I', level:'N4', meaning:'触摸' },
+  { kanji:'準備する', kana:'じゅんびする', type:'III', level:'N4', meaning:'准备' },
+  { kanji:'紹介する', kana:'しょうかいする', type:'III', level:'N4', meaning:'介绍' },
+  { kanji:'調べる', kana:'しらべる', type:'II', level:'N4', meaning:'调查' },
+  { kanji:'過ぎる', kana:'すぎる', type:'II', level:'N4', meaning:'经过' },
+  { kanji:'進む', kana:'すすむ', type:'I', level:'N4', meaning:'前进' },
+  { kanji:'捨てる', kana:'すてる', type:'II', level:'N4', meaning:'扔掉' },
+  { kanji:'滑る', kana:'すべる', type:'I', level:'N4', meaning:'滑' },
+  { kanji:'育てる', kana:'そだてる', type:'II', level:'N4', meaning:'养育' },
+  { kanji:'倒れる', kana:'たおれる', type:'II', level:'N4', meaning:'倒塌、跌倒' },
+  { kanji:'足す', kana:'たす', type:'I', level:'N4', meaning:'添加' },
+  { kanji:'建てる', kana:'たてる', type:'II', level:'N4', meaning:'建造' },
+  { kanji:'楽しむ', kana:'たのしむ', type:'I', level:'N4', meaning:'享受' },
+  { kanji:'足りる', kana:'たりる', type:'II', level:'N4', meaning:'足够' },
+  { kanji:'注意する', kana:'ちゅういする', type:'III', level:'N4', meaning:'注意' },
+  { kanji:'疲れる', kana:'つかれる', type:'II', level:'N4', meaning:'疲劳' },
+  { kanji:'伝える', kana:'つたえる', type:'II', level:'N4', meaning:'传达' },
+  { kanji:'続く', kana:'つづく', type:'I', level:'N4', meaning:'继续（自动）' },
+  { kanji:'続ける', kana:'つづける', type:'II', level:'N4', meaning:'继续（他动）' },
+  { kanji:'包む', kana:'つつむ', type:'I', level:'N4', meaning:'包、裹' },
+  { kanji:'釣る', kana:'つる', type:'I', level:'N4', meaning:'钓鱼' },
+  { kanji:'出かける', kana:'でかける', type:'II', level:'N4', meaning:'外出' },
+  { kanji:'出来る', kana:'できる', type:'II', level:'N4', meaning:'会、完成' },
+  { kanji:'手伝う', kana:'てつだう', type:'I', level:'N4', meaning:'帮忙' },
+  { kanji:'飛ばす', kana:'とばす', type:'I', level:'N4', meaning:'放飞' },
+  { kanji:'届ける', kana:'とどける', type:'II', level:'N4', meaning:'送到' },
+  { kanji:'泊まる', kana:'とまる', type:'I', level:'N4', meaning:'住宿' },
+  { kanji:'直る', kana:'なおる', type:'I', level:'N4', meaning:'修好' },
+  { kanji:'治る', kana:'なおる', type:'I', level:'N4', meaning:'痊愈' },
+  { kanji:'泣く', kana:'なく', type:'I', level:'N4', meaning:'哭' },
+  { kanji:'無くす', kana:'なくす', type:'I', level:'N4', meaning:'弄丢' },
+  { kanji:'慣れる', kana:'なれる', type:'II', level:'N4', meaning:'习惯' },
+  { kanji:'逃げる', kana:'にげる', type:'II', level:'N4', meaning:'逃跑' },
+  { kanji:'似る', kana:'にる', type:'II', level:'N4', meaning:'像' },
+  { kanji:'盗む', kana:'ぬすむ', type:'I', level:'N4', meaning:'偷' },
+  { kanji:'残る', kana:'のこる', type:'I', level:'N4', meaning:'留下' },
+  { kanji:'乗り換える', kana:'のりかえる', type:'II', level:'N4', meaning:'换乘' },
+  { kanji:'運ぶ', kana:'はこぶ', type:'I', level:'N4', meaning:'搬运' },
+  { kanji:'貼る', kana:'はる', type:'I', level:'N4', meaning:'贴' },
+  { kanji:'引く', kana:'ひく', type:'I', level:'N4', meaning:'拉、引' },
+  { kanji:'弾く', kana:'ひく', type:'I', level:'N4', meaning:'弹奏' },
+  { kanji:'冷やす', kana:'ひやす', type:'I', level:'N4', meaning:'冰镇' },
+  { kanji:'増える', kana:'ふえる', type:'II', level:'N4', meaning:'增加' },
+  { kanji:'復習する', kana:'ふくしゅうする', type:'III', level:'N4', meaning:'复习' },
+  { kanji:'踏む', kana:'ふむ', type:'I', level:'N4', meaning:'踩' },
+  { kanji:'減る', kana:'へる', type:'I', level:'N4', meaning:'减少' },
+  { kanji:'褒める', kana:'ほめる', type:'II', level:'N4', meaning:'表扬' },
+  { kanji:'負ける', kana:'まける', type:'II', level:'N4', meaning:'输' },
+  { kanji:'間違える', kana:'まちがえる', type:'II', level:'N4', meaning:'搞错' },
+  { kanji:'間に合う', kana:'まにあう', type:'I', level:'N4', meaning:'赶上' },
+  { kanji:'回る', kana:'まわる', type:'I', level:'N4', meaning:'转动' },
+  { kanji:'見つかる', kana:'みつかる', type:'I', level:'N4', meaning:'被找到' },
+  { kanji:'見つける', kana:'みつける', type:'II', level:'N4', meaning:'找到' },
+  { kanji:'迎える', kana:'むかえる', type:'II', level:'N4', meaning:'迎接' },
+  { kanji:'戻る', kana:'もどる', type:'I', level:'N4', meaning:'返回' },
+  { kanji:'約束する', kana:'やくそくする', type:'III', level:'N4', meaning:'约定' },
+  { kanji:'痩せる', kana:'やせる', type:'II', level:'N4', meaning:'瘦' },
+  { kanji:'止む', kana:'やむ', type:'I', level:'N4', meaning:'停止（雨/雪）' },
+  { kanji:'予習する', kana:'よしゅうする', type:'III', level:'N4', meaning:'预习' },
+  { kanji:'喜ぶ', kana:'よろこぶ', type:'I', level:'N4', meaning:'高兴' },
+  { kanji:'別れる', kana:'わかれる', type:'II', level:'N4', meaning:'分手' },
+  { kanji:'沸かす', kana:'わかす', type:'I', level:'N4', meaning:'烧开' },
+  { kanji:'笑う', kana:'わらう', type:'I', level:'N4', meaning:'笑' },
+  // ===== N3 (约120个) =====
+  { kanji:'飽きる', kana:'あきる', type:'II', level:'N3', meaning:'厌倦' },
+  { kanji:'諦める', kana:'あきらめる', type:'II', level:'N3', meaning:'放弃' },
+  { kanji:'預かる', kana:'あずかる', type:'I', level:'N3', meaning:'保管' },
+  { kanji:'温める', kana:'あたためる', type:'II', level:'N3', meaning:'加热' },
+  { kanji:'当たる', kana:'あたる', type:'I', level:'N3', meaning:'命中' },
+  { kanji:'表す', kana:'あらわす', type:'I', level:'N3', meaning:'表达' },
+  { kanji:'言い出す', kana:'いいだす', type:'I', level:'N3', meaning:'说出口' },
+  { kanji:'生きる', kana:'いきる', type:'II', level:'N3', meaning:'活' },
+  { kanji:'いらっしゃる', kana:'いらっしゃる', type:'I', level:'N3', exceptions:{masu:'いらっしゃいます',imperative:'いらっしゃい'}, meaning:'在/去/来（尊敬）' },
+  { kanji:'受ける', kana:'うける', type:'II', level:'N3', meaning:'接受' },
+  { kanji:'動かす', kana:'うごかす', type:'I', level:'N3', meaning:'移动（他动）' },
+  { kanji:'動く', kana:'うごく', type:'I', level:'N3', meaning:'移动（自动）' },
+  { kanji:'失う', kana:'うしなう', type:'I', level:'N3', meaning:'失去' },
+  { kanji:'写す', kana:'うつす', type:'I', level:'N3', meaning:'抄写、拍照' },
+  { kanji:'映る', kana:'うつる', type:'I', level:'N3', meaning:'映出' },
+  { kanji:'選ぶ', kana:'えらぶ', type:'I', level:'N3', meaning:'选择' },
+  { kanji:'おっしゃる', kana:'おっしゃる', type:'I', level:'N3', exceptions:{masu:'おっしゃいます',imperative:'おっしゃい'}, meaning:'说（尊敬）' },
+  { kanji:'落とす', kana:'おとす', type:'I', level:'N3', meaning:'弄掉' },
+  { kanji:'驚く', kana:'おどろく', type:'I', level:'N3', meaning:'吃惊' },
+  { kanji:'下りる', kana:'おりる', type:'II', level:'N3', meaning:'下（车/山）' },
+  { kanji:'折れる', kana:'おれる', type:'II', level:'N3', meaning:'折断' },
+  { kanji:'飼う', kana:'かう', type:'I', level:'N3', meaning:'饲养' },
+  { kanji:'返る', kana:'かえる', type:'I', level:'N3', meaning:'返回（自动）' },
+  { kanji:'隠れる', kana:'かくれる', type:'II', level:'N3', meaning:'隐藏' },
+  { kanji:'かまう', kana:'かまう', type:'I', level:'N3', meaning:'介意' },
+  { kanji:'考える', kana:'かんがえる', type:'II', level:'N3', meaning:'思考' },
+  { kanji:'聞こえる', kana:'きこえる', type:'II', level:'N3', meaning:'听得见' },
+  { kanji:'くださる', kana:'くださる', type:'I', level:'N3', exceptions:{masu:'くださいます',imperative:'ください'}, meaning:'给（我）（尊敬）' },
+  { kanji:'比べる', kana:'くらべる', type:'II', level:'N3', meaning:'比较' },
+  { kanji:'加える', kana:'くわえる', type:'II', level:'N3', meaning:'添加' },
+  { kanji:'経験する', kana:'けいけんする', type:'III', level:'N3', meaning:'体验' },
+  { kanji:'喧嘩する', kana:'けんかする', type:'III', level:'N3', meaning:'吵架' },
+  { kanji:'こぼれる', kana:'こぼれる', type:'II', level:'N3', meaning:'洒落' },
+  { kanji:'込む', kana:'こむ', type:'I', level:'N3', meaning:'拥挤' },
+  { kanji:'殺す', kana:'ころす', type:'I', level:'N3', meaning:'杀' },
+  { kanji:'探す', kana:'さがす', type:'I', level:'N3', meaning:'寻找' },
+  { kanji:'誘う', kana:'さそう', type:'I', level:'N3', meaning:'邀请' },
+  { kanji:'支払う', kana:'しはらう', type:'I', level:'N3', meaning:'支付' },
+  { kanji:'しまう', kana:'しまう', type:'I', level:'N3', meaning:'收拾、完了' },
+  { kanji:'知らせる', kana:'しらせる', type:'II', level:'N3', meaning:'通知' },
+  { kanji:'信じる', kana:'しんじる', type:'II', level:'N3', meaning:'相信' },
+  { kanji:'過ごす', kana:'すごす', type:'I', level:'N3', meaning:'度过' },
+  { kanji:'進める', kana:'すすめる', type:'II', level:'N3', meaning:'推进' },
+  { kanji:'すれ違う', kana:'すれちがう', type:'I', level:'N3', meaning:'擦肩而过' },
+  { kanji:'倒す', kana:'たおす', type:'I', level:'N3', meaning:'打倒' },
+  { kanji:'確かめる', kana:'たしかめる', type:'II', level:'N3', meaning:'确认' },
+  { kanji:'捕まえる', kana:'つかまえる', type:'II', level:'N3', meaning:'抓住' },
+  { kanji:'付き合う', kana:'つきあう', type:'I', level:'N3', meaning:'交往' },
+  { kanji:'伝わる', kana:'つたわる', type:'I', level:'N3', meaning:'传开' },
+  { kanji:'手に入れる', kana:'てにいれる', type:'II', level:'N3', meaning:'得到' },
+  { kanji:'通る', kana:'とおる', type:'I', level:'N3', meaning:'通过' },
+  { kanji:'届く', kana:'とどく', type:'I', level:'N3', meaning:'收到、送达' },
+  { kanji:'飛び込む', kana:'とびこむ', type:'I', level:'N3', meaning:'跳入' },
+  { kanji:'亡くなる', kana:'なくなる', type:'I', level:'N3', meaning:'去世' },
+  { kanji:'投げる', kana:'なげる', type:'II', level:'N3', meaning:'投掷' },
+  { kanji:'なさる', kana:'なさる', type:'I', level:'N3', exceptions:{masu:'なさいます',imperative:'なさい'}, meaning:'做（尊敬）' },
+  { kanji:'似合う', kana:'にあう', type:'I', level:'N3', meaning:'适合' },
+  { kanji:'残す', kana:'のこす', type:'I', level:'N3', meaning:'留下' },
+  { kanji:'外す', kana:'はずす', type:'I', level:'N3', meaning:'取下' },
+  { kanji:'増やす', kana:'ふやす', type:'I', level:'N3', meaning:'增加' },
+  { kanji:'減らす', kana:'へらす', type:'I', level:'N3', meaning:'减少' },
+  { kanji:'参る', kana:'まいる', type:'I', level:'N3', meaning:'去/来（谦让）' },
+  { kanji:'任せる', kana:'まかせる', type:'II', level:'N3', meaning:'委托' },
+  { kanji:'間違う', kana:'まちがう', type:'I', level:'N3', meaning:'弄错' },
+  { kanji:'招く', kana:'まねく', type:'I', level:'N3', meaning:'邀请、招致' },
+  { kanji:'守る', kana:'まもる', type:'I', level:'N3', meaning:'保护' },
+  { kanji:'見える', kana:'みえる', type:'II', level:'N3', meaning:'看得见' },
+  { kanji:'申し上げる', kana:'もうしあげる', type:'II', level:'N3', meaning:'说（谦让）' },
+  { kanji:'申す', kana:'もうす', type:'I', level:'N3', meaning:'说（谦让）' },
+  { kanji:'戻す', kana:'もどす', type:'I', level:'N3', meaning:'恢复、退回' },
+  { kanji:'役立つ', kana:'やくだつ', type:'I', level:'N3', meaning:'有用' },
+  { kanji:'破る', kana:'やぶる', type:'I', level:'N3', meaning:'弄破、打破' },
+  { kanji:'許す', kana:'ゆるす', type:'I', level:'N3', meaning:'原谅' },
+  { kanji:'分ける', kana:'わける', type:'II', level:'N3', meaning:'分开' },
+  { kanji:'沸く', kana:'わく', type:'I', level:'N3', meaning:'沸腾' },
+  // ===== N2 (约180个) =====
+  { kanji:'合図する', kana:'あいずする', type:'III', level:'N2', meaning:'发信号' },
+  { kanji:'憧れる', kana:'あこがれる', type:'II', level:'N2', meaning:'憧憬' },
+  { kanji:'与える', kana:'あたえる', type:'II', level:'N2', meaning:'给予' },
+  { kanji:'当てはまる', kana:'あてはまる', type:'I', level:'N2', meaning:'适用' },
+  { kanji:'暴れる', kana:'あばれる', type:'II', level:'N2', meaning:'胡闹' },
+  { kanji:'余る', kana:'あまる', type:'I', level:'N2', meaning:'剩余' },
+  { kanji:'改める', kana:'あらためる', type:'II', level:'N2', meaning:'改正' },
+  { kanji:'育児する', kana:'いくじする', type:'III', level:'N2', meaning:'育儿' },
+  { kanji:'維持する', kana:'いじする', type:'III', level:'N2', meaning:'维持' },
+  { kanji:'意識する', kana:'いしきする', type:'III', level:'N2', meaning:'意识到' },
+  { kanji:'移住する', kana:'いじゅうする', type:'III', level:'N2', meaning:'移居' },
+  { kanji:'引退する', kana:'いんたいする', type:'III', level:'N2', meaning:'退休' },
+  { kanji:'受け入れる', kana:'うけいれる', type:'II', level:'N2', meaning:'接纳' },
+  { kanji:'受け取る', kana:'うけとる', type:'I', level:'N2', meaning:'接收' },
+  { kanji:'疑う', kana:'うたがう', type:'I', level:'N2', meaning:'怀疑' },
+  { kanji:'打つ', kana:'うつ', type:'I', level:'N2', meaning:'打' },
+  { kanji:'促す', kana:'うながす', type:'I', level:'N2', meaning:'催促' },
+  { kanji:'生み出す', kana:'うみだす', type:'I', level:'N2', meaning:'产生' },
+  { kanji:'得る', kana:'える', type:'II', level:'N2', meaning:'获得' },
+  { kanji:'演じる', kana:'えんじる', type:'II', level:'N2', meaning:'扮演' },
+  { kanji:'追う', kana:'おう', type:'I', level:'N2', meaning:'追赶' },
+  { kanji:'扱う', kana:'あつかう', type:'I', level:'N2', meaning:'处理' },
+  { kanji:'補う', kana:'おぎなう', type:'I', level:'N2', meaning:'补充' },
+  { kanji:'収める', kana:'おさめる', type:'II', level:'N2', meaning:'收下' },
+  { kanji:'治める', kana:'おさめる', type:'II', level:'N2', meaning:'治理' },
+  { kanji:'恐れる', kana:'おそれる', type:'II', level:'N2', meaning:'害怕' },
+  { kanji:'教わる', kana:'おそわる', type:'I', level:'N2', meaning:'受教' },
+  { kanji:'落ち着く', kana:'おちつく', type:'I', level:'N2', meaning:'沉着' },
+  { kanji:'驚かす', kana:'おどろかす', type:'I', level:'N2', meaning:'惊吓' },
+  { kanji:'帯びる', kana:'おびる', type:'II', level:'N2', meaning:'带有' },
+  { kanji:'思い込む', kana:'おもいこむ', type:'I', level:'N2', meaning:'深信' },
+  { kanji:'及ぶ', kana:'およぶ', type:'I', level:'N2', meaning:'达到' },
+  { kanji:'下ろす', kana:'おろす', type:'I', level:'N2', meaning:'取下' },
+  { kanji:'解決する', kana:'かいけつする', type:'III', level:'N2', meaning:'解决' },
+  { kanji:'開発する', kana:'かいはつする', type:'III', level:'N2', meaning:'开发' },
+  { kanji:'省く', kana:'はぶく', type:'I', level:'N2', meaning:'省略、节省' },
+  { kanji:'省みる', kana:'かえりみる', type:'II', level:'N2', meaning:'反省、回顾' },
+  { kanji:'隠す', kana:'かくす', type:'I', level:'N2', meaning:'隐藏' },
+  { kanji:'囲む', kana:'かこむ', type:'I', level:'N2', meaning:'包围' },
+  { kanji:'重なる', kana:'かさなる', type:'I', level:'N2', meaning:'重叠' },
+  { kanji:'飾る', kana:'かざる', type:'I', level:'N2', meaning:'装饰' },
+  { kanji:'数える', kana:'かぞえる', type:'II', level:'N2', meaning:'数' },
+  { kanji:'固まる', kana:'かたまる', type:'I', level:'N2', meaning:'凝固' },
+  { kanji:'語る', kana:'かたる', type:'I', level:'N2', meaning:'讲述' },
+  { kanji:'悲しむ', kana:'かなしむ', type:'I', level:'N2', meaning:'悲伤' },
+  { kanji:'我慢する', kana:'がまんする', type:'III', level:'N2', meaning:'忍耐' },
+  { kanji:'かむ', kana:'かむ', type:'I', level:'N2', meaning:'咬' },
+  { kanji:'渇く', kana:'かわく', type:'I', level:'N2', meaning:'口渴' },
+  { kanji:'乾く', kana:'かわく', type:'I', level:'N2', meaning:'干燥' },
+  { kanji:'聞き取る', kana:'ききとる', type:'I', level:'N2', meaning:'听懂' },
+  { kanji:'刻む', kana:'きざむ', type:'I', level:'N2', meaning:'刻、切碎' },
+  { kanji:'築く', kana:'きずく', type:'I', level:'N2', meaning:'构筑' },
+  { kanji:'気付く', kana:'きづく', type:'I', level:'N2', meaning:'注意到' },
+  { kanji:'禁止する', kana:'きんしする', type:'III', level:'N2', meaning:'禁止' },
+  { kanji:'腐る', kana:'くさる', type:'I', level:'N2', meaning:'腐烂' },
+  { kanji:'くっつく', kana:'くっつく', type:'I', level:'N2', meaning:'粘住' },
+  { kanji:'工夫する', kana:'くふうする', type:'III', level:'N2', meaning:'下功夫' },
+  { kanji:'組み立てる', kana:'くみたてる', type:'II', level:'N2', meaning:'组装' },
+  { kanji:'暮らす', kana:'くらす', type:'I', level:'N2', meaning:'生活' },
+  { kanji:'繰り返す', kana:'くりかえす', type:'I', level:'N2', meaning:'重复' },
+  { kanji:'経営する', kana:'けいえいする', type:'III', level:'N2', meaning:'经营' },
+  { kanji:'削る', kana:'けずる', type:'I', level:'N2', meaning:'削、削减' },
+  { kanji:'異なる', kana:'ことなる', type:'I', level:'N2', meaning:'不同' },
+  { kanji:'好む', kana:'このむ', type:'I', level:'N2', meaning:'喜好' },
+  { kanji:'こぼす', kana:'こぼす', type:'I', level:'N2', meaning:'弄洒' },
+  { kanji:'壊す', kana:'こわす', type:'I', level:'N2', meaning:'弄坏' },
+  { kanji:'壊れる', kana:'こわれる', type:'II', level:'N2', meaning:'坏掉' },
+  { kanji:'逆らう', kana:'さからう', type:'I', level:'N2', meaning:'违背' },
+  { kanji:'支える', kana:'ささえる', type:'II', level:'N2', meaning:'支撑' },
+  { kanji:'指す', kana:'さす', type:'I', level:'N2', meaning:'指' },
+  { kanji:'去る', kana:'さる', type:'I', level:'N2', meaning:'离开' },
+  { kanji:'賛成する', kana:'さんせいする', type:'III', level:'N2', meaning:'赞成' },
+  { kanji:'しがみつく', kana:'しがみつく', type:'I', level:'N2', meaning:'紧紧抱住' },
+  { kanji:'しかる', kana:'しかる', type:'I', level:'N2', meaning:'责备' },
+  { kanji:'沈む', kana:'しずむ', type:'I', level:'N2', meaning:'沉没' },
+  { kanji:'従う', kana:'したがう', type:'I', level:'N2', meaning:'遵从' },
+  { kanji:'親しむ', kana:'したしむ', type:'I', level:'N2', meaning:'亲近' },
+  { kanji:'しつける', kana:'しつける', type:'II', level:'N2', meaning:'管教' },
+  { kanji:'しゃがむ', kana:'しゃがむ', type:'I', level:'N2', meaning:'蹲下' },
+  { kanji:'主張する', kana:'しゅちょうする', type:'III', level:'N2', meaning:'主张' },
+  { kanji:'所属する', kana:'しょぞくする', type:'III', level:'N2', meaning:'所属' },
+  { kanji:'制限する', kana:'せいげんする', type:'III', level:'N2', meaning:'限制' },
+  { kanji:'成功する', kana:'せいこうする', type:'III', level:'N2', meaning:'成功' },
+  { kanji:'製造する', kana:'せいぞうする', type:'III', level:'N2', meaning:'制造' },
+  { kanji:'攻める', kana:'せめる', type:'II', level:'N2', meaning:'攻击' },
+  { kanji:'注ぐ', kana:'そそぐ', type:'I', level:'N2', meaning:'注入' },
+  { kanji:'存在する', kana:'そんざいする', type:'III', level:'N2', meaning:'存在' },
+  { kanji:'対する', kana:'たいする', type:'III', level:'N2', meaning:'面对' },
+  { kanji:'戦う', kana:'たたかう', type:'I', level:'N2', meaning:'战斗' },
+  { kanji:'抱く', kana:'だく', type:'I', level:'N2', meaning:'抱' },
+  { kanji:'訪ねる', kana:'たずねる', type:'II', level:'N2', meaning:'访问' },
+  { kanji:'尋ねる', kana:'たずねる', type:'II', level:'N2', meaning:'询问' },
+  { kanji:'畳む', kana:'たたむ', type:'I', level:'N2', meaning:'折叠' },
+  { kanji:'立ち上がる', kana:'たちあがる', type:'I', level:'N2', meaning:'站起来' },
+  { kanji:'経つ', kana:'たつ', type:'I', level:'N2', meaning:'经过（时间）' },
+  { kanji:'達成する', kana:'たっせいする', type:'III', level:'N2', meaning:'达成' },
+  { kanji:'たまる', kana:'たまる', type:'I', level:'N2', meaning:'积攒' },
+  { kanji:'試す', kana:'ためす', type:'I', level:'N2', meaning:'尝试' },
+  { kanji:'頼る', kana:'たよる', type:'I', level:'N2', meaning:'依靠' },
+  { kanji:'散らかす', kana:'ちらかす', type:'I', level:'N2', meaning:'弄乱' },
+  { kanji:'努める', kana:'つとめる', type:'II', level:'N2', meaning:'努力' },
+  { kanji:'つながる', kana:'つながる', type:'I', level:'N2', meaning:'连接' },
+  { kanji:'つぶやく', kana:'つぶやく', type:'I', level:'N2', meaning:'嘟囔' },
+  { kanji:'提案する', kana:'ていあんする', type:'III', level:'N2', meaning:'提议' },
+  { kanji:'出会う', kana:'であう', type:'I', level:'N2', meaning:'偶遇' },
+  { kanji:'出来上がる', kana:'できあがる', type:'I', level:'N2', meaning:'完成' },
+  { kanji:'問う', kana:'とう', type:'I', level:'N2', exceptions:{te:'とうて',ta:'とうた'}, meaning:'问' },
+  { kanji:'解く', kana:'とく', type:'I', level:'N2', meaning:'解开' },
+  { kanji:'遂げる', kana:'とげる', type:'II', level:'N2', meaning:'完成' },
+  { kanji:'取り消す', kana:'とりけす', type:'I', level:'N2', meaning:'取消' },
+  { kanji:'取り出す', kana:'とりだす', type:'I', level:'N2', meaning:'取出' },
+  { kanji:'治す', kana:'なおす', type:'I', level:'N2', meaning:'治疗' },
+  { kanji:'流す', kana:'ながす', type:'I', level:'N2', meaning:'冲走' },
+  { kanji:'なぐる', kana:'なぐる', type:'I', level:'N2', meaning:'殴打' },
+  { kanji:'なめる', kana:'なめる', type:'II', level:'N2', meaning:'舔、尝' },
+  { kanji:'悩む', kana:'なやむ', type:'I', level:'N2', meaning:'烦恼' },
+  { kanji:'匂う', kana:'におう', type:'I', level:'N2', meaning:'有味道' },
+  { kanji:'逃がす', kana:'にがす', type:'I', level:'N2', meaning:'放跑' },
+  { kanji:'憎む', kana:'にくむ', type:'I', level:'N2', meaning:'憎恨' },
+  { kanji:'濁る', kana:'にごる', type:'I', level:'N2', meaning:'浑浊' },
+  { kanji:'睨む', kana:'にらむ', type:'I', level:'N2', meaning:'瞪' },
+  { kanji:'抜く', kana:'ぬく', type:'I', level:'N2', meaning:'拔出' },
+  { kanji:'願う', kana:'ねがう', type:'I', level:'N2', meaning:'恳求' },
+  { kanji:'眠る', kana:'ねむる', type:'I', level:'N2', meaning:'睡着' },
+  { kanji:'乗り越える', kana:'のりこえる', type:'II', level:'N2', meaning:'越过' },
+  { kanji:'励ます', kana:'はげます', type:'I', level:'N2', meaning:'鼓励' },
+  { kanji:'挟む', kana:'はさむ', type:'I', level:'N2', meaning:'夹' },
+  { kanji:'外れる', kana:'はずれる', type:'II', level:'N2', meaning:'脱离' },
+  { kanji:'放す', kana:'はなす', type:'I', level:'N2', meaning:'放开' },
+  { kanji:'離れる', kana:'はなれる', type:'II', level:'N2', meaning:'分离' },
+  { kanji:'控える', kana:'ひかえる', type:'II', level:'N2', meaning:'抑制、暂缓' },
+  { kanji:'引き出す', kana:'ひきだす', type:'I', level:'N2', meaning:'抽出' },
+  { kanji:'ひっくり返す', kana:'ひっくりかえす', type:'I', level:'N2', meaning:'翻转' },
+  { kanji:'振る', kana:'ふる', type:'I', level:'N2', meaning:'挥动' },
+  { kanji:'隔てる', kana:'へだてる', type:'II', level:'N2', meaning:'隔开' },
+  { kanji:'保つ', kana:'たもつ', type:'I', level:'N2', meaning:'保持' },
+  { kanji:'まぶす', kana:'まぶす', type:'I', level:'N2', meaning:'裹上' },
+  { kanji:'見上げる', kana:'みあげる', type:'II', level:'N2', meaning:'仰望' },
+  { kanji:'見送る', kana:'みおくる', type:'I', level:'N2', meaning:'送别' },
+  { kanji:'満たす', kana:'みたす', type:'I', level:'N2', meaning:'满足' },
+  { kanji:'結ぶ', kana:'むすぶ', type:'I', level:'N2', meaning:'连接' },
+  { kanji:'無視する', kana:'むしする', type:'III', level:'N2', meaning:'无视' },
+  { kanji:'召し上がる', kana:'めしあがる', type:'I', level:'N2', meaning:'吃/喝（尊敬）' },
+  { kanji:'持てる', kana:'もてる', type:'II', level:'N2', meaning:'受欢迎' },
+  { kanji:'もらう', kana:'もらう', type:'I', level:'N2', meaning:'得到' },
+  { kanji:'焼く', kana:'やく', type:'I', level:'N2', meaning:'烧、烤' },
+  { kanji:'雇う', kana:'やとう', type:'I', level:'N2', meaning:'雇用' },
+  { kanji:'輸出する', kana:'ゆしゅつする', type:'III', level:'N2', meaning:'出口' },
+  { kanji:'汚れる', kana:'よごれる', type:'II', level:'N2', meaning:'变脏（自动）' },
+  { kanji:'寄る', kana:'よる', type:'I', level:'N2', meaning:'靠近' },
+  { kanji:'分かつ', kana:'わかつ', type:'I', level:'N2', meaning:'区分' },
+  { kanji:'割る', kana:'わる', type:'I', level:'N2', meaning:'弄碎' },
+  { kanji:'割れる', kana:'われる', type:'II', level:'N2', meaning:'破碎' },
+
+  // 第二批：补足基础常用动词与N2重点动词（均带初稿标签）
+  { kanji:'浴びる', kana:'あびる', type:'II', level:'N5', meaning:'洗澡、淋浴', daily:'high', exam:'common', trans:'vt' },
+  { kanji:'泳ぐ', kana:'およぐ', type:'I', level:'N5', meaning:'游泳', daily:'normal', exam:'supplement', trans:'vi' },
+  { kanji:'急ぐ', kana:'いそぐ', type:'I', level:'N5', meaning:'赶紧、赶路', daily:'high', exam:'common', trans:'both' },
+  { kanji:'終わる', kana:'おわる', type:'I', level:'N5', meaning:'结束', daily:'high', exam:'common', trans:'vi' },
+  { kanji:'乗る', kana:'のる', type:'I', level:'N5', meaning:'乘坐', daily:'high', exam:'common', trans:'vi' },
+  { kanji:'降りる', kana:'おりる', type:'II', level:'N5', meaning:'下车、下来', daily:'high', exam:'common', trans:'vi' },
+  { kanji:'着く', kana:'つく', type:'I', level:'N5', meaning:'到达', daily:'high', exam:'common', trans:'vi' },
+  { kanji:'忘れる', kana:'わすれる', type:'II', level:'N5', meaning:'忘记', daily:'high', exam:'common', trans:'vt' },
+  { kanji:'送る', kana:'おくる', type:'I', level:'N5', meaning:'发送、送行', daily:'high', exam:'common', trans:'vt' },
+  { kanji:'習う', kana:'ならう', type:'I', level:'N5', meaning:'学习', daily:'high', exam:'common', trans:'vt' },
+  { kanji:'勉強する', kana:'べんきょうする', type:'III', level:'N5', meaning:'学习', daily:'high', exam:'common', trans:'both' },
+  { kanji:'掃除する', kana:'そうじする', type:'III', level:'N5', meaning:'打扫', daily:'high', exam:'supplement', trans:'both' },
+  { kanji:'洗濯する', kana:'せんたくする', type:'III', level:'N5', meaning:'洗衣服', daily:'high', exam:'supplement', trans:'both' },
+  { kanji:'料理する', kana:'りょうりする', type:'III', level:'N5', meaning:'做饭', daily:'high', exam:'supplement', trans:'both' },
+  { kanji:'散歩する', kana:'さんぽする', type:'III', level:'N5', meaning:'散步', daily:'normal', exam:'supplement', trans:'vi' },
+  { kanji:'乗せる', kana:'のせる', type:'II', level:'N4', meaning:'让…乘坐、装载', daily:'normal', exam:'common', trans:'vt' },
+  { kanji:'止める', kana:'とめる', type:'II', level:'N4', meaning:'使停止、停放', daily:'high', exam:'common', trans:'vt' },
+  { kanji:'変わる', kana:'かわる', type:'I', level:'N4', meaning:'改变', daily:'high', exam:'common', trans:'vi' },
+  { kanji:'変える', kana:'かえる', type:'II', level:'N4', meaning:'改变', daily:'high', exam:'common', trans:'vt' },
+  { kanji:'起こす', kana:'おこす', type:'I', level:'N4', meaning:'叫醒、引起', daily:'high', exam:'common', trans:'vt' },
+  { kanji:'育つ', kana:'そだつ', type:'I', level:'N4', meaning:'成长', daily:'normal', exam:'common', trans:'vi' },
+  { kanji:'植える', kana:'うえる', type:'II', level:'N4', meaning:'种植', daily:'normal', exam:'supplement', trans:'vt' },
+  { kanji:'遅れる', kana:'おくれる', type:'II', level:'N4', meaning:'迟到、晚到', daily:'high', exam:'common', trans:'vi' },
+  { kanji:'着替える', kana:'きがえる', type:'II', level:'N4', meaning:'换衣服', daily:'normal', exam:'supplement', trans:'both' },
+  { kanji:'終える', kana:'おえる', type:'II', level:'N3', meaning:'结束、完成', daily:'normal', exam:'common', trans:'vt' },
+  { kanji:'付く', kana:'つく', type:'I', level:'N4', meaning:'附着、带有', daily:'normal', exam:'common', trans:'vi', nonVolitional:true },
+  { kanji:'切れる', kana:'きれる', type:'II', level:'N4', meaning:'断、被切断', daily:'high', exam:'common', trans:'vi', nonVolitional:true },
+  { kanji:'折る', kana:'おる', type:'I', level:'N4', meaning:'折断、折叠', daily:'normal', exam:'supplement', trans:'vt' },
+  { kanji:'汚す', kana:'よごす', type:'I', level:'N4', meaning:'弄脏', daily:'normal', exam:'common', trans:'vt' },
+  { kanji:'曲げる', kana:'まげる', type:'II', level:'N4', meaning:'弄弯、弯曲', daily:'normal', exam:'supplement', trans:'vt' },
+  { kanji:'冷える', kana:'ひえる', type:'II', level:'N4', meaning:'变凉', daily:'high', exam:'common', trans:'vi', nonVolitional:true },
+  { kanji:'温まる', kana:'あたたまる', type:'I', level:'N4', meaning:'变暖', daily:'normal', exam:'common', trans:'vi', nonVolitional:true },
+  { kanji:'乾かす', kana:'かわかす', type:'I', level:'N4', meaning:'弄干、晾干', daily:'normal', exam:'supplement', trans:'vt' },
+  { kanji:'焼ける', kana:'やける', type:'II', level:'N4', meaning:'烧好、烤好', daily:'normal', exam:'common', trans:'vi', nonVolitional:true },
+  { kanji:'生む', kana:'うむ', type:'I', level:'N3', meaning:'生、产生', daily:'normal', exam:'common', trans:'vt' },
+  { kanji:'参加する', kana:'さんかする', type:'III', level:'N4', meaning:'参加', daily:'high', exam:'common', trans:'vi' },
+  { kanji:'出発する', kana:'しゅっぱつする', type:'III', level:'N4', meaning:'出发', daily:'high', exam:'common', trans:'vi' },
+  { kanji:'到着する', kana:'とうちゃくする', type:'III', level:'N4', meaning:'到达', daily:'high', exam:'common', trans:'vi' },
+  { kanji:'予約する', kana:'よやくする', type:'III', level:'N4', meaning:'预约', daily:'high', exam:'common', trans:'vt' },
+  { kanji:'注文する', kana:'ちゅうもんする', type:'III', level:'N4', meaning:'点餐、订购', daily:'high', exam:'common', trans:'vt' },
+  { kanji:'案内する', kana:'あんないする', type:'III', level:'N4', meaning:'引导、介绍', daily:'high', exam:'common', trans:'vt' },
+  { kanji:'利用する', kana:'りようする', type:'III', level:'N3', meaning:'利用、使用', daily:'high', exam:'common', trans:'vt' },
+  { kanji:'連絡する', kana:'れんらくする', type:'III', level:'N4', meaning:'联系', daily:'high', exam:'common', trans:'both' },
+  { kanji:'確認する', kana:'かくにんする', type:'III', level:'N3', meaning:'确认', daily:'high', exam:'common', trans:'vt' },
+  { kanji:'相談する', kana:'そうだんする', type:'III', level:'N4', meaning:'商量、咨询', daily:'high', exam:'common', trans:'both' },
+  { kanji:'申し込む', kana:'もうしこむ', type:'I', level:'N3', meaning:'申请、报名', daily:'high', exam:'common', trans:'vt' },
+  { kanji:'断る', kana:'ことわる', type:'I', level:'N3', meaning:'拒绝、谢绝', daily:'high', exam:'common', trans:'vt' },
+  { kanji:'感じる', kana:'かんじる', type:'II', level:'N3', meaning:'感觉、感到', daily:'high', exam:'common', trans:'vt' },
+  { kanji:'向かう', kana:'むかう', type:'I', level:'N3', meaning:'面向、前往', daily:'high', exam:'common', trans:'vi' },
+  { kanji:'向ける', kana:'むける', type:'II', level:'N3', meaning:'朝向、面向', daily:'normal', exam:'common', trans:'vt' },
+
+  { kanji:'通じる', kana:'つうじる', type:'II', level:'N2', meaning:'相通、通晓', daily:'normal', exam:'focus', trans:'vi', nonVolitional:true },
+  { kanji:'通す', kana:'とおす', type:'I', level:'N2', meaning:'使通过、贯彻', daily:'normal', exam:'focus', trans:'vt' },
+  { kanji:'求める', kana:'もとめる', type:'II', level:'N2', meaning:'寻求、要求', daily:'normal', exam:'focus', trans:'vt' },
+  { kanji:'認める', kana:'みとめる', type:'II', level:'N2', meaning:'承认、认可', daily:'normal', exam:'focus', trans:'vt' },
+  { kanji:'目指す', kana:'めざす', type:'I', level:'N2', meaning:'以…为目标', daily:'normal', exam:'focus', trans:'vt' },
+  { kanji:'述べる', kana:'のべる', type:'II', level:'N2', meaning:'陈述、叙述', daily:'normal', exam:'focus', trans:'vt' },
+  { kanji:'防ぐ', kana:'ふせぐ', type:'I', level:'N2', meaning:'防止、防御', daily:'normal', exam:'focus', trans:'vt' },
+  { kanji:'避ける', kana:'さける', type:'II', level:'N2', meaning:'避开、避免', daily:'high', exam:'focus', trans:'vt' },
+  { kanji:'生じる', kana:'しょうじる', type:'II', level:'N2', meaning:'产生、发生', daily:'normal', exam:'focus', trans:'both', nonVolitional:true },
+  { kanji:'占める', kana:'しめる', type:'II', level:'N2', meaning:'占据、占有', daily:'normal', exam:'focus', trans:'vt' },
+  { kanji:'設ける', kana:'もうける', type:'II', level:'N2', meaning:'设置、设立', daily:'normal', exam:'focus', trans:'vt' },
+  { kanji:'備える', kana:'そなえる', type:'II', level:'N2', meaning:'准备、配备', daily:'normal', exam:'focus', trans:'vt' },
+  { kanji:'伴う', kana:'ともなう', type:'I', level:'N2', meaning:'伴随、带有', daily:'normal', exam:'focus', trans:'both' },
+  { kanji:'果たす', kana:'はたす', type:'I', level:'N2', meaning:'完成、履行', daily:'normal', exam:'focus', trans:'vt' },
+  { kanji:'図る', kana:'はかる', type:'I', level:'N2', meaning:'谋求、设法', daily:'low', exam:'focus', trans:'vt' },
+  { kanji:'優れる', kana:'すぐれる', type:'II', level:'N2', meaning:'优秀、出色', daily:'normal', exam:'focus', trans:'vi', nonVolitional:true },
+  { kanji:'迫る', kana:'せまる', type:'I', level:'N2', meaning:'逼近、迫近', daily:'normal', exam:'focus', trans:'vi' },
+  { kanji:'欠ける', kana:'かける', type:'II', level:'N2', meaning:'缺少、欠缺', daily:'normal', exam:'focus', trans:'vi', nonVolitional:true },
+  { kanji:'欠かす', kana:'かかす', type:'I', level:'N2', meaning:'缺少、中断', daily:'low', exam:'focus', trans:'vt' },
+  { kanji:'取り組む', kana:'とりくむ', type:'I', level:'N2', meaning:'致力于、着手', daily:'normal', exam:'focus', trans:'vi' },
+  { kanji:'取り入れる', kana:'とりいれる', type:'II', level:'N2', meaning:'采用、引进', daily:'normal', exam:'focus', trans:'vt' },
+  { kanji:'取り上げる', kana:'とりあげる', type:'II', level:'N2', meaning:'拿起、采用、提出', daily:'normal', exam:'focus', trans:'vt' },
+  { kanji:'取り戻す', kana:'とりもどす', type:'I', level:'N2', meaning:'取回、恢复', daily:'normal', exam:'focus', trans:'vt' },
+  { kanji:'見直す', kana:'みなおす', type:'I', level:'N2', meaning:'重新审视、改进', daily:'normal', exam:'focus', trans:'vt' },
+  { kanji:'見失う', kana:'みうしなう', type:'I', level:'N2', meaning:'看丢、迷失', daily:'normal', exam:'focus', trans:'vt' },
+  { kanji:'広がる', kana:'ひろがる', type:'I', level:'N2', meaning:'扩大、传播', daily:'normal', exam:'focus', trans:'vi', nonVolitional:true },
+  { kanji:'広げる', kana:'ひろげる', type:'II', level:'N2', meaning:'扩大、展开', daily:'normal', exam:'focus', trans:'vt' },
+  { kanji:'深まる', kana:'ふかまる', type:'I', level:'N2', meaning:'加深', daily:'normal', exam:'focus', trans:'vi', nonVolitional:true },
+  { kanji:'深める', kana:'ふかめる', type:'II', level:'N2', meaning:'加深、深化', daily:'normal', exam:'focus', trans:'vt' },
+  { kanji:'高まる', kana:'たかまる', type:'I', level:'N2', meaning:'提高、高涨', daily:'normal', exam:'focus', trans:'vi', nonVolitional:true },
+  { kanji:'高める', kana:'たかめる', type:'II', level:'N2', meaning:'提高、增强', daily:'normal', exam:'focus', trans:'vt' },
+  { kanji:'強まる', kana:'つよまる', type:'I', level:'N2', meaning:'增强', daily:'normal', exam:'focus', trans:'vi', nonVolitional:true },
+  { kanji:'強める', kana:'つよめる', type:'II', level:'N2', meaning:'加强、增强', daily:'normal', exam:'focus', trans:'vt' },
+  { kanji:'弱まる', kana:'よわまる', type:'I', level:'N2', meaning:'减弱', daily:'normal', exam:'focus', trans:'vi', nonVolitional:true },
+  { kanji:'弱める', kana:'よわめる', type:'II', level:'N2', meaning:'减弱、削弱', daily:'normal', exam:'focus', trans:'vt' },
+  { kanji:'伸びる', kana:'のびる', type:'II', level:'N2', meaning:'伸长、增长', daily:'normal', exam:'focus', trans:'vi', nonVolitional:true },
+  { kanji:'伸ばす', kana:'のばす', type:'I', level:'N2', meaning:'延伸、增长', daily:'normal', exam:'focus', trans:'vt' },
+  { kanji:'縮む', kana:'ちぢむ', type:'I', level:'N2', meaning:'缩小、收缩', daily:'normal', exam:'focus', trans:'vi', nonVolitional:true },
+  { kanji:'縮める', kana:'ちぢめる', type:'II', level:'N2', meaning:'缩短、缩小', daily:'normal', exam:'focus', trans:'vt' },
+  { kanji:'抜ける', kana:'ぬける', type:'II', level:'N2', meaning:'脱落、遗漏、穿过', daily:'normal', exam:'focus', trans:'vi' },
+  { kanji:'溢れる', kana:'あふれる', type:'II', level:'N2', meaning:'溢出、充满', daily:'normal', exam:'focus', trans:'vi', nonVolitional:true },
+  { kanji:'預ける', kana:'あずける', type:'II', level:'N2', meaning:'寄存、托付', daily:'normal', exam:'focus', trans:'vt' },
+  { kanji:'焦る', kana:'あせる', type:'I', level:'N2', meaning:'着急、焦躁', daily:'normal', exam:'focus', trans:'vi', nonVolitional:true },
+  { kanji:'味わう', kana:'あじわう', type:'I', level:'N2', meaning:'品味、体验', daily:'normal', exam:'focus', trans:'vt' },
+  { kanji:'あきれる', kana:'あきれる', type:'II', level:'N2', meaning:'惊讶、无语', daily:'normal', exam:'focus', trans:'vi', nonVolitional:true },
+  { kanji:'慌てる', kana:'あわてる', type:'II', level:'N2', meaning:'慌张、匆忙', daily:'normal', exam:'focus', trans:'vi', nonVolitional:true },
+  { kanji:'至る', kana:'いたる', type:'I', level:'N2', meaning:'到达、至', daily:'low', exam:'focus', trans:'vi', nonVolitional:true },
+  { kanji:'浮かぶ', kana:'うかぶ', type:'I', level:'N2', meaning:'浮现、想起', daily:'normal', exam:'focus', trans:'vi', nonVolitional:true },
+  { kanji:'浮かべる', kana:'うかべる', type:'II', level:'N2', meaning:'使浮起、浮现', daily:'normal', exam:'focus', trans:'vt' },
+  { kanji:'訴える', kana:'うったえる', type:'II', level:'N2', meaning:'诉说、起诉', daily:'normal', exam:'focus', trans:'vt' },
+  { kanji:'奪う', kana:'うばう', type:'I', level:'N2', meaning:'夺取、剥夺', daily:'normal', exam:'focus', trans:'vt' },
+  { kanji:'埋まる', kana:'うまる', type:'I', level:'N2', meaning:'被填满、埋着', daily:'normal', exam:'focus', trans:'vi', nonVolitional:true },
+  { kanji:'埋める', kana:'うめる', type:'II', level:'N2', meaning:'填埋、填补', daily:'normal', exam:'focus', trans:'vt' },
+  { kanji:'覆う', kana:'おおう', type:'I', level:'N2', meaning:'覆盖、笼罩', daily:'normal', exam:'focus', trans:'vt' },
+  { kanji:'押さえる', kana:'おさえる', type:'II', level:'N2', meaning:'按住、掌握', daily:'normal', exam:'focus', trans:'vt' },
+  { kanji:'劣る', kana:'おとる', type:'I', level:'N2', meaning:'不如、劣于', daily:'low', exam:'focus', trans:'vi', nonVolitional:true },
+  { kanji:'衰える', kana:'おとろえる', type:'II', level:'N2', meaning:'衰退、衰弱', daily:'low', exam:'focus', trans:'vi', nonVolitional:true },
+  { kanji:'溺れる', kana:'おぼれる', type:'II', level:'N2', meaning:'溺水、沉迷', daily:'normal', exam:'focus', trans:'vi', nonVolitional:true },
+  { kanji:'及ぼす', kana:'およぼす', type:'I', level:'N2', meaning:'波及、带来影响', daily:'low', exam:'focus', trans:'vt' },
+  { kanji:'抱える', kana:'かかえる', type:'II', level:'N2', meaning:'抱着、承担', daily:'normal', exam:'focus', trans:'vt' },
+  { kanji:'稼ぐ', kana:'かせぐ', type:'I', level:'N2', meaning:'赚钱、争取', daily:'normal', exam:'focus', trans:'vt' },
+  { kanji:'傾く', kana:'かたむく', type:'I', level:'N2', meaning:'倾斜、倾向', daily:'low', exam:'focus', trans:'vi', nonVolitional:true },
+  { kanji:'傷つける', kana:'きずつける', type:'II', level:'N2', meaning:'伤害、弄伤', daily:'normal', exam:'focus', trans:'vt' },
+  { kanji:'崩す', kana:'くずす', type:'I', level:'N2', meaning:'拆散、弄乱', daily:'normal', exam:'focus', trans:'vt' },
+  { kanji:'崩れる', kana:'くずれる', type:'II', level:'N2', meaning:'崩塌、崩溃', daily:'normal', exam:'focus', trans:'vi', nonVolitional:true },
+  { kanji:'砕く', kana:'くだく', type:'I', level:'N2', meaning:'打碎、粉碎', daily:'normal', exam:'focus', trans:'vt' },
+  { kanji:'砕ける', kana:'くだける', type:'II', level:'N2', meaning:'破碎、变随和', daily:'low', exam:'focus', trans:'vi', nonVolitional:true },
+  { kanji:'くっつける', kana:'くっつける', type:'II', level:'N2', meaning:'粘上、连接', daily:'normal', exam:'focus', trans:'vt' },
+  { kanji:'悔やむ', kana:'くやむ', type:'I', level:'N2', meaning:'后悔、悼念', daily:'low', exam:'focus', trans:'vt' },
+  { kanji:'狂う', kana:'くるう', type:'I', level:'N2', meaning:'发狂、失常', daily:'low', exam:'focus', trans:'vi', nonVolitional:true }
+];
+
+// ========== 初稿词频标签 ==========
+// 这里只放一批代表词用于测试入口、筛选和标签。未列出的词保留在完整词库中，标记为「待补充」。
+// daily: high=日常常用, normal=日常一般, low=日常低频
+// exam: focus=JLPT重点, common=JLPT常见, supplement=考试补充
+var verbProfiles = {
+  '会う':{daily:'high',exam:'common'}, '行く':{daily:'high',exam:'common'}, '来る':{daily:'high',exam:'common'},
+  'する':{daily:'high',exam:'common'}, '食べる':{daily:'high',exam:'common'}, '飲む':{daily:'high',exam:'common'},
+  '見る':{daily:'high',exam:'common'}, '聞く':{daily:'high',exam:'common'}, '話す':{daily:'high',exam:'common'},
+  '読む':{daily:'high',exam:'common'}, '書く':{daily:'high',exam:'common'}, '買う':{daily:'high',exam:'common'},
+  '使う':{daily:'high',exam:'common'}, '思う':{daily:'high',exam:'common'}, '分かる':{daily:'high',exam:'common'},
+  '入る':{daily:'high',exam:'common'}, '出る':{daily:'high',exam:'common'}, '起きる':{daily:'high',exam:'common'},
+  '寝る':{daily:'high',exam:'common'}, '働く':{daily:'high',exam:'common'}, '休む':{daily:'high',exam:'common'},
+  '持つ':{daily:'high',exam:'common'}, '待つ':{daily:'high',exam:'common'}, '帰る':{daily:'high',exam:'common'},
+  '開ける':{daily:'high',exam:'common'}, '閉める':{daily:'high',exam:'common'},
+
+  '遊ぶ':{daily:'normal',exam:'supplement'}, '洗う':{daily:'normal',exam:'supplement'}, '歌う':{daily:'normal',exam:'supplement'},
+  '笑う':{daily:'normal',exam:'supplement'}, '泣く':{daily:'normal',exam:'supplement'}, '走る':{daily:'normal',exam:'supplement'},
+  '座る':{daily:'normal',exam:'supplement'}, '立つ':{daily:'normal',exam:'supplement'},
+
+  '決める':{daily:'high',exam:'common'}, '決まる':{daily:'high',exam:'common'},
+  '続ける':{daily:'high',exam:'common'}, '続く':{daily:'high',exam:'common'},
+  '伝える':{daily:'high',exam:'common'}, '伝わる':{daily:'normal',exam:'common'},
+  '届ける':{daily:'normal',exam:'common'}, '届く':{daily:'high',exam:'common'},
+  '選ぶ':{daily:'high',exam:'common'}, '比べる':{daily:'normal',exam:'common'}, '受ける':{daily:'high',exam:'common'},
+  '調べる':{daily:'high',exam:'common'}, '慣れる':{daily:'high',exam:'common'}, '間に合う':{daily:'high',exam:'common'},
+  '見つける':{daily:'high',exam:'common'}, '見つかる':{daily:'high',exam:'common'},
+
+  '扱う':{daily:'normal',exam:'focus'}, '補う':{daily:'normal',exam:'focus'}, '省く':{daily:'normal',exam:'focus'},
+  '維持する':{daily:'normal',exam:'focus'}, '意識する':{daily:'normal',exam:'focus'}, '受け入れる':{daily:'normal',exam:'focus'},
+  '受け取る':{daily:'high',exam:'focus'}, '促す':{daily:'low',exam:'focus'}, '達成する':{daily:'normal',exam:'focus'},
+  '遂げる':{daily:'low',exam:'focus'}, '保つ':{daily:'normal',exam:'focus'}, '支える':{daily:'normal',exam:'focus'},
+  '及ぶ':{daily:'low',exam:'focus'}, '落ち着く':{daily:'high',exam:'focus'}, '控える':{daily:'normal',exam:'focus'},
+  '満たす':{daily:'normal',exam:'focus'}, '異なる':{daily:'normal',exam:'focus'}, '繰り返す':{daily:'high',exam:'focus'},
+  '組み立てる':{daily:'normal',exam:'focus'}, '取り消す':{daily:'normal',exam:'focus'}, '見送る':{daily:'normal',exam:'focus'},
+  '見上げる':{daily:'normal',exam:'focus'}, '省みる':{daily:'low',exam:'focus'}, '隔てる':{daily:'low',exam:'focus'},
+  '帯びる':{daily:'low',exam:'focus'}, '分かつ':{daily:'low',exam:'focus'}
+};
+
+var dailyProfileLabels = {high:'日常常用', normal:'日常一般', low:'日常低频', pending:'日常待补充'};
+var examProfileLabels = {focus:'JLPT重点', common:'JLPT常见', supplement:'考试补充', pending:'JLPT待补充'};
+
+function getVerbProfile(verb) {
+  return verbProfiles[verb.kanji] || (verb.daily && verb.exam ? {daily:verb.daily, exam:verb.exam} : {daily:'pending', exam:'pending'});
+}
+
+// ========== 自他动词分类 ==========
+// bothTransitiveVerbs 中的动词可作自动词或他动词，选择任一分类时都会纳入。
+var intransitiveVerbs = [
+  '会う','開く','遊ぶ','ある','歩く','行く','いる','生まれる','起きる','帰る','消える','来る','答える','困る','咲く','死ぬ','閉まる','住む','座る','立つ','違う','勤める','出る','飛ぶ','止まる','無くなる','並ぶ','なる','寝る','登る','入る','始まる','走る','働く','降る','曲がる','分かる','渡る',
+  '合う','上がる','集まる','謝る','安心する','怒る','落ちる','勝つ','通う','決まる','暮れる','下がる','騒ぐ','触る','過ぎる','進む','滑る','倒れる','足りる','疲れる','続く','出かける','出来る','泊まる','直る','治る','泣く','慣れる','逃げる','似る','残る','増える','減る','負ける','間に合う','回る','見つかる','戻る','痩せる','止む','喜ぶ','別れる','笑う',
+  '飽きる','当たる','生きる','いらっしゃる','動く','映る','驚く','下りる','折れる','返る','隠れる','聞こえる','喧嘩する','こぼれる','込む','すれ違う','付き合う','伝わる','通る','届く','飛び込む','亡くなる','似合う','参る','間違う','見える','役立つ','沸く',
+  '合図する','憧れる','当てはまる','暴れる','余る','移住する','引退する','落ち着く','及ぶ','重なる','固まる','渇く','乾く','気付く','腐る','くっつく','暮らす','異なる','去る','賛成する','しがみつく','沈む','従う','親しむ','所属する','成功する','存在する','対する','戦う','立ち上がる','経つ','たまる','頼る','努める','つながる','出会う','出来上がる','悩む','匂う','濁る','眠る','外れる','離れる','持てる','汚れる','寄る','割れる'
+];
+var bothTransitiveVerbs = ['する','休む','注意する','約束する','育児する','工夫する','思い込む'];
+
+function getTransitivity(verb) {
+  if (verb.trans) return verb.trans;
+  if (bothTransitiveVerbs.indexOf(verb.kanji) !== -1) return 'both';
+  return intransitiveVerbs.indexOf(verb.kanji) !== -1 ? 'vi' : 'vt';
+}
+
+function matchesTransitivity(verb) {
+  var trans = getTransitivity(verb);
+  if (transTypes.length === 0) return false;
+  return trans === 'both' || transTypes.indexOf(trans) !== -1;
+}
+
+// 本身已经表达可能或状态的动词，不再机械生成错误的“可能形”。
+function isValidFormForVerb(verb, form) {
+  if (form === 'potential' && ['ある','わかる','できる','きこえる','みえる','もてる'].indexOf(verb.kana) !== -1) return false;
+  return true;
+}
+
+// 常用与考试价值是针对「这个词＋这个变形」判断，不对整类变形一刀切。
+var limitedAdvancedFormVerbs = ['ある','出来る','見える','聞こえる','持てる','異なる','存在する','足りる'];
+var commandRelevantVerbs = ['行く','来る','見る','聞く','言う','話す','書く','読む','食べる','飲む','待つ','止まる','入る','出る','触る','逃げる','立つ','座る','休む'];
+var indirectPassiveExamVerbs = ['降る','来る','行く','休む','騒ぐ','泣く','死ぬ'];
+var commonPassiveVerbs = ['言う','聞く','呼ぶ','見る','褒める','しかる','誘う','選ぶ','使う','頼む','教える','注意する','紹介する','招く','雇う'];
+var commonCausativeVerbs = ['待つ','行く','来る','食べる','飲む','遊ぶ','働く','休む','寝る','起きる'];
+
+function getFormPracticeStatus(verb, form) {
+  if (!isValidFormForVerb(verb, form)) return 'invalid';
+  if (['masu','te','ta','nai','ba'].indexOf(form) !== -1) return 'core';
+  if (form === 'potential' || form === 'volitional') return verb.nonVolitional ? 'rare' : 'core';
+  if (form === 'passive') {
+    if (commonPassiveVerbs.indexOf(verb.kanji) !== -1) return 'core';
+    if (getTransitivity(verb) !== 'vi' || indirectPassiveExamVerbs.indexOf(verb.kanji) !== -1) return 'exam';
+    return 'rare';
+  }
+  if (form === 'causative') {
+    if (commonCausativeVerbs.indexOf(verb.kanji) !== -1) return 'core';
+    return !verb.nonVolitional && limitedAdvancedFormVerbs.indexOf(verb.kanji) === -1 ? 'exam' : 'rare';
+  }
+  if (form === 'causativePassive') {
+    return !verb.nonVolitional && limitedAdvancedFormVerbs.indexOf(verb.kanji) === -1 ? 'exam' : 'rare';
+  }
+  if (form === 'imperative' || form === 'prohibition') {
+    return commandRelevantVerbs.indexOf(verb.kanji) !== -1 ? 'exam' : 'rare';
+  }
+  return 'rare';
+}
+
+// ========== 变形引擎 ==========
+var allForms = ['masu','te','ta','nai','potential','volitional','passive','causative','ba','imperative','causativePassive','prohibition'];
+var formNames = {
+  masu:'礼貌形（ます形）', te:'连接形（て形）', ta:'过去形（た形）', nai:'否定形（ない形）', potential:'可能形',
+  volitional:'意志形', passive:'被动态', causative:'使役态', ba:'假定形（ば形）',
+  imperative:'命令形', causativePassive:'使役被动态', prohibition:'禁止形（な）', classify:'动词区分'
+};
+
+var ruleTexts = {
+  masu: { title:'礼貌形（ます形）', desc:'礼貌体，用于正式场合、对长辈或陌生人说话。', usage:'动词连用形+ます。否定形式是「ません」，过去形式是「ました」。', I:'一类动词：词尾う段→い段+ます\n例：書く→書きます、話す→話します\n注意：買う→買います（う→い）', II:'二类动词：去る+ます\n例：食べる→食べます', III:'三类动词：する→します\n来る→きます' },
+  te: { title:'连接形（て形）', desc:'连接句子、表示动作进行中（〜ている）、请求（〜てください）等。', usage:'て形不能结句，需后接成分。①て+いる（正在做）②て+ください（请做）③て+から（做完后）。', I:'一类动词音便规则：\nく→いて（書く→書いて）\nぐ→いで（泳ぐ→泳いで）\nう・つ・る→って（買う→買って、待つ→待って、終わる→終わって）\nぬ・ぶ・む→んで（死ぬ→死んで、遊ぶ→遊んで、読む→読んで）\nす→して（話す→話して）\n⚠️ 例外：行く→行って', II:'二类动词：去る+て\n例：食べる→食べて', III:'三类动词：する→して\n来る→きて' },
+  ta: { title:'过去形（た形）', desc:'表示动作已完成、过去发生的事。变形规则与て形完全相同，只是把て换成た、で换成だ。', usage:'①过去：昨日見た②完了：もう食べた③状态：壊れた。', I:'与て形规则相同，结尾变た/だ：書いた・泳いだ・買った・死んだ・話した\n⚠️ 行く→行った', II:'二类动词：去る+た\n例：食べる→食べた', III:'三类动词：する→した\n来る→きた' },
+  nai: { title:'否定形（ない形）', desc:'表示"不…""没…"，是简体否定形式。', usage:'①否定陈述：行かない②请求否定：行かないで③必须：行かなければならない。', I:'一类动词：词尾う段→あ段+ない\n例：書く→書かない、話す→話さない\n⚠️ 買う→買わない（う→わ）\n⚠️ 特殊：ある→ない', II:'二类动词：去る+ない\n例：食べる→食べない', III:'三类动词：する→しない\n来る→こない' },
+  potential: { title:'可能形（能／会）', desc:'表示"能…""会…""可以…"，有能力或条件做某事。', usage:'①能力：日本語が話せる②可能性：明日来られる③属性：この魚は食べられない。', I:'一类动词：词尾う段→え段+る（書ける、話せる）。注意：变化后的可能动词按二类动词变化。', II:'二类动词：去る+られる（食べられる）\n口语可省略ら：食べれる', III:'三类动词：する→できる\n来る→こられる' },
+  volitional: { title:'意志形', desc:'表示"…吧""想要…""让我们一起…"，表达意志或劝诱。', usage:'①意志：明日早く起きよう②劝诱：一緒に行こう③〜と思う：留学しようと思う。', I:'一类动词：词尾う段→お段+う（書こう、話そう）', II:'二类动词：去る+よう（食べよう）', III:'三类动词：する→しよう\n来る→こよう' },
+  passive: { title:'被动态', desc:'表示"被…""受到…"，主语承受动作。也用于尊敬或客观叙述。', usage:'①直接被动：先生に叱られた②受害：雨に降られた③尊敬：社長が来られた。', I:'一类动词：词尾う段→あ段+れる（書かれる、話される）', II:'二类动词：去る+られる（食べられる）※与可能形同形，靠语境区分', III:'三类动词：する→される\n来る→こられる' },
+  causative: { title:'使役态', desc:'表示"让…做…""使…做…"，强制、指示或允许某人做某事。', usage:'①强制：母は私に部屋を掃除させた②允许：子供を遊ばせる③〜てください：行かせてください。', I:'一类动词：词尾う段→あ段+せる（書かせる、話させる）', II:'二类动词：去る+させる（食べさせる）', III:'三类动词：する→させる\n来る→こさせる' },
+  ba: { title:'假定形（ば形）', desc:'表示"如果…""假如…"，用于条件假设。', usage:'①假设：お金があれば買う②必然：春になれば桜が咲く③建议：早く行けばよかった。', I:'一类动词：词尾う段→え段+ば（書けば、話せば）', II:'二类动词：去る+れば（食べれば）', III:'三类动词：する→すれば\n来る→くれば' },
+  imperative: { title:'命令形', desc:'表示命令，语气非常强硬，多用于男性、紧急情况、口号或亲密关系之间。', usage:'①紧急：逃げろ！②口号：頑張れ！③交通标志：止まれ。日常建议用「〜てください」。', I:'一类动词：词尾う段→え段（書け、話せ）', II:'二类动词：去る+ろ（食べろ）', III:'三类动词：する→しろ（或せよ）\n来る→こい' },
+  causativePassive: { title:'使役被动态', desc:'表示"被迫做…""不得不做…"，带有不情愿、被迫的语气。是使役态+被动态的结合。', usage:'①被迫：母に野菜を食べさせられた②不得不：会議に出させられた。', I:'一类动词：词尾う段→あ段+せられる（口语约音为される）\n例：書かせられる→書かされる', II:'二类动词：去る+させられる（食べさせられる）', III:'三类动词：する→させられる\n来る→こさせられる' },
+  prohibition: { title:'禁止形', desc:'表示"不准…""禁止…"，语气非常强烈的否定命令。', usage:'①规则：ここでタバコを吸うな②警告：触るな！③标语：入るな。日常建议用「〜ないでください」。', I:'一类动词：辞书形+な（書くな）', II:'二类动词：辞书形+な（食べるな）', III:'三类动词：するな\n来る→くるな' }
+};
+
+function conjugate(verb, form) {
+  var k = verb.kana, last = k[k.length-1];
+  var aRow = {う:'わ',く:'か',ぐ:'が',す:'さ',つ:'た',ぬ:'な',ぶ:'ば',む:'ま',る:'ら'};
+  var iRow = {う:'い',く:'き',ぐ:'ぎ',す:'し',つ:'ち',ぬ:'に',ぶ:'び',む:'み',る:'り'};
+  var eRow = {う:'え',く:'け',ぐ:'げ',す:'せ',つ:'て',ぬ:'ね',ぶ:'べ',む:'め',る:'れ'};
+  var oRow = {う:'お',く:'こ',ぐ:'ご',す:'そ',つ:'と',ぬ:'の',ぶ:'ぼ',む:'も',る:'ろ'};
+  if (verb.exceptions && verb.exceptions[form]) return verb.exceptions[form];
+  if (verb.type === 'II') {
+    var stem = k.slice(0, -1);
+    var map = { masu:'ます', te:'て', ta:'た', nai:'ない', potential:'られる', volitional:'よう',
+      passive:'られる', causative:'させる', ba:'れば', imperative:'ろ', causativePassive:'させられる', prohibition:'るな' };
+    return stem + (map[form] || '');
+  }
+  if (verb.type === 'III') {
+    if (verb.kanji === '来る') {
+      var fk = { masu:'きます', te:'きて', ta:'きた', nai:'こない', potential:'こられる',
+        volitional:'こよう', passive:'こられる', causative:'こさせる', ba:'くれば', imperative:'こい',
+        causativePassive:'こさせられる', prohibition:'くるな' };
+      return fk[form] || '';
+    } else {
+      var sk = k.endsWith('する') ? k.slice(0, -2) : k;
+      var base = (k === 'する') ? '' : sk;
+      var fs = { masu:'します', te:'して', ta:'した', nai:'しない', potential:'できる',
+        volitional:'しよう', passive:'される', causative:'させる', ba:'すれば', imperative:'しろ',
+        causativePassive:'させられる', prohibition:'するな' };
+      return base + (fs[form] || '');
+    }
+  }
+  var stem = k.slice(0, -1);
+  if (form === 'masu') return stem + iRow[last] + 'ます';
+  if (form === 'nai') return stem + aRow[last] + 'ない';
+  if (form === 'potential') return stem + eRow[last] + 'る';
+  if (form === 'volitional') return stem + oRow[last] + 'う';
+  if (form === 'passive') return stem + aRow[last] + 'れる';
+  if (form === 'causative') return stem + aRow[last] + 'せる';
+  if (form === 'ba') return stem + eRow[last] + 'ば';
+  if (form === 'imperative') return stem + eRow[last];
+  if (form === 'causativePassive') return stem + aRow[last] + 'せられる';
+  if (form === 'prohibition') return k + 'な';
+  if (form === 'te') {
+    if (last === 'く') return stem + 'いて';
+    if (last === 'ぐ') return stem + 'いで';
+    if (last === 'す') return stem + 'して';
+    if (last === 'う' || last === 'つ' || last === 'る') return stem + 'って';
+    if (last === 'ぬ' || last === 'ぶ' || last === 'む') return stem + 'んで';
+    return k + 'て';
+  }
+  if (form === 'ta') {
+    if (last === 'く') return stem + 'いた';
+    if (last === 'ぐ') return stem + 'いだ';
+    if (last === 'す') return stem + 'した';
+    if (last === 'う' || last === 'つ' || last === 'る') return stem + 'った';
+    if (last === 'ぬ' || last === 'ぶ' || last === 'む') return stem + 'んだ';
+    return k + 'た';
+  }
+  return '';
+}
+
+// ===== 输入转换（同前） =====
+var katakanaMap = {
+  'ア':'あ','イ':'い','ウ':'う','エ':'え','オ':'お','カ':'か','キ':'き','ク':'く','ケ':'け','コ':'こ',
+  'サ':'さ','シ':'し','ス':'す','セ':'せ','ソ':'そ','タ':'た','チ':'ち','ツ':'つ','テ':'て','ト':'と',
+  'ナ':'な','ニ':'に','ヌ':'ぬ','ネ':'ね','ノ':'の','ハ':'は','ヒ':'ひ','フ':'ふ','ヘ':'へ','ホ':'ほ',
+  'マ':'ま','ミ':'み','ム':'む','メ':'め','モ':'も','ヤ':'や','ユ':'ゆ','ヨ':'よ','ラ':'ら','リ':'り',
+  'ル':'る','レ':'れ','ロ':'ろ','ワ':'わ','ヲ':'を','ン':'ん','ガ':'が','ギ':'ぎ','グ':'ぐ','ゲ':'げ',
+  'ゴ':'ご','ザ':'ざ','ジ':'じ','ズ':'ず','ゼ':'ぜ','ゾ':'ぞ','ダ':'だ','ヂ':'ぢ','ヅ':'づ','デ':'で',
+  'ド':'ど','バ':'ば','ビ':'び','ブ':'ぶ','ベ':'べ','ボ':'ぼ','パ':'ぱ','ピ':'ぴ','プ':'ぷ','ペ':'ぺ',
+  'ポ':'ぽ','ャ':'ゃ','ュ':'ゅ','ョ':'ょ','ッ':'っ'
+};
+var romajiMap = {
+  'a':'あ','i':'い','u':'う','e':'え','o':'お','ka':'か','ki':'き','ku':'く','ke':'け','ko':'こ',
+  'sa':'さ','shi':'し','su':'す','se':'せ','so':'そ','ta':'た','chi':'ち','tsu':'つ','te':'て','to':'と',
+  'na':'な','ni':'に','nu':'ぬ','ne':'ね','no':'の','ha':'は','hi':'ひ','fu':'ふ','he':'へ','ho':'ほ',
+  'ma':'ま','mi':'み','mu':'む','me':'め','mo':'も','ya':'や','yu':'ゆ','yo':'よ','ra':'ら','ri':'り',
+  'ru':'る','re':'れ','ro':'ろ','wa':'わ','wo':'を','n':'ん','ga':'が','gi':'ぎ','gu':'ぐ','ge':'げ',
+  'go':'ご','za':'ざ','ji':'じ','zu':'ず','ze':'ぜ','zo':'ぞ','da':'だ','de':'で','do':'ど','ba':'ば',
+  'bi':'び','bu':'ぶ','be':'べ','bo':'ぼ','pa':'ぱ','pi':'ぴ','pu':'ぷ','pe':'ぺ','po':'ぽ',
+  'kya':'きゃ','kyu':'きゅ','kyo':'きょ','sha':'しゃ','shu':'しゅ','sho':'しょ','cha':'ちゃ','chu':'ちゅ',
+  'cho':'ちょ','nya':'にゃ','nyu':'にゅ','nyo':'にょ','hya':'ひゃ','hyu':'ひゅ','hyo':'ひょ',
+  'mya':'みゃ','myu':'みゅ','myo':'みょ','rya':'りゃ','ryu':'りゅ','ryo':'りょ','gya':'ぎゃ',
+  'gyu':'ぎゅ','gyo':'ぎょ','ja':'じゃ','ju':'じゅ','jo':'じょ','bya':'びゃ','byu':'びゅ','byo':'びょ',
+  'pya':'ぴゃ','pyu':'ぴゅ','pyo':'ぴょ','tte':'って','tta':'った','nde':'んで','nda':'んだ'
+};
+function buildKanjiMap() {
+  var map = {};
+  verbs.forEach(function(v) {
+    map[v.kanji] = v.kana;
+    if (v.type === 'II' || v.kanji === '来る') { map[v.kanji.slice(0,-1)] = v.kana.slice(0,-1); }
+    if (v.type === 'III' && v.kanji !== '来る') { var s = v.kanji.replace('する',''); if(s) map[s] = v.kana.replace('する',''); }
+  });
+  return map;
+}
+var kanjiMap = buildKanjiMap();
+function normalizeInput(input) {
+  var str = input.trim();
+  if (/^[a-zA-Z\s]+$/.test(str)) {
+    str = str.toLowerCase().replace(/\s+/g, '');
+    var out = '', i = 0;
+    while (i < str.length) {
+      var m = false;
+      for (var l = 3; l >= 1; l--) {
+        var sub = str.substring(i, i+l);
+        if (romajiMap[sub]) { out += romajiMap[sub]; i += l; m = true; break; }
+      }
+      if (!m) { out += str[i]; i++; }
+    }
+    return out;
+  }
+  var kout = '';
+  for (var j = 0; j < str.length; j++) { kout += katakanaMap[str[j]] || str[j]; }
+  str = kout;
+  var keys = Object.keys(kanjiMap).sort(function(a,b){return b.length-a.length;});
+  for (var k = 0; k < keys.length; k++) {
+    if (str.indexOf(keys[k]) !== -1) { str = str.replace(new RegExp(keys[k],'g'), kanjiMap[keys[k]]); }
+  }
+  return str;
+}
+
+// 保留汉字或假名原样比较，并统一全角、空格和片假名。
+function normalizePlain(input) {
+  var str = (input || '').normalize('NFKC').replace(/[\s　]/g, '');
+  return str.replace(/[ァ-ヶ]/g, function(ch) { return String.fromCharCode(ch.charCodeAt(0) - 0x60); });
+}
+
+// 根据假名答案生成常用汉字写法，例如「かきます」→「書きます」。
+function buildKanjiAnswer(verb, kanaAnswer) {
+  if (verb.kanji === verb.kana) return kanaAnswer;
+  if (verb.kanji === '来る') return '来' + kanaAnswer.slice(1);
+  if (verb.type === 'III' && verb.kana.endsWith('する')) {
+    var suruKanaStem = verb.kana.slice(0, -2);
+    var suruKanjiStem = verb.kanji.slice(0, -2);
+    return suruKanjiStem + kanaAnswer.slice(suruKanaStem.length);
+  }
+  var kanaStem = verb.kana.slice(0, -1);
+  var kanjiStem = verb.kanji.slice(0, -1);
+  return kanjiStem + kanaAnswer.slice(kanaStem.length);
+}
+
+function displayCorrectAnswer(verb, kanaAnswer) {
+  var kanjiAnswer = buildKanjiAnswer(verb, kanaAnswer);
+  return kanjiAnswer === kanaAnswer ? kanaAnswer : kanjiAnswer + '（' + kanaAnswer + '）';
+}
+
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, function(ch) {
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];
+  });
+}
+
+// 把中文原形释义按当前变形转换。分隔符只在括号外生效，
+// 避免把「穿（鞋/裤）」这类说明错误拆开。
+function mapMeaningSenses(meaning, transform) {
+  var source = String(meaning || '');
+  var parts = [], separators = [], buffer = '', depth = 0;
+  for (var i = 0; i < source.length; i++) {
+    var ch = source[i];
+    if (ch === '（' || ch === '(') depth++;
+    if (ch === '）' || ch === ')') depth = Math.max(0, depth - 1);
+    if (depth === 0 && (ch === '、' || ch === '/' || ch === '／')) {
+      parts.push(buffer.trim());
+      separators.push(ch === '、' ? '、' : '／');
+      buffer = '';
+    } else {
+      buffer += ch;
+    }
+  }
+  parts.push(buffer.trim());
+  var result = '';
+  for (var j = 0; j < parts.length; j++) {
+    result += transform(parts[j]);
+    if (separators[j]) result += separators[j];
+  }
+  return result;
+}
+
+// 「了、吧」等放在自动/他动等补充说明之前：开（自动）→开了（自动）。
+function appendBeforeMeaningNote(meaning, suffix) {
+  var match = String(meaning).match(/^([\s\S]*?)([（(][^）)]*[）)])$/);
+  return match ? match[1] + suffix + match[2] : meaning + suffix;
+}
+
+function meaningForForm(verb, form) {
+  var base = verb.meaning || '';
+  var map = function(transform) { return mapMeaningSenses(base, transform); };
+  if (form === 'classify') return base;
+  if (form === 'masu') return base + '（礼貌表达）';
+  if (form === 'te') return base + '……（连接后句，具体译法要看后项）';
+  if (form === 'ta') return map(function(s) { return appendBeforeMeaningNote(s, '了'); });
+  if (form === 'nai') return map(function(s) { return '不' + s; });
+  if (form === 'potential') return map(function(s) { return '能' + s; });
+  if (form === 'volitional') return map(function(s) { return appendBeforeMeaningNote(s, '吧'); });
+  if (form === 'passive') {
+    if (getTransitivity(verb) === 'vi') return '因“' + base + '”而受到影响（间接被动）';
+    return map(function(s) { return '被' + s; });
+  }
+  if (form === 'causative') return map(function(s) { return '让（某人／某物）' + s; });
+  if (form === 'ba') return map(function(s) { return '如果' + s; });
+  if (form === 'imperative') return map(function(s) { return appendBeforeMeaningNote(s, '！'); });
+  if (form === 'causativePassive') return map(function(s) { return '被迫' + s; });
+  if (form === 'prohibition') return map(function(s) { return '不准' + s; });
+  return base;
+}
+
+function renderMeaningHtml(verb, form) {
+  var isClassify = form === 'classify';
+  var label = isClassify ? '🌏 原形的中文意思' : '🌏 ' + formNames[form] + '的中文意思';
+  var html = '<span class="meaning-label">' + escapeHtml(label) + '</span>' +
+    '<strong class="meaning-answer">' + escapeHtml(meaningForForm(verb, form)) + '</strong>';
+  if (!isClassify) {
+    html += '<span class="meaning-origin">原形：' + escapeHtml(verb.kanji) + '（' + escapeHtml(verb.kana) + '）＝' + escapeHtml(verb.meaning) + '</span>';
+  }
+  return html;
+}
+
+// ===== 存储 =====
+var mem = {}; try { mem = JSON.parse(localStorage.getItem('verb_mem')) || {}; } catch(e) {}
+function saveMem() { try { localStorage.setItem('verb_mem', JSON.stringify(mem)); } catch(e) {} }
+var errLog = []; try { errLog = JSON.parse(localStorage.getItem('verb_errlog')) || []; } catch(e) {}
+function saveErrLog() { try { localStorage.setItem('verb_errlog', JSON.stringify(errLog)); } catch(e) {} }
+var autoSpeak = false; try { autoSpeak = localStorage.getItem('verb_auto_speak') === '1'; } catch(e) {}
+function saveSpeechSetting() { try { localStorage.setItem('verb_auto_speak', autoSpeak ? '1' : '0'); } catch(e) {} }
+
+// ===== 应用状态 =====
+var mode = 'new';
+var selectedForms = allForms.slice();
+var levels = ['N5','N4','N3','N2'];
+var types = ['I','II','III'];
+var transTypes = ['vi','vt'];
+var usageFilters = ['high','normal'];
+var examFilters = ['focus','common','supplement','pending'];
+var formStatusFilters = ['core'];
+var activeEntry = 'daily';
+var applyingPreset = false;
+var numPerRound = 10;
+var pool = [], index = 0;
+var okTotal = 0, ngTotal = 0;
+var curVerb, curForm, curAnswer;
+var answered = false;
+var questionHadError = false;
+var selectedClassType = '';
+var selectedClassTrans = '';
+
+// DOM
+var prog = document.getElementById('progressBar');
+var globalProg = document.getElementById('globalProgressBar');
+var globalProgText = document.getElementById('globalProgressText');
+var elVerb = document.getElementById('verb');
+var elKana = document.getElementById('kana');
+var elForm = document.getElementById('form');
+var elVerbTags = document.getElementById('verbTags');
+var elAns = document.getElementById('answer');
+var elMsg = document.getElementById('msg');
+var elSub = document.getElementById('submitBtn');
+var elNext = document.getElementById('nextBtn');
+var elInfo = document.getElementById('resultInfo');
+var elMean = document.getElementById('meaning');
+var elExam = document.getElementById('example');
+var elOk = document.getElementById('ok');
+var elNg = document.getElementById('ng');
+var elRate = document.getElementById('rate');
+var practiceArea = document.getElementById('practiceArea');
+var resultArea = document.getElementById('resultArea');
+var resultText = document.getElementById('resultText');
+var ruleBtn = document.getElementById('ruleBtn');
+var ruleBox = document.getElementById('ruleBox');
+var errModal = document.getElementById('errModal');
+var errList = document.getElementById('errList');
+var settingsPanel = document.getElementById('settingsPanel');
+var classifyArea = document.getElementById('classifyArea');
+var presetNote = document.getElementById('presetNote');
+var filterSummary = document.getElementById('filterSummary');
+var pilotNote = document.getElementById('pilotNote');
+var speakBtn = document.getElementById('speakBtn');
+var autoSpeakChip = document.getElementById('autoSpeakChip');
+var speechSupported = 'speechSynthesis' in window && typeof window.SpeechSynthesisUtterance === 'function';
+var speechSequence = 0;
+
+function safeAddEvent(el, event, fn) {
+  if (el) el.addEventListener(event, function(e) { try { fn(e); } catch(err) { console.error(err); } });
+}
+
+// 使用浏览器／设备自带的日语语音。朗读假名可避免汉字多音误读。
+function getJapaneseVoice() {
+  if (!speechSupported) return null;
+  var voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
+  var japanese = voices.filter(function(voice) { return /^ja(?:-|_)/i.test(voice.lang || ''); });
+  for (var i = 0; i < japanese.length; i++) if (japanese[i].localService) return japanese[i];
+  return japanese[0] || null;
+}
+
+function setSpeakingState(isSpeaking) {
+  if (!speakBtn) return;
+  speakBtn.classList.toggle('speaking', !!isSpeaking);
+  speakBtn.setAttribute('aria-label', isSpeaking ? '正在朗读当前单词' : '朗读当前单词');
+}
+
+function stopSpeech() {
+  speechSequence++;
+  if (speechSupported) window.speechSynthesis.cancel();
+  setSpeakingState(false);
+}
+
+function speakJapanese(text) {
+  if (!speechSupported || !text) return;
+  var sequence = ++speechSequence;
+  window.speechSynthesis.cancel();
+  var utterance = new window.SpeechSynthesisUtterance(text);
+  utterance.lang = 'ja-JP';
+  utterance.rate = 0.82;
+  utterance.pitch = 1;
+  var voice = getJapaneseVoice();
+  if (voice) utterance.voice = voice;
+  utterance.onstart = function() { if (sequence === speechSequence) setSpeakingState(true); };
+  utterance.onend = utterance.onerror = function() { if (sequence === speechSequence) setSpeakingState(false); };
+  window.speechSynthesis.speak(utterance);
+}
+
+function speakCurrentWord() {
+  if (!curVerb || !curVerb.kana || pool.length === 0 || index >= pool.length) return;
+  var answerIsVisible = curForm !== 'classify' && (answered || questionHadError);
+  speakJapanese(answerIsVisible ? curAnswer : curVerb.kana);
+}
+
+function renderSpeechSetting() {
+  if (!autoSpeakChip) return;
+  autoSpeakChip.classList.toggle('on', autoSpeak && speechSupported);
+  autoSpeakChip.setAttribute('aria-pressed', autoSpeak && speechSupported ? 'true' : 'false');
+  if (!speechSupported) {
+    autoSpeak = false;
+    autoSpeakChip.style.opacity = '.45';
+    autoSpeakChip.style.cursor = 'not-allowed';
+    autoSpeakChip.setAttribute('aria-disabled', 'true');
+    autoSpeakChip.title = '当前浏览器不支持语音朗读';
+  }
+  if (speakBtn && !speechSupported) {
+    speakBtn.disabled = true;
+    speakBtn.title = '当前浏览器不支持语音朗读';
+  }
+}
+
+function toggleAutoSpeak() {
+  if (!speechSupported) return;
+  autoSpeak = !autoSpeak;
+  saveSpeechSetting();
+  renderSpeechSetting();
+  if (autoSpeak) speakCurrentWord();
+  else stopSpeech();
+}
+
+function verbMetaText(verb) {
+  var typeName = verb.type === 'I' ? '一类动词' : verb.type === 'II' ? '二类动词' : '三类动词';
+  var trans = getTransitivity(verb);
+  var transName = trans === 'vi' ? '自动词' : trans === 'vt' ? '他动词' : '自动词／他动词';
+  return '（' + verb.kana + ' · ' + typeName + ' · ' + transName + (verb.exceptions ? ' · 特殊变化' : '') + '）';
+}
+
+function classificationText(verb) {
+  return classificationTextByCodes(verb.type, getTransitivity(verb));
+}
+
+function classificationTextByCodes(type, trans) {
+  var typeName = type === 'I' ? '一类动词' : type === 'II' ? '二类动词' : '三类动词';
+  var transName = trans === 'vi' ? '自动词' : '他动词';
+  return typeName + '＋' + transName;
+}
+
+function matchesVerbProfile(verb) {
+  var profile = getVerbProfile(verb);
+  return usageFilters.indexOf(profile.daily) !== -1 && examFilters.indexOf(profile.exam) !== -1;
+}
+
+function matchesFormStatus(verb, form) {
+  return formStatusFilters.indexOf(getFormPracticeStatus(verb, form)) !== -1;
+}
+
+function setChipValues(selector, datasetKey, values) {
+  document.querySelectorAll(selector + ' .chip').forEach(function(chip) {
+    chip.classList.toggle('on', values.indexOf(chip.dataset[datasetKey]) !== -1);
+  });
+}
+
+function setModeButtons(nextMode) {
+  mode = nextMode;
+  document.querySelectorAll('.mode-btn').forEach(function(btn) {
+    btn.classList.toggle('on', btn.dataset.mode === nextMode);
+  });
+}
+
+function markScopeCustom() {
+  if (applyingPreset) return;
+  activeEntry = 'custom';
+  document.querySelectorAll('.entry-card').forEach(function(card) { card.classList.remove('on'); });
+  presetNote.textContent = '自定义筛选：已按你当前选择的词频、考试重要度和变形价值出题。';
+}
+
+function applyEntryPreset(entry) {
+  applyingPreset = true;
+  activeEntry = entry;
+  levels = ['N5','N4','N3','N2'];
+  types = ['I','II','III'];
+  transTypes = ['vi','vt'];
+  selectedForms = allForms.slice();
+
+  if (entry === 'daily') {
+    usageFilters = ['high','normal'];
+    examFilters = ['focus','common','supplement','pending'];
+    formStatusFilters = ['core'];
+    setModeButtons('new');
+    presetNote.textContent = '日常核心：先练已标记的常用词和常用变形。';
+    settingsPanel.classList.add('hidden');
+  } else if (entry === 'jlpt') {
+    usageFilters = ['high','normal','low','pending'];
+    examFilters = ['focus','common'];
+    formStatusFilters = ['core','exam'];
+    setModeButtons('new');
+    presetNote.textContent = 'JLPT重点：练初稿中的重点／常见词，并保留考试有价值的变形。';
+    settingsPanel.classList.add('hidden');
+  } else if (entry === 'forms') {
+    usageFilters = ['high','normal','low','pending'];
+    examFilters = ['focus','common','supplement','pending'];
+    formStatusFilters = ['core','exam'];
+    setModeButtons('new');
+    presetNote.textContent = '变形专项：已打开详细筛选；低频变形仍默认关闭，可手动加入。';
+    settingsPanel.classList.remove('hidden');
+  } else if (entry === 'mistakes') {
+    usageFilters = ['high','normal','low','pending'];
+    examFilters = ['focus','common','supplement','pending'];
+    formStatusFilters = ['core','exam','rare'];
+    setModeButtons('error');
+    presetNote.textContent = '错题强化：不受词频限制，集中重练已经答错的组合。';
+    settingsPanel.classList.add('hidden');
+  }
+
+  document.querySelectorAll('.entry-card').forEach(function(card) {
+    card.classList.toggle('on', card.dataset.entry === entry);
+  });
+  setChipValues('#usageChips', 'usage', usageFilters);
+  setChipValues('#examChips', 'exam', examFilters);
+  setChipValues('#formStatusChips', 'formStatus', formStatusFilters);
+  setChipValues('#formChips', 'form', selectedForms);
+  setChipValues('#levelChips', 'level', levels);
+  setChipValues('#typeChips', 'type', types);
+  setChipValues('#transChips', 'trans', transTypes);
+  applyingPreset = false;
+  rebuildPool();
+}
+
+function renderVerbTags(verb, form) {
+  if (!elVerbTags) return;
+  var profile = getVerbProfile(verb);
+  var tags = [
+    '<span class="meta-tag tag-level">' + escapeHtml(verb.level) + '</span>',
+    '<span class="meta-tag tag-daily-' + profile.daily + '">' + escapeHtml(dailyProfileLabels[profile.daily]) + '</span>',
+    '<span class="meta-tag tag-exam-' + profile.exam + '">' + escapeHtml(examProfileLabels[profile.exam]) + '</span>'
+  ];
+  if (form !== 'classify') {
+    var status = getFormPracticeStatus(verb, form);
+    var statusLabels = {core:'常用变形', exam:'考试保留', rare:'低频变形'};
+    if (statusLabels[status]) tags.push('<span class="meta-tag tag-form-' + status + '">' + statusLabels[status] + '</span>');
+  }
+  elVerbTags.innerHTML = tags.join('');
+}
+
+function updateFilterSummary() {
+  var verbCount = 0, combinationCount = 0;
+  verbs.forEach(function(verb) {
+    if (levels.indexOf(verb.level) === -1 || types.indexOf(verb.type) === -1 || !matchesTransitivity(verb) || !matchesVerbProfile(verb)) return;
+    if (mode === 'classify') {
+      if (getTransitivity(verb) !== 'both') { verbCount++; combinationCount++; }
+      return;
+    }
+    var before = combinationCount;
+    selectedForms.forEach(function(form) {
+      if (isValidFormForVerb(verb, form) && matchesFormStatus(verb, form)) combinationCount++;
+    });
+    if (combinationCount > before) verbCount++;
+  });
+  if (filterSummary) filterSummary.textContent = '当前筛选：' + verbCount + ' 个动词 · ' + combinationCount + ' 个可练组合 · 每轮 ' + numPerRound + ' 题';
+  if (pilotNote) {
+    var profiledCount = verbs.filter(function(verb) { return !!verbProfiles[verb.kanji] || !!(verb.daily && verb.exam); }).length;
+    pilotNote.textContent = '初稿已标记 ' + profiledCount + '/' + verbs.length + ' 个动词；未标记内容显示“待补充”。';
+  }
+}
+
+// 四个快捷入口
+document.querySelectorAll('.entry-card').forEach(function(card) {
+  safeAddEvent(card, 'click', function() { applyEntryPreset(card.dataset.entry); });
+});
+
+// 折叠设置
+safeAddEvent(document.getElementById('settingsToggle'), 'click', function() {
+  settingsPanel.classList.toggle('hidden');
+});
+
+// 手动朗读与自动朗读开关。切换朗读设置不会重建题目或抢输入焦点。
+safeAddEvent(speakBtn, 'click', speakCurrentWord);
+safeAddEvent(autoSpeakChip, 'click', toggleAutoSpeak);
+safeAddEvent(autoSpeakChip, 'keydown', function(e) {
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleAutoSpeak(); }
+});
+
+// 词频、考试重要度、变形练习价值筛选
+document.querySelectorAll('#usageChips .chip').forEach(function(chip) {
+  safeAddEvent(chip, 'click', function() {
+    chip.classList.toggle('on');
+    usageFilters = [];
+    document.querySelectorAll('#usageChips .chip.on').forEach(function(c) { usageFilters.push(c.dataset.usage); });
+    markScopeCustom();
+    rebuildPool();
+  });
+});
+document.querySelectorAll('#examChips .chip').forEach(function(chip) {
+  safeAddEvent(chip, 'click', function() {
+    chip.classList.toggle('on');
+    examFilters = [];
+    document.querySelectorAll('#examChips .chip.on').forEach(function(c) { examFilters.push(c.dataset.exam); });
+    markScopeCustom();
+    rebuildPool();
+  });
+});
+document.querySelectorAll('#formStatusChips .chip').forEach(function(chip) {
+  safeAddEvent(chip, 'click', function() {
+    chip.classList.toggle('on');
+    formStatusFilters = [];
+    document.querySelectorAll('#formStatusChips .chip.on').forEach(function(c) { formStatusFilters.push(c.dataset.formStatus); });
+    markScopeCustom();
+    rebuildPool();
+  });
+});
+
+// 变形种类多选
+document.querySelectorAll('#formChips .chip').forEach(function(chip) {
+  safeAddEvent(chip, 'click', function() {
+    chip.classList.toggle('on');
+    selectedForms = [];
+    document.querySelectorAll('#formChips .chip.on').forEach(function(c) { selectedForms.push(c.dataset.form); });
+    markScopeCustom();
+    rebuildPool();
+  });
+});
+
+// 模式
+document.querySelectorAll('.mode-btn').forEach(function(btn) {
+  safeAddEvent(btn, 'click', function() {
+    document.querySelectorAll('.mode-btn').forEach(function(b){b.classList.remove('on');});
+    btn.classList.add('on');
+    mode = btn.dataset.mode;
+    if (activeEntry === 'mistakes' && mode !== 'error') markScopeCustom();
+    rebuildPool();
+  });
+});
+
+// 难度
+document.querySelectorAll('#levelChips .chip').forEach(function(chip) {
+  safeAddEvent(chip, 'click', function() {
+    chip.classList.toggle('on');
+    levels = [];
+    document.querySelectorAll('#levelChips .chip.on').forEach(function(c){levels.push(c.dataset.level);});
+    markScopeCustom();
+    rebuildPool();
+  });
+});
+
+// 类型
+document.querySelectorAll('#typeChips .chip').forEach(function(chip) {
+  safeAddEvent(chip, 'click', function() {
+    chip.classList.toggle('on');
+    types = [];
+    document.querySelectorAll('#typeChips .chip.on').forEach(function(c){types.push(c.dataset.type);});
+    markScopeCustom();
+    rebuildPool();
+  });
+});
+
+// 自动词／他动词
+document.querySelectorAll('#transChips .chip').forEach(function(chip) {
+  safeAddEvent(chip, 'click', function() {
+    chip.classList.toggle('on');
+    transTypes = [];
+    document.querySelectorAll('#transChips .chip.on').forEach(function(c){transTypes.push(c.dataset.trans);});
+    markScopeCustom();
+    rebuildPool();
+  });
+});
+
+// 动词区分题的答案选择
+document.querySelectorAll('#classTypeAnswers .chip').forEach(function(chip) {
+  safeAddEvent(chip, 'click', function() {
+    document.querySelectorAll('#classTypeAnswers .chip').forEach(function(c){c.classList.remove('on');});
+    chip.classList.add('on'); selectedClassType = chip.dataset.answerType;
+  });
+});
+document.querySelectorAll('#classTransAnswers .chip').forEach(function(chip) {
+  safeAddEvent(chip, 'click', function() {
+    document.querySelectorAll('#classTransAnswers .chip').forEach(function(c){c.classList.remove('on');});
+    chip.classList.add('on'); selectedClassTrans = chip.dataset.answerTrans;
+  });
+});
+
+// 数量
+document.querySelectorAll('#numChips .chip').forEach(function(chip) {
+  safeAddEvent(chip, 'click', function() {
+    document.querySelectorAll('#numChips .chip').forEach(function(c){c.classList.remove('on');});
+    chip.classList.add('on');
+    numPerRound = parseInt(chip.dataset.num);
+    rebuildPool();
+  });
+});
+
+// 规则按钮
+safeAddEvent(ruleBtn, 'click', function() {
+  ruleBox.classList.toggle('hidden');
+  var r = ruleTexts[curForm];
+  if (r) {
+    var typeKey = curVerb.type === 'I' ? 'I' : curVerb.type === 'II' ? 'II' : 'III';
+    var typeName = curVerb.type === 'I' ? '一类动词（五段）' : curVerb.type === 'II' ? '二类动词（一段）' : '三类动词（不规则）';
+    ruleBox.innerHTML = '<strong>📖 ' + r.title + '</strong><br><br>💬 <em>含义：</em>' + r.desc + '<br><br>📝 <em>用法：</em>' + r.usage + '<br><br>🔧 <em>' + typeName + '的变化方法：</em><br>' + r[typeKey].replace(/\n/g, '<br>');
+  }
+});
+
+// 错题本
+safeAddEvent(document.getElementById('errBookBtn'), 'click', function() {
+  errModal.classList.remove('hidden');
+  renderErrList();
+});
+safeAddEvent(document.getElementById('closeErrBtn'), 'click', function() { errModal.classList.add('hidden'); });
+safeAddEvent(document.getElementById('clearErrBtn'), 'click', function() {
+  errLog = [];
+  Object.keys(mem).forEach(function(key) {
+    mem[key].wrong = 0;
+    mem[key].errorStreak = 0;
+  });
+  saveMem(); saveErrLog(); renderErrList(); rebuildPool();
+});
+
+function renderErrList() {
+  if (!errList) return;
+  if (errLog.length === 0) { errList.innerHTML = '<p style="color:#888;font-size:0.7rem;">暂无错题</p>'; return; }
+  var html = '';
+  for (var i = 0; i < errLog.length; i++) {
+    var e = errLog[i];
+    html += '<div class="err-item"><span><strong>' + escapeHtml(e.verb) + '</strong> ' + escapeHtml(formNames[e.form] || e.form) + '<br>❌' + escapeHtml(e.user) + ' → ✅' + escapeHtml(e.correct) + '</span><button class="retry-err-btn" data-index="' + i + '">练习</button></div>';
+  }
+  errList.innerHTML = html;
+  errList.querySelectorAll('.retry-err-btn').forEach(function(btn) {
+    safeAddEvent(btn, 'click', function() { retryErrItem(parseInt(btn.dataset.index)); });
+  });
+}
+
+function retryErrItem(i) {
+  var e = errLog[i]; if(!e) return;
+  for (var j = 0; j < verbs.length; j++) {
+    if (verbs[j].kanji === e.verb) {
+      mode = 'error';
+      document.querySelectorAll('.mode-btn').forEach(function(b){b.classList.toggle('on', b.dataset.mode === 'error');});
+      pool = [{verb:verbs[j], form:e.form}]; index = 0;
+      okTotal = 0; ngTotal = 0;
+      errModal.classList.add('hidden'); practiceArea.classList.remove('hidden'); resultArea.classList.add('hidden');
+      loadQuestion(true);
+      break;
+    }
+  }
+}
+
+function updateGlobalProgress() {
+  var total = 0, practiced = 0;
+  verbs.forEach(function(v) {
+    if (levels.indexOf(v.level) === -1 || types.indexOf(v.type) === -1 || !matchesTransitivity(v) || !matchesVerbProfile(v)) return;
+    for (var i = 0; i < selectedForms.length; i++) {
+      if (!isValidFormForVerb(v, selectedForms[i]) || !matchesFormStatus(v, selectedForms[i])) continue;
+      total++;
+      var key = v.kanji + '_' + selectedForms[i];
+      if (mem[key]) practiced++;
+    }
+  });
+  globalProgText.textContent = practiced + '/' + total;
+  globalProg.style.width = total ? Math.round((practiced / total) * 100) + '%' : '0%';
+}
+
+function rebuildPool() {
+  stopSpeech();
+  pool = [];
+  okTotal = 0; ngTotal = 0;
+  elOk.textContent = '0'; elNg.textContent = '0'; elRate.textContent = '-';
+  verbs.forEach(function(v) {
+    if (levels.indexOf(v.level) === -1 || types.indexOf(v.type) === -1 || !matchesTransitivity(v) || !matchesVerbProfile(v)) return;
+    if (mode === 'classify') {
+      if (getTransitivity(v) !== 'both') pool.push({verb:v, form:'classify'});
+      return;
+    }
+    selectedForms.forEach(function(f) {
+      if (!isValidFormForVerb(v, f) || !matchesFormStatus(v, f)) return;
+      var key = v.kanji + '_' + f;
+      if (mode === 'new' && !mem[key]) pool.push({ verb: v, form: f });
+      else if (mode === 'review' && mem[key]) pool.push({ verb: v, form: f });
+      else if (mode === 'error' && mem[key] && mem[key].wrong > 0) pool.push({ verb: v, form: f });
+    });
+    var classifyKey = v.kanji + '_classify';
+    if (mode === 'error' && getTransitivity(v) !== 'both' && mem[classifyKey] && mem[classifyKey].wrong > 0) {
+      pool.push({verb:v, form:'classify'});
+    }
+  });
+  updateFilterSummary();
+  pool.sort(function() { return Math.random() - 0.5; });
+  if (pool.length > numPerRound) pool = pool.slice(0, numPerRound);
+  index = 0;
+  updateProgress();
+  if (pool.length > 0) {
+    practiceArea.classList.remove('hidden');
+    resultArea.classList.add('hidden');
+    // 调整筛选时只重建题目，不抢输入焦点，避免手机页面自动滚到输入框。
+    loadQuestion(false);
+  } else {
+    elVerb.textContent = '暂无题目';
+    elKana.textContent = mode === 'error' ? '当前筛选范围内还没有错题' : '请调整筛选条件或切换练习方式';
+    if (elVerbTags) elVerbTags.innerHTML = '';
+    elForm.textContent = '';
+    elAns.blur();
+    elAns.disabled = true;
+  }
+  updateGlobalProgress();
+}
+
+function updateProgress() {
+  if (pool.length === 0) prog.style.width = '0%';
+  else prog.style.width = Math.round((index / pool.length) * 100) + '%';
+}
+
+function focusAnswerWithoutScroll() {
+  try { elAns.focus({preventScroll:true}); }
+  catch(e) { elAns.focus(); }
+}
+
+function loadQuestion(autoFocus) {
+  if (typeof autoFocus === 'undefined') autoFocus = true;
+  if (index >= pool.length) { showResult(); return; }
+  stopSpeech();
+  var item = pool[index];
+  curVerb = item.verb; curForm = item.form;
+  curAnswer = curForm === 'classify' ? curVerb.type + '|' + getTransitivity(curVerb) : conjugate(curVerb, curForm);
+  elVerb.textContent = curVerb.kanji;
+  elKana.textContent = curForm === 'classify' ? '（' + curVerb.kana + (curVerb.exceptions ? ' · 特殊变化' : '') + '）' : verbMetaText(curVerb);
+  renderVerbTags(curVerb, curForm);
+  elForm.textContent = formNames[curForm];
+  selectedClassType = ''; selectedClassTrans = '';
+  document.querySelectorAll('#classifyArea .chip').forEach(function(c){c.classList.remove('on');});
+  if (curForm === 'classify') {
+    classifyArea.classList.remove('hidden'); elAns.classList.add('hidden'); ruleBtn.style.display = 'none';
+  } else {
+    classifyArea.classList.add('hidden'); elAns.classList.remove('hidden'); ruleBtn.style.display = '';
+    elAns.value = ''; elAns.className = ''; elAns.disabled = false;
+    if (autoFocus) focusAnswerWithoutScroll();
+    else elAns.blur();
+  }
+  elMsg.innerHTML = ''; elSub.style.display = ''; elSub.textContent = '决定';
+  elNext.classList.add('hidden'); elInfo.classList.add('hidden'); ruleBox.classList.add('hidden');
+  answered = false;
+  questionHadError = false;
+  updateProgress();
+  // 只有“下一题／指定错题”等主动进入题目时自动朗读；调整筛选时保持安静。
+  // 同步触发可兼容要求由点击或按键直接启动语音的移动浏览器。
+  if (autoSpeak && autoFocus && curVerb === item.verb && curForm === item.form) speakCurrentWord();
+}
+
+function checkAns() {
+  if (answered) return;
+  var isClassify = curForm === 'classify';
+  var raw = isClassify ? selectedClassType + '|' + selectedClassTrans : elAns.value.trim();
+  if (isClassify && (!selectedClassType || !selectedClassTrans)) {
+    elMsg.innerHTML = '<span class="red">请分别选择活用分类和自他分类</span>'; return;
+  }
+  if (!raw) return;
+  var ua = isClassify ? raw : normalizeInput(raw);
+  var plain = isClassify ? raw : normalizePlain(raw);
+  var kanjiAnswer = isClassify ? '' : buildKanjiAnswer(curVerb, curAnswer);
+  var correct = isClassify ? raw === curAnswer : (ua === curAnswer || plain === normalizePlain(curAnswer) || plain === normalizePlain(kanjiAnswer));
+  var key = curVerb.kanji + '_' + curForm;
+  if (!mem[key]) mem[key] = { correct: 0, wrong: 0, errorStreak: 0 };
+  if (correct) {
+    if (!questionHadError) {
+      okTotal++;
+      mem[key].correct++;
+      if (mode === 'error' && mem[key].wrong > 0) {
+        mem[key].errorStreak = (mem[key].errorStreak || 0) + 1;
+        if (mem[key].errorStreak >= 2) {
+          mem[key].wrong = 0;
+          mem[key].errorStreak = 0;
+          errLog = errLog.filter(function(e){return !(e.verb === curVerb.kanji && e.form === curForm);});
+          saveErrLog();
+        }
+      }
+    }
+    saveMem();
+    elMsg.innerHTML = '<span class="green">✔ ' + (questionHadError ? '纠正正确！' : '正确！') + '</span>';
+    elSub.style.display = 'none'; elNext.classList.remove('hidden');
+    elMean.innerHTML = renderMeaningHtml(curVerb, curForm);
+    elExam.textContent = isClassify ? '📎 分类：' + classificationText(curVerb) : '📎 例：' + (curVerb.example || curVerb.kanji + 'の' + formNames[curForm] + 'は ' + curAnswer + ' です');
+    elInfo.classList.remove('hidden');
+    answered = true;
+  } else {
+    if (!questionHadError) {
+      ngTotal++;
+      mem[key].wrong++;
+      mem[key].errorStreak = 0;
+      var oldIndex = -1;
+      for (var i = 0; i < errLog.length; i++) {
+        if (errLog[i].verb === curVerb.kanji && errLog[i].form === curForm) { oldIndex = i; break; }
+      }
+      if (oldIndex >= 0) errLog.splice(oldIndex, 1);
+      errLog.unshift({ verb: curVerb.kanji, form: curForm, user: isClassify ? classificationTextByCodes(selectedClassType, selectedClassTrans) : raw, correct: isClassify ? classificationText(curVerb) : displayCorrectAnswer(curVerb, curAnswer) });
+      if (errLog.length > 50) errLog.pop();
+      saveMem(); saveErrLog();
+    }
+    questionHadError = true;
+    elMsg.innerHTML = '<span class="red">✘ 错误，正确答案：' + escapeHtml(isClassify ? classificationText(curVerb) : displayCorrectAnswer(curVerb, curAnswer)) + '<br>请重新回答正确答案</span>';
+    if (isClassify) {
+      selectedClassType = ''; selectedClassTrans = '';
+      document.querySelectorAll('#classifyArea .chip').forEach(function(c){c.classList.remove('on');});
+    } else {
+      elAns.className = 'wrong'; elAns.value = ''; focusAnswerWithoutScroll();
+    }
+    elSub.textContent = '重试';
+    answered = false;
+  }
+  elOk.textContent = okTotal; elNg.textContent = ngTotal;
+  var total = okTotal + ngTotal;
+  elRate.textContent = total ? Math.round((okTotal / total) * 100) : '-';
+  updateGlobalProgress();
+}
+
+function nextQ() { index++; loadQuestion(true); }
+
+function showResult() {
+  stopSpeech();
+  practiceArea.classList.add('hidden');
+  resultArea.classList.remove('hidden');
+  var total = pool.length;
+  var rate = total ? Math.round((okTotal / total) * 100) : 0;
+  resultText.textContent = '共 ' + total + ' 题，首次答对 ' + okTotal + ' 题，首次正确率 ' + rate + '%';
+}
+
+safeAddEvent(elSub, 'click', checkAns);
+safeAddEvent(elNext, 'click', nextQ);
+safeAddEvent(elAns, 'keydown', function(e) {
+  if (e.key === 'Enter') {
+    if (!elNext.classList.contains('hidden')) nextQ();
+    else checkAns();
+  }
+});
+safeAddEvent(document.getElementById('retryBtn'), 'click', function() { rebuildPool(); });
+safeAddEvent(document.getElementById('resetBtn'), 'click', function() {
+  practiceArea.classList.remove('hidden');
+  resultArea.classList.add('hidden');
+  rebuildPool();
+});
+
+renderSpeechSetting();
+applyEntryPreset('daily');
+elOk.textContent = okTotal; elNg.textContent = ngTotal; elRate.textContent = '-';
+</script>
+</body>
+</html>
