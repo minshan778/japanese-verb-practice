@@ -16,7 +16,7 @@ concurrency:
 jobs:
   generate:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
 
     steps:
       - name: 读取仓库文件
@@ -79,7 +79,7 @@ jobs:
               with urllib.request.urlopen(req, timeout=180) as response:
                   return response.read()
 
-          deadline = time.time() + 300
+          deadline = time.time() + 900
           last_error = None
           while time.time() < deadline:
               try:
@@ -174,6 +174,13 @@ jobs:
           )
           print(f"完成：使用 {speaker.get('name')} 生成 {len(items)} 个测试音频")
           PY
+
+      - name: 输出错误详情
+        if: failure()
+        run: |
+          docker ps --all
+          docker stats --no-stream voicevox-nemo || true
+          docker logs voicevox-nemo || true
 
       - name: 检查生成结果
         run: |
