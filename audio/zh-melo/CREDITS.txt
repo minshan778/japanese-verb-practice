@@ -1,0 +1,10 @@
+中文固定语音
+
+语音模型：MeloTTS Chinese
+模型作者：MyShell.ai
+项目地址：https://github.com/myshell-ai/MeloTTS
+模型地址：https://huggingface.co/myshell-ai/MeloTTS-Chinese
+许可证：MIT
+
+本目录生成的音频用于日语动词练习网页。
+完整 MIT 许可证见 LICENSE-MeloTTS.txt。

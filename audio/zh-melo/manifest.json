@@ -1,0 +1,275 @@
+{
+  "version": 1,
+  "language": "zh-CN",
+  "voice": "MeloTTS 中文女声",
+  "model": "myshell-ai/MeloTTS-Chinese",
+  "project_url": "https://github.com/myshell-ai/MeloTTS",
+  "model_url": "https://huggingface.co/myshell-ai/MeloTTS-Chinese",
+  "license": "MIT",
+  "speed": "normal",
+  "generated_at": "2026-07-16T11:37:29.474692+00:00",
+  "audio_count": 20,
+  "mapping_count": 22,
+  "phrases": {
+    "吃": {
+      "id": "chi",
+      "src": "audio/zh-melo/chi.mp3"
+    },
+    "能吃": {
+      "id": "neng-chi",
+      "src": "audio/zh-melo/neng-chi.mp3"
+    },
+    "被吃": {
+      "id": "bei-chi",
+      "src": "audio/zh-melo/bei-chi.mp3"
+    },
+    "被迫吃": {
+      "id": "bei-po-chi",
+      "src": "audio/zh-melo/bei-po-chi.mp3"
+    },
+    "去": {
+      "id": "qu",
+      "src": "audio/zh-melo/qu.mp3"
+    },
+    "去了": {
+      "id": "qu-le",
+      "src": "audio/zh-melo/qu-le.mp3"
+    },
+    "不来": {
+      "id": "bu-lai",
+      "src": "audio/zh-melo/bu-lai.mp3"
+    },
+    "能来": {
+      "id": "neng-lai",
+      "src": "audio/zh-melo/neng-lai.mp3"
+    },
+    "因为有人来而受到影响": {
+      "id": "yin-lai-er-shou-ying-xiang",
+      "src": "audio/zh-melo/yin-lai-er-shou-ying-xiang.mp3"
+    },
+    "做": {
+      "id": "zuo",
+      "src": "audio/zh-melo/zuo.mp3"
+    },
+    "能做": {
+      "id": "neng-zuo",
+      "src": "audio/zh-melo/neng-zuo.mp3"
+    },
+    "读": {
+      "id": "du",
+      "src": "audio/zh-melo/du.mp3"
+    },
+    "写": {
+      "id": "xie",
+      "src": "audio/zh-melo/xie.mp3"
+    },
+    "如果写": {
+      "id": "ru-guo-xie",
+      "src": "audio/zh-melo/ru-guo-xie.mp3"
+    },
+    "说": {
+      "id": "shuo",
+      "src": "audio/zh-melo/shuo.mp3"
+    },
+    "被迫说": {
+      "id": "bei-po-shuo",
+      "src": "audio/zh-melo/bei-po-shuo.mp3"
+    },
+    "看": {
+      "id": "kan",
+      "src": "audio/zh-melo/kan.mp3"
+    },
+    "不看": {
+      "id": "bu-kan",
+      "src": "audio/zh-melo/bu-kan.mp3"
+    },
+    "起床吧": {
+      "id": "qi-chuang-ba",
+      "src": "audio/zh-melo/qi-chuang-ba.mp3"
+    },
+    "游泳了": {
+      "id": "you-yong-le",
+      "src": "audio/zh-melo/you-yong-le.mp3"
+    }
+  },
+  "items": {
+    "taberu|original|eat": {
+      "japanese": "食べる",
+      "reading": "たべる",
+      "form_tag": "原形",
+      "meaning_tag": "吃",
+      "text": "吃",
+      "src": "audio/zh-melo/chi.mp3"
+    },
+    "taberareru|potential|eat": {
+      "japanese": "食べられる",
+      "reading": "たべられる",
+      "form_tag": "可能形",
+      "meaning_tag": "吃",
+      "text": "能吃",
+      "src": "audio/zh-melo/neng-chi.mp3"
+    },
+    "taberareru|passive|eat": {
+      "japanese": "食べられる",
+      "reading": "たべられる",
+      "form_tag": "被动形",
+      "meaning_tag": "吃",
+      "text": "被吃",
+      "src": "audio/zh-melo/bei-chi.mp3"
+    },
+    "tabesaserareru|causativePassive|eat": {
+      "japanese": "食べさせられる",
+      "reading": "たべさせられる",
+      "form_tag": "使役被动形",
+      "meaning_tag": "吃",
+      "text": "被迫吃",
+      "src": "audio/zh-melo/bei-po-chi.mp3"
+    },
+    "iku|original|go": {
+      "japanese": "行く",
+      "reading": "いく",
+      "form_tag": "原形",
+      "meaning_tag": "去",
+      "text": "去",
+      "src": "audio/zh-melo/qu.mp3"
+    },
+    "itte|te|go": {
+      "japanese": "行って",
+      "reading": "いって",
+      "form_tag": "て形",
+      "meaning_tag": "去",
+      "text": "去",
+      "src": "audio/zh-melo/qu.mp3"
+    },
+    "itta|ta|go": {
+      "japanese": "行った",
+      "reading": "いった",
+      "form_tag": "过去形",
+      "meaning_tag": "去",
+      "text": "去了",
+      "src": "audio/zh-melo/qu-le.mp3"
+    },
+    "konai|nai|come": {
+      "japanese": "来ない",
+      "reading": "こない",
+      "form_tag": "否定形",
+      "meaning_tag": "来",
+      "text": "不来",
+      "src": "audio/zh-melo/bu-lai.mp3"
+    },
+    "korareru|potential|come": {
+      "japanese": "来られる",
+      "reading": "こられる",
+      "form_tag": "可能形",
+      "meaning_tag": "来",
+      "text": "能来",
+      "src": "audio/zh-melo/neng-lai.mp3"
+    },
+    "korareru|passive|come": {
+      "japanese": "来られる",
+      "reading": "こられる",
+      "form_tag": "被动形",
+      "meaning_tag": "来",
+      "text": "因为有人来而受到影响",
+      "special_translation": true,
+      "src": "audio/zh-melo/yin-lai-er-shou-ying-xiang.mp3"
+    },
+    "suru|original|do": {
+      "japanese": "する",
+      "reading": "する",
+      "form_tag": "原形",
+      "meaning_tag": "做",
+      "text": "做",
+      "src": "audio/zh-melo/zuo.mp3"
+    },
+    "dekiru|potential|do": {
+      "japanese": "できる",
+      "reading": "できる",
+      "form_tag": "可能形",
+      "meaning_tag": "做",
+      "text": "能做",
+      "src": "audio/zh-melo/neng-zuo.mp3"
+    },
+    "yomu|original|read": {
+      "japanese": "読む",
+      "reading": "よむ",
+      "form_tag": "原形",
+      "meaning_tag": "读",
+      "text": "读",
+      "src": "audio/zh-melo/du.mp3"
+    },
+    "yonde|te|read": {
+      "japanese": "読んで",
+      "reading": "よんで",
+      "form_tag": "て形",
+      "meaning_tag": "读",
+      "text": "读",
+      "src": "audio/zh-melo/du.mp3"
+    },
+    "kaku|original|write": {
+      "japanese": "書く",
+      "reading": "かく",
+      "form_tag": "原形",
+      "meaning_tag": "写",
+      "text": "写",
+      "src": "audio/zh-melo/xie.mp3"
+    },
+    "kakeba|ba|write": {
+      "japanese": "書けば",
+      "reading": "かけば",
+      "form_tag": "假定形",
+      "meaning_tag": "写",
+      "text": "如果写",
+      "src": "audio/zh-melo/ru-guo-xie.mp3"
+    },
+    "hanasu|original|speak": {
+      "japanese": "話す",
+      "reading": "はなす",
+      "form_tag": "原形",
+      "meaning_tag": "说",
+      "text": "说",
+      "src": "audio/zh-melo/shuo.mp3"
+    },
+    "hanasaserareru|causativePassive|speak": {
+      "japanese": "話させられる",
+      "reading": "はなさせられる",
+      "form_tag": "使役被动形",
+      "meaning_tag": "说",
+      "text": "被迫说",
+      "src": "audio/zh-melo/bei-po-shuo.mp3"
+    },
+    "miru|original|see": {
+      "japanese": "見る",
+      "reading": "みる",
+      "form_tag": "原形",
+      "meaning_tag": "看",
+      "text": "看",
+      "src": "audio/zh-melo/kan.mp3"
+    },
+    "minai|nai|see": {
+      "japanese": "見ない",
+      "reading": "みない",
+      "form_tag": "否定形",
+      "meaning_tag": "看",
+      "text": "不看",
+      "src": "audio/zh-melo/bu-kan.mp3"
+    },
+    "okiyou|volitional|get-up": {
+      "japanese": "起きよう",
+      "reading": "おきよう",
+      "form_tag": "意志形",
+      "meaning_tag": "起床",
+      "text": "起床吧",
+      "src": "audio/zh-melo/qi-chuang-ba.mp3"
+    },
+    "oyoida|ta|swim": {
+      "japanese": "泳いだ",
+      "reading": "およいだ",
+      "form_tag": "过去形",
+      "meaning_tag": "游泳",
+      "text": "游泳了",
+      "src": "audio/zh-melo/you-yong-le.mp3"
+    }
+  },
+  "license": "MIT"
+}
