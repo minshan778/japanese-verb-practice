@@ -1,0 +1,136 @@
+name: 导入已检查的语音包
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "voice-pack-*.zip"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: import-voice-pack
+  cancel-in-progress: false
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: 读取仓库文件
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 安全解压并检查语音包
+        run: |
+          python3 - <<'PY'
+          import json
+          import shutil
+          import stat
+          import zipfile
+          from pathlib import Path
+
+          root = Path.cwd().resolve()
+          archives = sorted(root.glob("voice-pack-*.zip"))
+          allowed_extensions = {".mp3", ".json", ".txt", ".csv", ".md"}
+
+          if not archives:
+              raise RuntimeError(
+                  "没有找到语音包。文件名必须以 voice-pack- 开头，并以 .zip 结尾。"
+              )
+
+          extracted_files = []
+
+          for archive in archives:
+              print(f"正在检查：{archive.name}")
+
+              if archive.stat().st_size > 25 * 1024 * 1024:
+                  raise RuntimeError(f"语音包超过25MB：{archive.name}")
+
+              with zipfile.ZipFile(archive) as package:
+                  damaged_file = package.testzip()
+                  if damaged_file:
+                      raise RuntimeError(
+                          f"压缩包已损坏：{archive.name}，异常文件：{damaged_file}"
+                      )
+
+                  unpacked_size = sum(info.file_size for info in package.infolist())
+                  if unpacked_size > 250 * 1024 * 1024:
+                      raise RuntimeError(f"解压后的内容超过250MB：{archive.name}")
+
+                  for info in package.infolist():
+                      raw_name = info.filename
+
+                      if raw_name.startswith("/") or "\\" in raw_name:
+                          raise RuntimeError(f"不允许的文件路径：{raw_name}")
+
+                      parts = [part for part in raw_name.split("/") if part]
+                      if not parts:
+                          continue
+
+                      if (
+                          parts[0] != "audio"
+                          or any(part in {".", ".."} for part in parts)
+                      ):
+                          raise RuntimeError(
+                              f"语音包内的所有文件都必须放在 audio 文件夹中：{raw_name}"
+                          )
+
+                      file_type = (info.external_attr >> 16) & 0o170000
+                      if file_type == stat.S_IFLNK:
+                          raise RuntimeError(f"不允许压缩包包含链接文件：{raw_name}")
+
+                      if info.is_dir():
+                          continue
+
+                      suffix = Path(parts[-1]).suffix.lower()
+                      if suffix not in allowed_extensions:
+                          raise RuntimeError(f"不允许的文件类型：{raw_name}")
+
+                      destination = root.joinpath(*parts).resolve()
+                      if root not in destination.parents:
+                          raise RuntimeError(f"不安全的文件路径：{raw_name}")
+
+                      destination.parent.mkdir(parents=True, exist_ok=True)
+                      with package.open(info) as source, destination.open("wb") as target:
+                          shutil.copyfileobj(source, target)
+
+                      extracted_files.append(destination)
+
+              print(f"检查通过：{archive.name}")
+
+          mp3_files = [path for path in extracted_files if path.suffix.lower() == ".mp3"]
+          if not mp3_files:
+              raise RuntimeError("语音包中没有找到 MP3 文件。")
+
+          for path in mp3_files:
+              if path.stat().st_size < 500:
+                  raise RuntimeError(f"MP3 文件过小，可能已损坏：{path.relative_to(root)}")
+
+          for path in extracted_files:
+              if path.suffix.lower() == ".json":
+                  with path.open("r", encoding="utf-8") as file:
+                      json.load(file)
+
+          for archive in archives:
+              archive.unlink()
+
+          print(f"导入完成：{len(mp3_files)} 个 MP3 文件。")
+          print("上传的 ZIP 已删除，只保留解压后的语音文件。")
+          PY
+
+      - name: 保存解压后的语音文件
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add --all
+
+          if git diff --cached --quiet; then
+            echo "没有需要保存的变化。"
+          else
+            git commit -m "导入已检查的语音包 [skip ci]"
+            git push
+          fi
