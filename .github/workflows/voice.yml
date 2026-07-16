@@ -25,9 +25,7 @@ jobs:
       - name: 启动固定日语语音引擎
         run: |
           docker pull voicevox/voicevox_nemo_engine:cpu-ubuntu20.04-latest
-                    docker run --detach --name voicevox-nemo --env VV_PORT=50021 --publish 127.0.0.1:50021:50021 voicevox/voicevox_nemo_engine:cpu-ubuntu20.04-latest
-
-      - name: 生成20个女声6测试语音
+          docker run --detach --name voicevox-nemo --publish 127.0.0.1:50021:50121 voicevox/voicevox_nemo_engine:cpu-ubuntu20.04-latest
         run: |
           python3 - <<'PY'
           import json
