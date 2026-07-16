@@ -1,0 +1,91 @@
+{
+  "version": 1,
+  "voice": "VOICEVOX Nemo 女声6",
+  "credit": "VOICEVOX Nemo",
+  "speaker_name": "女声6",
+  "style_name": "ノーマル",
+  "style_id": 10006,
+  "generated_at": "2026-07-16T08:43:32.885715+00:00",
+  "items": {
+    "たべる": {
+      "label": "食べる",
+      "src": "audio/nemo-f6/taberu.mp3"
+    },
+    "たべられる": {
+      "label": "食べられる",
+      "src": "audio/nemo-f6/taberareru.mp3"
+    },
+    "たべさせられる": {
+      "label": "食べさせられる",
+      "src": "audio/nemo-f6/tabesaserareru.mp3"
+    },
+    "いく": {
+      "label": "行く",
+      "src": "audio/nemo-f6/iku.mp3"
+    },
+    "いって": {
+      "label": "行って",
+      "src": "audio/nemo-f6/itte.mp3"
+    },
+    "いった": {
+      "label": "行った",
+      "src": "audio/nemo-f6/itta.mp3"
+    },
+    "こない": {
+      "label": "来ない",
+      "src": "audio/nemo-f6/konai.mp3"
+    },
+    "こられる": {
+      "label": "来られる",
+      "src": "audio/nemo-f6/korareru.mp3"
+    },
+    "する": {
+      "label": "する",
+      "src": "audio/nemo-f6/suru.mp3"
+    },
+    "できる": {
+      "label": "できる",
+      "src": "audio/nemo-f6/dekiru.mp3"
+    },
+    "よむ": {
+      "label": "読む",
+      "src": "audio/nemo-f6/yomu.mp3"
+    },
+    "よんで": {
+      "label": "読んで",
+      "src": "audio/nemo-f6/yonde.mp3"
+    },
+    "かく": {
+      "label": "書く",
+      "src": "audio/nemo-f6/kaku.mp3"
+    },
+    "かけば": {
+      "label": "書けば",
+      "src": "audio/nemo-f6/kakeba.mp3"
+    },
+    "はなす": {
+      "label": "話す",
+      "src": "audio/nemo-f6/hanasu.mp3"
+    },
+    "はなさせられる": {
+      "label": "話させられる",
+      "src": "audio/nemo-f6/hanasaserareru.mp3"
+    },
+    "みる": {
+      "label": "見る",
+      "src": "audio/nemo-f6/miru.mp3"
+    },
+    "みない": {
+      "label": "見ない",
+      "src": "audio/nemo-f6/minai.mp3"
+    },
+    "おきよう": {
+      "label": "起きよう",
+      "src": "audio/nemo-f6/okiyou.mp3"
+    },
+    "およいだ": {
+      "label": "泳いだ",
+      "src": "audio/nemo-f6/oyoida.mp3"
+    }
+  }
+}
