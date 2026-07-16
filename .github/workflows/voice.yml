@@ -24,6 +24,8 @@ jobs:
 
       - name: 启动固定日语语音引擎
         run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
           docker pull voicevox/voicevox_nemo_engine:cpu-ubuntu20.04-latest
           docker run --detach --name voicevox-nemo --publish 127.0.0.1:50021:50121 voicevox/voicevox_nemo_engine:cpu-ubuntu20.04-latest
 
