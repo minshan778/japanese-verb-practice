@@ -32,7 +32,16 @@ var verbs = [
   { kanji:'聞く', kana:'きく', type:'I', level:'N5', meaning:'听、问' },
   { kanji:'切る', kana:'きる', type:'I', level:'N5', meaning:'切、剪' },
   { kanji:'着る', kana:'きる', type:'II', level:'N5', meaning:'穿（衣服）' },
-  { kanji:'来る', kana:'くる', type:'III', level:'N5', meaning:'来' },
+  {
+    kanji:'来る', kana:'くる', type:'III', level:'N5', meaning:'来',
+    meaningOverrides:{
+      passive:{
+        text:'因为有人来而受到影响',
+        speech:'因为有人来而受到影响',
+        special:true
+      }
+    }
+  },
   { kanji:'消す', kana:'けす', type:'I', level:'N5', meaning:'关掉、删除' },
   { kanji:'答える', kana:'こたえる', type:'II', level:'N5', meaning:'回答' },
   { kanji:'困る', kana:'こまる', type:'I', level:'N5', meaning:'为难' },
@@ -75,7 +84,12 @@ var verbs = [
   { kanji:'始める', kana:'はじめる', type:'II', level:'N5', meaning:'开始（他动）' },
   { kanji:'走る', kana:'はしる', type:'I', level:'N5', meaning:'跑' },
   { kanji:'働く', kana:'はたらく', type:'I', level:'N5', meaning:'工作' },
-  { kanji:'話す', kana:'はなす', type:'I', level:'N5', meaning:'说、讲' },
+  {
+    kanji:'話す', kana:'はなす', type:'I', level:'N5', meaning:'说、讲',
+    meaningOverrides:{
+      causativePassive:{text:'被迫说', speech:'被迫说', sense:'说'}
+    }
+  },
   { kanji:'払う', kana:'はらう', type:'I', level:'N5', meaning:'支付' },
   { kanji:'降る', kana:'ふる', type:'I', level:'N5', meaning:'下（雨/雪）' },
   { kanji:'曲がる', kana:'まがる', type:'I', level:'N5', meaning:'转弯' },
@@ -631,4 +645,3 @@ function getFormPracticeStatus(verb, form) {
   }
   return 'rare';
 }
-

@@ -2,8 +2,8 @@
 var allForms = ['masu','te','ta','nai','potential','volitional','passive','causative','ba','imperative','causativePassive','prohibition'];
 var formNames = {
   masu:'礼貌形（ます形）', te:'连接形（て形）', ta:'过去形（た形）', nai:'否定形（ない形）', potential:'可能形',
-  volitional:'意志形', passive:'被动态', causative:'使役态', ba:'假定形（ば形）',
-  imperative:'命令形', causativePassive:'使役被动态', prohibition:'禁止形（な）', classify:'动词区分'
+  volitional:'意志形', passive:'被动形', causative:'使役态', ba:'假定形（ば形）',
+  imperative:'命令形', causativePassive:'使役被动形', prohibition:'禁止形（な）', classify:'动词区分'
 };
 
 var ruleTexts = {
@@ -13,11 +13,11 @@ var ruleTexts = {
   nai: { title:'否定形（ない形）', desc:'表示"不…""没…"，是简体否定形式。', usage:'①否定陈述：行かない②请求否定：行かないで③必须：行かなければならない。', I:'一类动词：词尾う段→あ段+ない\n例：書く→書かない、話す→話さない\n⚠️ 買う→買わない（う→わ）\n⚠️ 特殊：ある→ない', II:'二类动词：去る+ない\n例：食べる→食べない', III:'三类动词：する→しない\n来る→こない' },
   potential: { title:'可能形（能／会）', desc:'表示"能…""会…""可以…"，有能力或条件做某事。', usage:'①能力：日本語が話せる②可能性：明日来られる③属性：この魚は食べられない。', I:'一类动词：词尾う段→え段+る（書ける、話せる）。注意：变化后的可能动词按二类动词变化。', II:'二类动词：去る+られる（食べられる）\n口语可省略ら：食べれる', III:'三类动词：する→できる\n来る→こられる' },
   volitional: { title:'意志形', desc:'表示"…吧""想要…""让我们一起…"，表达意志或劝诱。', usage:'①意志：明日早く起きよう②劝诱：一緒に行こう③〜と思う：留学しようと思う。', I:'一类动词：词尾う段→お段+う（書こう、話そう）', II:'二类动词：去る+よう（食べよう）', III:'三类动词：する→しよう\n来る→こよう' },
-  passive: { title:'被动态', desc:'表示"被…""受到…"，主语承受动作。也用于尊敬或客观叙述。', usage:'①直接被动：先生に叱られた②受害：雨に降られた③尊敬：社長が来られた。', I:'一类动词：词尾う段→あ段+れる（書かれる、話される）', II:'二类动词：去る+られる（食べられる）※与可能形同形，靠语境区分', III:'三类动词：する→される\n来る→こられる' },
+  passive: { title:'被动形', desc:'表示"被…""受到…"，主语承受动作。也用于尊敬或客观叙述。', usage:'①直接被动：先生に叱られた②受害：雨に降られた③尊敬：社長が来られた。', I:'一类动词：词尾う段→あ段+れる（書かれる、話される）', II:'二类动词：去る+られる（食べられる）※与可能形同形，靠语境区分', III:'三类动词：する→される\n来る→こられる' },
   causative: { title:'使役态', desc:'表示"让…做…""使…做…"，强制、指示或允许某人做某事。', usage:'①强制：母は私に部屋を掃除させた②允许：子供を遊ばせる③〜てください：行かせてください。', I:'一类动词：词尾う段→あ段+せる（書かせる、話させる）', II:'二类动词：去る+させる（食べさせる）', III:'三类动词：する→させる\n来る→こさせる' },
   ba: { title:'假定形（ば形）', desc:'表示"如果…""假如…"，用于条件假设。', usage:'①假设：お金があれば買う②必然：春になれば桜が咲く③建议：早く行けばよかった。', I:'一类动词：词尾う段→え段+ば（書けば、話せば）', II:'二类动词：去る+れば（食べれば）', III:'三类动词：する→すれば\n来る→くれば' },
   imperative: { title:'命令形', desc:'表示命令，语气非常强硬，多用于男性、紧急情况、口号或亲密关系之间。', usage:'①紧急：逃げろ！②口号：頑張れ！③交通标志：止まれ。日常建议用「〜てください」。', I:'一类动词：词尾う段→え段（書け、話せ）', II:'二类动词：去る+ろ（食べろ）', III:'三类动词：する→しろ（或せよ）\n来る→こい' },
-  causativePassive: { title:'使役被动态', desc:'表示"被迫做…""不得不做…"，带有不情愿、被迫的语气。是使役态+被动态的结合。', usage:'①被迫：母に野菜を食べさせられた②不得不：会議に出させられた。', I:'一类动词：词尾う段→あ段+せられる（口语约音为される）\n例：書かせられる→書かされる', II:'二类动词：去る+させられる（食べさせられる）', III:'三类动词：する→させられる\n来る→こさせられる' },
+  causativePassive: { title:'使役被动形', desc:'表示"被迫做…""不得不做…"，带有不情愿、被迫的语气。是使役态+被动形的结合。', usage:'①被迫：母に野菜を食べさせられた②不得不：会議に出させられた。', I:'一类动词：词尾う段→あ段+せられる（口语约音为される）\n例：書かせられる→書かされる', II:'二类动词：去る+させられる（食べさせられる）', III:'三类动词：する→させられる\n来る→こさせられる' },
   prohibition: { title:'禁止形', desc:'表示"不准…""禁止…"，语气非常强烈的否定命令。', usage:'①规则：ここでタバコを吸うな②警告：触るな！③标语：入るな。日常建议用「〜ないでください」。', I:'一类动词：辞书形+な（書くな）', II:'二类动词：辞书形+な（食べるな）', III:'三类动词：するな\n来る→くるな' }
 };
 
@@ -202,7 +202,23 @@ function appendBeforeMeaningNote(meaning, suffix) {
   return match ? match[1] + suffix + match[2] : meaning + suffix;
 }
 
+// 少数变形不能只靠“能／被／让”等前缀机械翻译。
+// 这些内容跟随单词数据保存，既能显示“特殊翻译”标签，也能单独指定朗读文本。
+function getMeaningOverride(verb, form) {
+  if (!verb || !verb.meaningOverrides || !verb.meaningOverrides[form]) return null;
+  var value = verb.meaningOverrides[form];
+  if (typeof value === 'string') return { text:value, speech:value, special:false, sense:'' };
+  return {
+    text:value.text || '',
+    speech:value.speech || value.text || '',
+    special:!!value.special,
+    sense:value.sense || ''
+  };
+}
+
 function meaningForForm(verb, form) {
+  var override = getMeaningOverride(verb, form);
+  if (override && override.text) return override.text;
   var base = verb.meaning || '';
   var map = function(transform) { return mapMeaningSenses(base, transform); };
   if (form === 'classify') return base;
@@ -219,6 +235,29 @@ function meaningForForm(verb, form) {
   if (form === 'causative') return map(function(s) { return '让（某人／某物）' + s; });
   if (form === 'ba') return map(function(s) { return '如果' + s; });
   if (form === 'imperative') return map(function(s) { return appendBeforeMeaningNote(s, '！'); });
+  if (form === 'causativePassive') return map(function(s) { return '被迫' + s; });
+  if (form === 'prohibition') return map(function(s) { return '不准' + s; });
+  return base;
+}
+
+// 屏幕可以保留“礼貌表达”“连接后句”等学习说明，朗读时只读自然的中文意思。
+function speechMeaningForForm(verb, form) {
+  var override = getMeaningOverride(verb, form);
+  if (override && override.speech) return override.speech;
+  var base = verb.speechMeaning || verb.meaning || '';
+  var map = function(transform) { return mapMeaningSenses(base, transform); };
+  if (form === 'classify' || form === 'masu' || form === 'te') return base;
+  if (form === 'ta') return map(function(s) { return appendBeforeMeaningNote(s, '了'); });
+  if (form === 'nai') return map(function(s) { return '不' + s; });
+  if (form === 'potential') return map(function(s) { return '能' + s; });
+  if (form === 'volitional') return map(function(s) { return appendBeforeMeaningNote(s, '吧'); });
+  if (form === 'passive') {
+    if (getTransitivity(verb) === 'vi') return '因为“' + base + '”而受到影响';
+    return map(function(s) { return '被' + s; });
+  }
+  if (form === 'causative') return map(function(s) { return '让某人' + s; });
+  if (form === 'ba') return map(function(s) { return '如果' + s; });
+  if (form === 'imperative') return base;
   if (form === 'causativePassive') return map(function(s) { return '被迫' + s; });
   if (form === 'prohibition') return map(function(s) { return '不准' + s; });
   return base;
@@ -301,6 +340,10 @@ var audioSupported = typeof window.Audio === 'function';
 var speechSequence = 0;
 var fixedVoiceItems = {};
 var fixedVoiceReady = false;
+var fixedVoiceLoadFinished = false;
+var fixedChineseVoiceItems = {};
+var fixedChineseVoiceReady = false;
+var fixedChineseVoiceLoadFinished = false;
 var activeAudio = null;
 
 function safeAddEvent(el, event, fn) {
@@ -316,9 +359,20 @@ function updateVoiceStatus(message) {
   if (voiceStatus) voiceStatus.textContent = message;
 }
 
+function refreshVoiceStatus() {
+  var japaneseText = fixedVoiceReady
+    ? '日语女声6 ' + Object.keys(fixedVoiceItems).length + ' 个'
+    : (fixedVoiceLoadFinished ? '日语暂用设备语音' : '日语语音载入中');
+  var chineseText = fixedChineseVoiceReady
+    ? '中文MeloTTS ' + Object.keys(fixedChineseVoiceItems).length + ' 个'
+    : (fixedChineseVoiceLoadFinished ? '中文固定语音未载入' : '中文语音载入中');
+  updateVoiceStatus(japaneseText + '；' + chineseText + '。答对后先读正确变形，再读对应中文。');
+}
+
 function loadFixedVoiceManifest() {
   if (!audioSupported || typeof window.fetch !== 'function') {
-    updateVoiceStatus('当前浏览器无法载入固定语音，暂时使用设备日语语音。');
+    fixedVoiceLoadFinished = true;
+    refreshVoiceStatus();
     renderSpeechSetting();
     return;
   }
@@ -331,19 +385,46 @@ function loadFixedVoiceManifest() {
     .then(function(manifest) {
       fixedVoiceItems = manifest && manifest.items ? manifest.items : {};
       fixedVoiceReady = Object.keys(fixedVoiceItems).length > 0;
-      if (fixedVoiceReady) {
-        updateVoiceStatus('已接入女声6固定语音 ' + Object.keys(fixedVoiceItems).length + ' 个；其他词暂时使用设备日语语音。');
-      } else {
-        updateVoiceStatus('没有找到女声6测试语音，暂时使用设备日语语音。');
-      }
+      fixedVoiceLoadFinished = true;
+      refreshVoiceStatus();
       renderSpeechSetting();
     })
     .catch(function(error) {
       console.warn(error);
       fixedVoiceItems = {};
       fixedVoiceReady = false;
-      updateVoiceStatus('女声6测试语音载入失败，暂时使用设备日语语音。');
+      fixedVoiceLoadFinished = true;
+      refreshVoiceStatus();
       renderSpeechSetting();
+    });
+}
+
+// 中文只使用仓库中的固定音频，不再调用平板或浏览器自带中文语音。
+// 当前答案没有对应文件时保持安静，也不显示“待生成”提示。
+function loadFixedChineseVoiceManifest() {
+  if (!audioSupported || typeof window.fetch !== 'function') {
+    fixedChineseVoiceLoadFinished = true;
+    refreshVoiceStatus();
+    return;
+  }
+
+  window.fetch('audio/zh-melo/manifest.json', { cache:'no-store' })
+    .then(function(response) {
+      if (!response.ok) throw new Error('中文语音清单载入失败：' + response.status);
+      return response.json();
+    })
+    .then(function(manifest) {
+      fixedChineseVoiceItems = manifest && manifest.phrases ? manifest.phrases : {};
+      fixedChineseVoiceReady = Object.keys(fixedChineseVoiceItems).length > 0;
+      fixedChineseVoiceLoadFinished = true;
+      refreshVoiceStatus();
+    })
+    .catch(function(error) {
+      console.warn(error);
+      fixedChineseVoiceItems = {};
+      fixedChineseVoiceReady = false;
+      fixedChineseVoiceLoadFinished = true;
+      refreshVoiceStatus();
     });
 }
 
@@ -381,9 +462,15 @@ function stopSpeech() {
   setSpeakingState(false);
 }
 
-function speakWithBrowserVoice(text, sequence) {
+function finishSpeechStep(sequence, onComplete) {
+  if (sequence !== speechSequence) return;
+  setSpeakingState(false);
+  if (typeof onComplete === 'function') onComplete(sequence);
+}
+
+function speakWithBrowserVoice(text, sequence, onComplete) {
   if (!speechSupported || sequence !== speechSequence) {
-    setSpeakingState(false);
+    finishSpeechStep(sequence, onComplete);
     return;
   }
   var utterance = new window.SpeechSynthesisUtterance(text);
@@ -393,11 +480,11 @@ function speakWithBrowserVoice(text, sequence) {
   var voice = getJapaneseVoice();
   if (voice) utterance.voice = voice;
   utterance.onstart = function() { if (sequence === speechSequence) setSpeakingState(true); };
-  utterance.onend = utterance.onerror = function() { if (sequence === speechSequence) setSpeakingState(false); };
+  utterance.onend = utterance.onerror = function() { finishSpeechStep(sequence, onComplete); };
   window.speechSynthesis.speak(utterance);
 }
 
-function playFixedVoice(text, sequence) {
+function playFixedVoice(text, sequence, onComplete) {
   var item = fixedVoiceItems[text];
   if (!audioSupported || !item || !item.src) return false;
 
@@ -410,7 +497,7 @@ function playFixedVoice(text, sequence) {
     if (fallbackUsed || sequence !== speechSequence) return;
     fallbackUsed = true;
     if (activeAudio === audio) activeAudio = null;
-    speakWithBrowserVoice(text, sequence);
+    speakWithBrowserVoice(text, sequence, onComplete);
   }
 
   audio.onplay = function() {
@@ -419,7 +506,7 @@ function playFixedVoice(text, sequence) {
   audio.onended = function() {
     if (sequence === speechSequence) {
       activeAudio = null;
-      setSpeakingState(false);
+      finishSpeechStep(sequence, onComplete);
     }
   };
   audio.onerror = fallbackToBrowser;
@@ -435,12 +522,65 @@ function playFixedVoice(text, sequence) {
   return true;
 }
 
-function speakJapanese(text) {
-  if (!text || !hasSpeechFeature()) return;
+function speakJapanese(text, onComplete) {
+  if (!text) return;
   var sequence = ++speechSequence;
   stopActivePlayback();
-  if (playFixedVoice(text, sequence)) return;
-  speakWithBrowserVoice(text, sequence);
+  if (!hasSpeechFeature()) {
+    finishSpeechStep(sequence, onComplete);
+    return;
+  }
+  if (playFixedVoice(text, sequence, onComplete)) return;
+  speakWithBrowserVoice(text, sequence, onComplete);
+}
+
+function playFixedChineseVoice(text, sequence) {
+  var item = fixedChineseVoiceItems[text];
+  if (!audioSupported || !item || !item.src || sequence !== speechSequence) return false;
+
+  var audio = new window.Audio(item.src);
+  activeAudio = audio;
+  audio.preload = 'auto';
+  audio.onplay = function() {
+    if (sequence === speechSequence) setSpeakingState(true);
+  };
+  audio.onended = function() {
+    if (sequence === speechSequence) {
+      activeAudio = null;
+      setSpeakingState(false);
+    }
+  };
+  audio.onerror = function() {
+    if (sequence === speechSequence) {
+      activeAudio = null;
+      setSpeakingState(false);
+    }
+  };
+
+  try {
+    var playResult = audio.play();
+    if (playResult && typeof playResult.catch === 'function') {
+      playResult.catch(function() {
+        if (sequence === speechSequence) {
+          activeAudio = null;
+          setSpeakingState(false);
+        }
+      });
+    }
+  } catch(e) {
+    if (activeAudio === audio) activeAudio = null;
+    setSpeakingState(false);
+    return false;
+  }
+  return true;
+}
+
+function speakChinese(text, sequence) {
+  if (!text || sequence !== speechSequence) {
+    if (sequence === speechSequence) setSpeakingState(false);
+    return;
+  }
+  if (!playFixedChineseVoice(text, sequence)) setSpeakingState(false);
 }
 
 function speakCurrentWord() {
@@ -583,6 +723,13 @@ function renderVerbTags(verb, form) {
     var status = getFormPracticeStatus(verb, form);
     var statusLabels = {core:'常用变形', exam:'考试保留', rare:'低频变形'};
     if (statusLabels[status]) tags.push('<span class="meta-tag tag-form-' + status + '">' + statusLabels[status] + '</span>');
+    var meaningOverride = getMeaningOverride(verb, form);
+    if (meaningOverride && meaningOverride.special) {
+      tags.push('<span class="meta-tag tag-special-translation">特殊翻译</span>');
+    }
+    if (meaningOverride && meaningOverride.sense) {
+      tags.push('<span class="meta-tag tag-meaning-sense">词义：' + escapeHtml(meaningOverride.sense) + '</span>');
+    }
   }
   elVerbTags.innerHTML = tags.join('');
 }
@@ -923,6 +1070,13 @@ function checkAns() {
     elExam.textContent = isClassify ? '📎 分类：' + classificationText(curVerb) : '📎 例：' + (curVerb.example || curVerb.kanji + 'の' + formNames[curForm] + 'は ' + curAnswer + ' です');
     elInfo.classList.remove('hidden');
     answered = true;
+    // 出题时读原形；回答正确后依次读正确变形和对应的中文意思。
+    if (autoSpeak && !isClassify) {
+      var answerMeaning = speechMeaningForForm(curVerb, curForm);
+      speakJapanese(curAnswer, function(sequence) {
+        speakChinese(answerMeaning, sequence);
+      });
+    }
   } else {
     if (!questionHadError) {
       ngTotal++;
@@ -982,5 +1136,6 @@ safeAddEvent(document.getElementById('resetBtn'), 'click', function() {
 
 renderSpeechSetting();
 loadFixedVoiceManifest();
+loadFixedChineseVoiceManifest();
 applyEntryPreset('daily');
 elOk.textContent = okTotal; elNg.textContent = ngTotal; elRate.textContent = '-';

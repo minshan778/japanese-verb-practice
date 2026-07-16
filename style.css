@@ -36,7 +36,7 @@
     .tag-level{background:#eee9df;color:#6f6250}
     .tag-daily-high{background:#e2f2df;color:#416d3a}.tag-daily-normal{background:#edf4e9;color:#607a56}.tag-daily-low{background:#f0efed;color:#79746d}.tag-daily-pending{background:#f6f3ee;color:#a0988d}
     .tag-exam-focus{background:#fff0d4;color:#96601d;border-color:#f1d39d}.tag-exam-common{background:#fff6e6;color:#9a733d}.tag-exam-supplement{background:#f7f1e6;color:#8d7d63}.tag-exam-pending{background:#f6f3ee;color:#a0988d}
-    .tag-form-core{background:#dfeee9;color:#397064}.tag-form-exam{background:#eee6f7;color:#6b4e87}.tag-form-rare{background:#f2eeee;color:#8b6969}
+    .tag-form-core{background:#dfeee9;color:#397064}.tag-form-exam{background:#eee6f7;color:#6b4e87}.tag-form-rare{background:#f2eeee;color:#8b6969}.tag-special-translation{background:#ffe8c7;color:#945316;border-color:#efc47f}.tag-meaning-sense{background:#e5effa;color:#3d6488;border-color:#bdd2e8}
     .speak-btn{position:absolute;top:8px;left:10px;display:flex;align-items:center;justify-content:center;flex:none;width:38px;height:38px;padding:0;border:1px solid #d5dfd0;border-radius:50%;background:#f1f7ee;color:#4e7047;font-size:1.08rem;line-height:1;cursor:pointer}
     .speak-btn:hover{background:#e4f0df}.speak-btn.speaking{background:#d4e8cc;border-color:#9fbe94;transform:scale(1.04)}
     .speak-btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
