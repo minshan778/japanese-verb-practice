@@ -4,11 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>动词变形练习 · 全功能版</title>
-  <link rel="stylesheet" href="style.css?v=voice-test-2">
+  <link rel="stylesheet" href="style.css?v=voice-test-3">
 </head>
 <body>
 <div class="container">
-  <div id="normalPracticeControls">
   <h2>📘 动词变形练习</h2>
   
   <div class="label" style="display:flex;justify-content:space-between">
@@ -31,9 +30,9 @@
     <button type="button" class="entry-card" data-entry="mistakes">
       <span class="entry-icon">🔥</span><strong>错题强化</strong><small>集中重练错误组合</small>
     </button>
-    <button type="button" class="entry-card voice-test-entry" data-entry="voice-test">
+    <a class="voice-test-link" href="voice-test.html?v=voice-test-3">
       <span class="entry-icon">🎧</span><strong>语音测试</strong><small>固定22题 · 依次检查日语与中文语音</small>
-    </button>
+    </a>
   </div>
   <div class="preset-note" id="presetNote">日常核心：先练已标记的常用词和常用变形。</div>
   
@@ -119,17 +118,6 @@
     </div>
     <div class="filter-summary" id="filterSummary">正在计算当前范围…</div>
   </div>
-  </div>
-
-  <div class="voice-test-screen hidden" id="voiceTestScreen">
-    <div class="voice-test-toolbar">
-      <button type="button" class="voice-test-exit" id="exitVoiceTestBtn">← 退出测试</button>
-      <strong id="voiceTestCounter" aria-live="polite">第1/22题</strong>
-    </div>
-    <h2>🎧 语音测试</h2>
-    <p>固定22题 · 从「食べる・原形」开始 · 不使用普通练习筛选</p>
-    <div class="voice-test-bar-wrap"><div class="voice-test-bar" id="voiceTestProgressBar"></div></div>
-  </div>
 
   <div id="practiceArea">
     <div class="card">
@@ -190,7 +178,7 @@
   </div>
 </div>
 
-<script src="verbs.js?v=voice-test-2"></script>
-<script src="app.js?v=voice-test-2"></script>
+<script src="verbs.js?v=voice-test-3"></script>
+<script src="app.js?v=voice-test-3"></script>
 </body>
 </html>
