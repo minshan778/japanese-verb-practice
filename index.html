@@ -4,10 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>动词变形练习 · 全功能版</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=voice-test-2">
 </head>
 <body>
 <div class="container">
+  <div id="normalPracticeControls">
   <h2>📘 动词变形练习</h2>
   
   <div class="label" style="display:flex;justify-content:space-between">
@@ -118,6 +119,17 @@
     </div>
     <div class="filter-summary" id="filterSummary">正在计算当前范围…</div>
   </div>
+  </div>
+
+  <div class="voice-test-screen hidden" id="voiceTestScreen">
+    <div class="voice-test-toolbar">
+      <button type="button" class="voice-test-exit" id="exitVoiceTestBtn">← 退出测试</button>
+      <strong id="voiceTestCounter" aria-live="polite">第1/22题</strong>
+    </div>
+    <h2>🎧 语音测试</h2>
+    <p>固定22题 · 从「食べる・原形」开始 · 不使用普通练习筛选</p>
+    <div class="voice-test-bar-wrap"><div class="voice-test-bar" id="voiceTestProgressBar"></div></div>
+  </div>
 
   <div id="practiceArea">
     <div class="card">
@@ -178,7 +190,7 @@
   </div>
 </div>
 
-<script src="verbs.js"></script>
-<script src="app.js"></script>
+<script src="verbs.js?v=voice-test-2"></script>
+<script src="app.js?v=voice-test-2"></script>
 </body>
 </html>

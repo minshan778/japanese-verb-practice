@@ -363,6 +363,11 @@ var pilotNote = document.getElementById('pilotNote');
 var speakBtn = document.getElementById('speakBtn');
 var autoSpeakChip = document.getElementById('autoSpeakChip');
 var voiceStatus = document.getElementById('voiceStatus');
+var normalPracticeControls = document.getElementById('normalPracticeControls');
+var voiceTestScreen = document.getElementById('voiceTestScreen');
+var voiceTestCounter = document.getElementById('voiceTestCounter');
+var voiceTestProgressBar = document.getElementById('voiceTestProgressBar');
+var exitVoiceTestBtn = document.getElementById('exitVoiceTestBtn');
 var speechSupported = 'speechSynthesis' in window && typeof window.SpeechSynthesisUtterance === 'function';
 var audioSupported = typeof window.Audio === 'function';
 var speechSequence = 0;
@@ -687,9 +692,25 @@ function markScopeCustom() {
   presetNote.textContent = '自定义筛选：已按你当前选择的词频、考试重要度和变形价值出题。';
 }
 
+function setVoiceTestLayout(enabled) {
+  if (normalPracticeControls) normalPracticeControls.classList.toggle('hidden', enabled);
+  if (voiceTestScreen) voiceTestScreen.classList.toggle('hidden', !enabled);
+}
+
+function updateVoiceTestScreen() {
+  if (activeEntry !== 'voice-test') return;
+  var total = pool.length || voiceTestPlan.length;
+  var current = total ? Math.min(index + 1, total) : 1;
+  if (voiceTestCounter) voiceTestCounter.textContent = '第' + current + '/' + total + '题';
+  if (voiceTestProgressBar) {
+    voiceTestProgressBar.style.width = total ? Math.round((index / total) * 100) + '%' : '0%';
+  }
+}
+
 function applyEntryPreset(entry) {
   applyingPreset = true;
   activeEntry = entry;
+  setVoiceTestLayout(entry === 'voice-test');
   levels = ['N5','N4','N3','N2'];
   types = ['I','II','III'];
   transTypes = ['vi','vt'];
@@ -1080,6 +1101,7 @@ function rebuildPool() {
 function updateProgress() {
   if (pool.length === 0) prog.style.width = '0%';
   else prog.style.width = Math.round((index / pool.length) * 100) + '%';
+  updateVoiceTestScreen();
 }
 
 function focusAnswerWithoutScroll() {
@@ -1209,10 +1231,15 @@ function showResult() {
   var total = pool.length;
   var rate = total ? Math.round((okTotal / total) * 100) : 0;
   resultText.textContent = '共 ' + total + ' 题，首次答对 ' + okTotal + ' 题，首次正确率 ' + rate + '%';
+  if (activeEntry === 'voice-test') {
+    if (voiceTestCounter) voiceTestCounter.textContent = '第' + total + '/' + total + '题 · 已完成';
+    if (voiceTestProgressBar) voiceTestProgressBar.style.width = '100%';
+  }
 }
 
 safeAddEvent(elSub, 'click', checkAns);
 safeAddEvent(elNext, 'click', nextQ);
+safeAddEvent(exitVoiceTestBtn, 'click', function() { applyEntryPreset('daily'); });
 safeAddEvent(elAns, 'keydown', function(e) {
   if (e.key === 'Enter') {
     if (!elNext.classList.contains('hidden')) nextQ();
