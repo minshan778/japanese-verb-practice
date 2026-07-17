@@ -1,7 +1,7 @@
 // ========== 变形引擎 ==========
 var allForms = ['masu','te','ta','nai','potential','volitional','passive','causative','ba','imperative','causativePassive','prohibition'];
 var formNames = {
-  masu:'礼貌形（ます形）', te:'连接形（て形）', ta:'过去形（た形）', nai:'否定形（ない形）', potential:'可能形',
+  original:'原形（辞书形）', masu:'礼貌形（ます形）', te:'连接形（て形）', ta:'过去形（た形）', nai:'否定形（ない形）', potential:'可能形',
   volitional:'意志形', passive:'被动形', causative:'使役态', ba:'假定形（ば形）',
   imperative:'命令形', causativePassive:'使役被动形', prohibition:'禁止形（な）', classify:'动词区分'
 };
@@ -23,6 +23,7 @@ var ruleTexts = {
 
 function conjugate(verb, form) {
   var k = verb.kana, last = k[k.length-1];
+  if (form === 'original') return k;
   var aRow = {う:'わ',く:'か',ぐ:'が',す:'さ',つ:'た',ぬ:'な',ぶ:'ば',む:'ま',る:'ら'};
   var iRow = {う:'い',く:'き',ぐ:'ぎ',す:'し',つ:'ち',ぬ:'に',ぶ:'び',む:'み',る:'り'};
   var eRow = {う:'え',く:'け',ぐ:'げ',す:'せ',つ:'て',ぬ:'ね',ぶ:'べ',む:'め',る:'れ'};
@@ -268,7 +269,7 @@ function renderMeaningHtml(verb, form) {
   var label = isClassify ? '🌏 原形的中文意思' : '🌏 ' + formNames[form] + '的中文意思';
   var html = '<span class="meaning-label">' + escapeHtml(label) + '</span>' +
     '<strong class="meaning-answer">' + escapeHtml(meaningForForm(verb, form)) + '</strong>';
-  if (!isClassify) {
+  if (!isClassify && form !== 'original') {
     html += '<span class="meaning-origin">原形：' + escapeHtml(verb.kanji) + '（' + escapeHtml(verb.kana) + '）＝' + escapeHtml(verb.meaning) + '</span>';
   }
   return html;
@@ -301,6 +302,33 @@ var answered = false;
 var questionHadError = false;
 var selectedClassType = '';
 var selectedClassTrans = '';
+
+// 当前固定语音的完整检查顺序。20个日语文件中，
+// 「食べられる」「来られる」分别对应可能形和被动形，因此共有22个测试场景。
+var voiceTestPlan = [
+  {verb:'食べる', form:'original'},
+  {verb:'食べる', form:'potential'},
+  {verb:'食べる', form:'passive'},
+  {verb:'食べる', form:'causativePassive'},
+  {verb:'行く', form:'original'},
+  {verb:'行く', form:'te'},
+  {verb:'行く', form:'ta'},
+  {verb:'来る', form:'nai'},
+  {verb:'来る', form:'potential'},
+  {verb:'来る', form:'passive'},
+  {verb:'する', form:'original'},
+  {verb:'する', form:'potential'},
+  {verb:'読む', form:'original'},
+  {verb:'読む', form:'te'},
+  {verb:'書く', form:'original'},
+  {verb:'書く', form:'ba'},
+  {verb:'話す', form:'original'},
+  {verb:'話す', form:'causativePassive'},
+  {verb:'見る', form:'original'},
+  {verb:'見る', form:'nai'},
+  {verb:'起きる', form:'volitional'},
+  {verb:'泳ぐ', form:'ta'}
+];
 
 // DOM
 var prog = document.getElementById('progressBar');
@@ -695,6 +723,13 @@ function applyEntryPreset(entry) {
     setModeButtons('error');
     presetNote.textContent = '错题强化：不受词频限制，集中重练已经答错的组合。';
     settingsPanel.classList.add('hidden');
+  } else if (entry === 'voice-test') {
+    usageFilters = ['high','normal','low','pending'];
+    examFilters = ['focus','common','supplement','pending'];
+    formStatusFilters = ['core','exam','rare'];
+    setModeButtons('new');
+    presetNote.textContent = '语音测试：固定22题，按顺序检查20个日语音频及其全部中文意思。';
+    settingsPanel.classList.add('hidden');
   }
 
   document.querySelectorAll('.entry-card').forEach(function(card) {
@@ -719,10 +754,15 @@ function renderVerbTags(verb, form) {
     '<span class="meta-tag tag-daily-' + profile.daily + '">' + escapeHtml(dailyProfileLabels[profile.daily]) + '</span>',
     '<span class="meta-tag tag-exam-' + profile.exam + '">' + escapeHtml(examProfileLabels[profile.exam]) + '</span>'
   ];
+  if (activeEntry === 'voice-test') {
+    tags.push('<span class="meta-tag tag-voice-test">语音测试 ' + (index + 1) + '/' + pool.length + '</span>');
+  }
   if (form !== 'classify') {
-    var status = getFormPracticeStatus(verb, form);
-    var statusLabels = {core:'常用变形', exam:'考试保留', rare:'低频变形'};
-    if (statusLabels[status]) tags.push('<span class="meta-tag tag-form-' + status + '">' + statusLabels[status] + '</span>');
+    if (form !== 'original') {
+      var status = getFormPracticeStatus(verb, form);
+      var statusLabels = {core:'常用变形', exam:'考试保留', rare:'低频变形'};
+      if (statusLabels[status]) tags.push('<span class="meta-tag tag-form-' + status + '">' + statusLabels[status] + '</span>');
+    }
     var meaningOverride = getMeaningOverride(verb, form);
     if (meaningOverride && meaningOverride.special) {
       tags.push('<span class="meta-tag tag-special-translation">特殊翻译</span>');
@@ -755,7 +795,7 @@ function updateFilterSummary() {
   }
 }
 
-// 四个快捷入口
+// 快捷练习入口
 document.querySelectorAll('.entry-card').forEach(function(card) {
   safeAddEvent(card, 'click', function() { applyEntryPreset(card.dataset.entry); });
 });
@@ -818,7 +858,7 @@ document.querySelectorAll('.mode-btn').forEach(function(btn) {
     document.querySelectorAll('.mode-btn').forEach(function(b){b.classList.remove('on');});
     btn.classList.add('on');
     mode = btn.dataset.mode;
-    if (activeEntry === 'mistakes' && mode !== 'error') markScopeCustom();
+    if ((activeEntry === 'mistakes' && mode !== 'error') || activeEntry === 'voice-test') markScopeCustom();
     rebuildPool();
   });
 });
@@ -950,7 +990,50 @@ function updateGlobalProgress() {
   globalProg.style.width = total ? Math.round((practiced / total) * 100) + '%' : '0%';
 }
 
+function findVerbForVoiceTest(kanji) {
+  for (var i = 0; i < verbs.length; i++) {
+    if (verbs[i].kanji === kanji) return verbs[i];
+  }
+  return null;
+}
+
+function rebuildVoiceTestPool() {
+  stopSpeech();
+  pool = [];
+  okTotal = 0;
+  ngTotal = 0;
+  elOk.textContent = '0';
+  elNg.textContent = '0';
+  elRate.textContent = '-';
+
+  voiceTestPlan.forEach(function(item) {
+    var verb = findVerbForVoiceTest(item.verb);
+    if (verb) pool.push({verb:verb, form:item.form, voiceTest:true});
+  });
+
+  index = 0;
+  updateProgress();
+  practiceArea.classList.remove('hidden');
+  resultArea.classList.add('hidden');
+
+  if (pool.length === voiceTestPlan.length) {
+    loadQuestion(true);
+  } else {
+    elVerb.textContent = '语音测试数据不完整';
+    elKana.textContent = '请检查测试动词是否仍在单词表中';
+    if (elVerbTags) elVerbTags.innerHTML = '';
+    elForm.textContent = '';
+    elAns.blur();
+    elAns.disabled = true;
+  }
+  updateGlobalProgress();
+}
+
 function rebuildPool() {
+  if (activeEntry === 'voice-test') {
+    rebuildVoiceTestPool();
+    return;
+  }
   stopSpeech();
   pool = [];
   okTotal = 0; ngTotal = 0;
@@ -1014,13 +1097,13 @@ function loadQuestion(autoFocus) {
   elVerb.textContent = curVerb.kanji;
   elKana.textContent = curForm === 'classify' ? '（' + curVerb.kana + (curVerb.exceptions ? ' · 特殊变化' : '') + '）' : verbMetaText(curVerb);
   renderVerbTags(curVerb, curForm);
-  elForm.textContent = formNames[curForm];
+  elForm.textContent = formNames[curForm] + (activeEntry === 'voice-test' ? ' · ' + (index + 1) + '/' + pool.length : '');
   selectedClassType = ''; selectedClassTrans = '';
   document.querySelectorAll('#classifyArea .chip').forEach(function(c){c.classList.remove('on');});
   if (curForm === 'classify') {
     classifyArea.classList.remove('hidden'); elAns.classList.add('hidden'); ruleBtn.style.display = 'none';
   } else {
-    classifyArea.classList.add('hidden'); elAns.classList.remove('hidden'); ruleBtn.style.display = '';
+    classifyArea.classList.add('hidden'); elAns.classList.remove('hidden'); ruleBtn.style.display = curForm === 'original' ? 'none' : '';
     elAns.value = ''; elAns.className = ''; elAns.disabled = false;
     if (autoFocus) focusAnswerWithoutScroll();
     else elAns.blur();
@@ -1032,12 +1115,13 @@ function loadQuestion(autoFocus) {
   updateProgress();
   // 只有“下一题／指定错题”等主动进入题目时自动朗读；调整筛选时保持安静。
   // 同步触发可兼容要求由点击或按键直接启动语音的移动浏览器。
-  if (autoSpeak && autoFocus && curVerb === item.verb && curForm === item.form) speakCurrentWord();
+  if ((autoSpeak || activeEntry === 'voice-test') && autoFocus && curVerb === item.verb && curForm === item.form) speakCurrentWord();
 }
 
 function checkAns() {
   if (answered) return;
   var isClassify = curForm === 'classify';
+  var isVoiceTest = activeEntry === 'voice-test';
   var raw = isClassify ? selectedClassType + '|' + selectedClassTrans : elAns.value.trim();
   if (isClassify && (!selectedClassType || !selectedClassTrans)) {
     elMsg.innerHTML = '<span class="red">请分别选择活用分类和自他分类</span>'; return;
@@ -1048,30 +1132,36 @@ function checkAns() {
   var kanjiAnswer = isClassify ? '' : buildKanjiAnswer(curVerb, curAnswer);
   var correct = isClassify ? raw === curAnswer : (ua === curAnswer || plain === normalizePlain(curAnswer) || plain === normalizePlain(kanjiAnswer));
   var key = curVerb.kanji + '_' + curForm;
-  if (!mem[key]) mem[key] = { correct: 0, wrong: 0, errorStreak: 0 };
+  if (!isVoiceTest && !mem[key]) mem[key] = { correct: 0, wrong: 0, errorStreak: 0 };
   if (correct) {
     if (!questionHadError) {
       okTotal++;
-      mem[key].correct++;
-      if (mode === 'error' && mem[key].wrong > 0) {
-        mem[key].errorStreak = (mem[key].errorStreak || 0) + 1;
-        if (mem[key].errorStreak >= 2) {
-          mem[key].wrong = 0;
-          mem[key].errorStreak = 0;
-          errLog = errLog.filter(function(e){return !(e.verb === curVerb.kanji && e.form === curForm);});
-          saveErrLog();
+      if (!isVoiceTest) {
+        mem[key].correct++;
+        if (mode === 'error' && mem[key].wrong > 0) {
+          mem[key].errorStreak = (mem[key].errorStreak || 0) + 1;
+          if (mem[key].errorStreak >= 2) {
+            mem[key].wrong = 0;
+            mem[key].errorStreak = 0;
+            errLog = errLog.filter(function(e){return !(e.verb === curVerb.kanji && e.form === curForm);});
+            saveErrLog();
+          }
         }
       }
     }
-    saveMem();
+    if (!isVoiceTest) saveMem();
     elMsg.innerHTML = '<span class="green">✔ ' + (questionHadError ? '纠正正确！' : '正确！') + '</span>';
     elSub.style.display = 'none'; elNext.classList.remove('hidden');
     elMean.innerHTML = renderMeaningHtml(curVerb, curForm);
-    elExam.textContent = isClassify ? '📎 分类：' + classificationText(curVerb) : '📎 例：' + (curVerb.example || curVerb.kanji + 'の' + formNames[curForm] + 'は ' + curAnswer + ' です');
+    if (isVoiceTest) {
+      elExam.textContent = '🎧 语音测试 ' + (index + 1) + '/' + pool.length + '：先读正确日语，再读对应中文。';
+    } else {
+      elExam.textContent = isClassify ? '📎 分类：' + classificationText(curVerb) : '📎 例：' + (curVerb.example || curVerb.kanji + 'の' + formNames[curForm] + 'は ' + curAnswer + ' です');
+    }
     elInfo.classList.remove('hidden');
     answered = true;
     // 出题时读原形；回答正确后依次读正确变形和对应的中文意思。
-    if (autoSpeak && !isClassify) {
+    if ((autoSpeak || isVoiceTest) && !isClassify) {
       var answerMeaning = speechMeaningForForm(curVerb, curForm);
       speakJapanese(curAnswer, function(sequence) {
         speakChinese(answerMeaning, sequence);
@@ -1080,16 +1170,18 @@ function checkAns() {
   } else {
     if (!questionHadError) {
       ngTotal++;
-      mem[key].wrong++;
-      mem[key].errorStreak = 0;
-      var oldIndex = -1;
-      for (var i = 0; i < errLog.length; i++) {
-        if (errLog[i].verb === curVerb.kanji && errLog[i].form === curForm) { oldIndex = i; break; }
+      if (!isVoiceTest) {
+        mem[key].wrong++;
+        mem[key].errorStreak = 0;
+        var oldIndex = -1;
+        for (var i = 0; i < errLog.length; i++) {
+          if (errLog[i].verb === curVerb.kanji && errLog[i].form === curForm) { oldIndex = i; break; }
+        }
+        if (oldIndex >= 0) errLog.splice(oldIndex, 1);
+        errLog.unshift({ verb: curVerb.kanji, form: curForm, user: isClassify ? classificationTextByCodes(selectedClassType, selectedClassTrans) : raw, correct: isClassify ? classificationText(curVerb) : displayCorrectAnswer(curVerb, curAnswer) });
+        if (errLog.length > 50) errLog.pop();
+        saveMem(); saveErrLog();
       }
-      if (oldIndex >= 0) errLog.splice(oldIndex, 1);
-      errLog.unshift({ verb: curVerb.kanji, form: curForm, user: isClassify ? classificationTextByCodes(selectedClassType, selectedClassTrans) : raw, correct: isClassify ? classificationText(curVerb) : displayCorrectAnswer(curVerb, curAnswer) });
-      if (errLog.length > 50) errLog.pop();
-      saveMem(); saveErrLog();
     }
     questionHadError = true;
     elMsg.innerHTML = '<span class="red">✘ 错误，正确答案：' + escapeHtml(isClassify ? classificationText(curVerb) : displayCorrectAnswer(curVerb, curAnswer)) + '<br>请重新回答正确答案</span>';
@@ -1105,7 +1197,7 @@ function checkAns() {
   elOk.textContent = okTotal; elNg.textContent = ngTotal;
   var total = okTotal + ngTotal;
   elRate.textContent = total ? Math.round((okTotal / total) * 100) : '-';
-  updateGlobalProgress();
+  if (!isVoiceTest) updateGlobalProgress();
 }
 
 function nextQ() { index++; loadQuestion(true); }
@@ -1131,7 +1223,8 @@ safeAddEvent(document.getElementById('retryBtn'), 'click', function() { rebuildP
 safeAddEvent(document.getElementById('resetBtn'), 'click', function() {
   practiceArea.classList.remove('hidden');
   resultArea.classList.add('hidden');
-  rebuildPool();
+  if (activeEntry === 'voice-test') applyEntryPreset('daily');
+  else rebuildPool();
 });
 
 renderSpeechSetting();

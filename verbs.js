@@ -85,7 +85,7 @@ var verbs = [
   { kanji:'走る', kana:'はしる', type:'I', level:'N5', meaning:'跑' },
   { kanji:'働く', kana:'はたらく', type:'I', level:'N5', meaning:'工作' },
   {
-    kanji:'話す', kana:'はなす', type:'I', level:'N5', meaning:'说、讲',
+    kanji:'話す', kana:'はなす', type:'I', level:'N5', meaning:'说、讲', speechMeaning:'说',
     meaningOverrides:{
       causativePassive:{text:'被迫说', speech:'被迫说', sense:'说'}
     }
