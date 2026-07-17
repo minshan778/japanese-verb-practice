@@ -280,8 +280,34 @@ var mem = {}; try { mem = JSON.parse(localStorage.getItem('verb_mem')) || {}; } 
 function saveMem() { try { localStorage.setItem('verb_mem', JSON.stringify(mem)); } catch(e) {} }
 var errLog = []; try { errLog = JSON.parse(localStorage.getItem('verb_errlog')) || []; } catch(e) {}
 function saveErrLog() { try { localStorage.setItem('verb_errlog', JSON.stringify(errLog)); } catch(e) {} }
-var autoSpeak = false; try { autoSpeak = localStorage.getItem('verb_auto_speak') === '1'; } catch(e) {}
-function saveSpeechSetting() { try { localStorage.setItem('verb_auto_speak', autoSpeak ? '1' : '0'); } catch(e) {} }
+// 新逻辑：题目出现时保持安静，只在答对后朗读“正确变形日语 → 中文”。
+// 使用新的存储键，避免旧版“出题时朗读”的关闭状态影响新功能。
+var autoSpeak = true;
+try {
+  var savedAnswerSpeak = localStorage.getItem('verb_answer_speak');
+  if (savedAnswerSpeak !== null) autoSpeak = savedAnswerSpeak === '1';
+} catch(e) {}
+function saveSpeechSetting() { try { localStorage.setItem('verb_answer_speak', autoSpeak ? '1' : '0'); } catch(e) {} }
+
+function readStoredNumber(key, fallback, min, max) {
+  try {
+    var value = parseFloat(localStorage.getItem(key));
+    if (Number.isFinite(value) && value >= min && value <= max) return value;
+  } catch(e) {}
+  return fallback;
+}
+
+var japaneseVolume = readStoredNumber('verb_japanese_volume', 0.85, 0, 1);
+var chineseVolume = readStoredNumber('verb_chinese_volume', 1, 0, 1);
+var chineseRate = readStoredNumber('verb_chinese_rate', 0.88, 0.70, 1.05);
+
+function saveAudioLevels() {
+  try {
+    localStorage.setItem('verb_japanese_volume', String(japaneseVolume));
+    localStorage.setItem('verb_chinese_volume', String(chineseVolume));
+    localStorage.setItem('verb_chinese_rate', String(chineseRate));
+  } catch(e) {}
+}
 
 // ===== 应用状态 =====
 var mode = 'new';
@@ -363,6 +389,12 @@ var pilotNote = document.getElementById('pilotNote');
 var speakBtn = document.getElementById('speakBtn');
 var autoSpeakChip = document.getElementById('autoSpeakChip');
 var voiceStatus = document.getElementById('voiceStatus');
+var japaneseVolumeInput = document.getElementById('japaneseVolume');
+var japaneseVolumeValue = document.getElementById('japaneseVolumeValue');
+var chineseVolumeInput = document.getElementById('chineseVolume');
+var chineseVolumeValue = document.getElementById('chineseVolumeValue');
+var chineseRateInput = document.getElementById('chineseRate');
+var chineseRateValue = document.getElementById('chineseRateValue');
 var normalPracticeControls = document.getElementById('normalPracticeControls');
 var voiceTestScreen = document.getElementById('voiceTestScreen');
 var voiceTestCounter = document.getElementById('voiceTestCounter');
@@ -378,6 +410,7 @@ var fixedChineseVoiceItems = {};
 var fixedChineseVoiceReady = false;
 var fixedChineseVoiceLoadFinished = false;
 var activeAudio = null;
+var speechDelayTimer = null;
 
 function safeAddEvent(el, event, fn) {
   if (el) el.addEventListener(event, function(e) { try { fn(e); } catch(err) { console.error(err); } });
@@ -399,7 +432,7 @@ function refreshVoiceStatus() {
   var chineseText = fixedChineseVoiceReady
     ? '中文MeloTTS ' + Object.keys(fixedChineseVoiceItems).length + ' 个'
     : (fixedChineseVoiceLoadFinished ? '中文固定语音未载入' : '中文语音载入中');
-  updateVoiceStatus(japaneseText + '；' + chineseText + '。答对后先读正确变形，再读对应中文。');
+  updateVoiceStatus(japaneseText + '；' + chineseText + '。出题时静音，答对后先读正确变形，再读对应中文。');
 }
 
 function loadFixedVoiceManifest() {
@@ -441,7 +474,7 @@ function loadFixedChineseVoiceManifest() {
     return;
   }
 
-  window.fetch('audio/zh-melo/manifest.json', { cache:'no-store' })
+  window.fetch('audio/zh-melo-v2/manifest.json', { cache:'no-store' })
     .then(function(response) {
       if (!response.ok) throw new Error('中文语音清单载入失败：' + response.status);
       return response.json();
@@ -476,6 +509,10 @@ function setSpeakingState(isSpeaking) {
 }
 
 function stopActivePlayback() {
+  if (speechDelayTimer !== null) {
+    clearTimeout(speechDelayTimer);
+    speechDelayTimer = null;
+  }
   if (activeAudio) {
     activeAudio.onplay = null;
     activeAudio.onended = null;
@@ -508,8 +545,9 @@ function speakWithBrowserVoice(text, sequence, onComplete) {
   }
   var utterance = new window.SpeechSynthesisUtterance(text);
   utterance.lang = 'ja-JP';
-  utterance.rate = 0.82;
+  utterance.rate = 1;
   utterance.pitch = 1;
+  utterance.volume = japaneseVolume;
   var voice = getJapaneseVoice();
   if (voice) utterance.voice = voice;
   utterance.onstart = function() { if (sequence === speechSequence) setSpeakingState(true); };
@@ -525,6 +563,12 @@ function playFixedVoice(text, sequence, onComplete) {
   var fallbackUsed = false;
   activeAudio = audio;
   audio.preload = 'auto';
+  audio.volume = japaneseVolume;
+  audio.playbackRate = 1;
+  audio.defaultPlaybackRate = 1;
+  audio.preservesPitch = true;
+  audio.webkitPreservesPitch = true;
+  audio._voiceLanguage = 'ja';
 
   function fallbackToBrowser() {
     if (fallbackUsed || sequence !== speechSequence) return;
@@ -574,6 +618,12 @@ function playFixedChineseVoice(text, sequence) {
   var audio = new window.Audio(item.src);
   activeAudio = audio;
   audio.preload = 'auto';
+  audio.volume = chineseVolume;
+  audio.playbackRate = chineseRate;
+  audio.defaultPlaybackRate = chineseRate;
+  audio.preservesPitch = true;
+  audio.webkitPreservesPitch = true;
+  audio._voiceLanguage = 'zh';
   audio.onplay = function() {
     if (sequence === speechSequence) setSpeakingState(true);
   };
@@ -613,13 +663,21 @@ function speakChinese(text, sequence) {
     if (sequence === speechSequence) setSpeakingState(false);
     return;
   }
-  if (!playFixedChineseVoice(text, sequence)) setSpeakingState(false);
+  // 留出短间隔，避免中文紧贴日语开头而被平板截掉。
+  setSpeakingState(false);
+  speechDelayTimer = setTimeout(function() {
+    speechDelayTimer = null;
+    if (sequence !== speechSequence) return;
+    if (!playFixedChineseVoice(text, sequence)) setSpeakingState(false);
+  }, 260);
 }
 
-function speakCurrentWord() {
-  if (!curVerb || !curVerb.kana || pool.length === 0 || index >= pool.length) return;
-  var answerIsVisible = curForm !== 'classify' && (answered || questionHadError);
-  speakJapanese(answerIsVisible ? curAnswer : curVerb.kana);
+function speakCorrectAnswer() {
+  if (!answered || !curVerb || curForm === 'classify' || pool.length === 0 || index >= pool.length) return;
+  var answerMeaning = speechMeaningForForm(curVerb, curForm);
+  speakJapanese(curAnswer, function(sequence) {
+    speakChinese(answerMeaning, sequence);
+  });
 }
 
 function renderSpeechSetting() {
@@ -630,10 +688,12 @@ function renderSpeechSetting() {
   autoSpeakChip.style.opacity = available ? '' : '.45';
   autoSpeakChip.style.cursor = available ? '' : 'not-allowed';
   autoSpeakChip.setAttribute('aria-disabled', available ? 'false' : 'true');
-  autoSpeakChip.title = available ? '出题时自动朗读当前单词' : '当前浏览器不支持语音朗读';
+  autoSpeakChip.title = available ? '答对后自动朗读正确变形和中文' : '当前浏览器不支持语音朗读';
   if (speakBtn) {
-    speakBtn.disabled = !available;
-    speakBtn.title = available ? '朗读当前单词' : '当前浏览器不支持语音朗读';
+    var canReplay = available && answered && curForm !== 'classify';
+    speakBtn.disabled = !canReplay;
+    speakBtn.title = !available ? '当前浏览器不支持语音朗读' : (canReplay ? '重播正确变形日语和中文' : '答对后可重播日语和中文');
+    speakBtn.setAttribute('aria-label', canReplay ? '重播正确变形日语和中文' : '答对后可重播日语和中文');
   }
 }
 
@@ -642,8 +702,26 @@ function toggleAutoSpeak() {
   autoSpeak = !autoSpeak;
   saveSpeechSetting();
   renderSpeechSetting();
-  if (autoSpeak) speakCurrentWord();
-  else stopSpeech();
+  if (!autoSpeak) stopSpeech();
+}
+
+function renderAudioControls() {
+  if (japaneseVolumeInput) japaneseVolumeInput.value = String(Math.round(japaneseVolume * 100));
+  if (japaneseVolumeValue) japaneseVolumeValue.textContent = Math.round(japaneseVolume * 100) + '%';
+  if (chineseVolumeInput) chineseVolumeInput.value = String(Math.round(chineseVolume * 100));
+  if (chineseVolumeValue) chineseVolumeValue.textContent = Math.round(chineseVolume * 100) + '%';
+  if (chineseRateInput) chineseRateInput.value = chineseRate.toFixed(2);
+  if (chineseRateValue) chineseRateValue.textContent = chineseRate.toFixed(2) + '×';
+}
+
+function updateActiveAudioLevel() {
+  if (!activeAudio) return;
+  if (activeAudio._voiceLanguage === 'zh') {
+    activeAudio.volume = chineseVolume;
+    activeAudio.playbackRate = chineseRate;
+  } else if (activeAudio._voiceLanguage === 'ja') {
+    activeAudio.volume = japaneseVolume;
+  }
 }
 
 function verbMetaText(verb) {
@@ -826,11 +904,23 @@ safeAddEvent(document.getElementById('settingsToggle'), 'click', function() {
   settingsPanel.classList.toggle('hidden');
 });
 
-// 手动朗读与自动朗读开关。切换朗读设置不会重建题目或抢输入焦点。
-safeAddEvent(speakBtn, 'click', speakCurrentWord);
+// 题目出现时不播放。答对后可自动朗读，也可用题卡左上角按钮重播。
+safeAddEvent(speakBtn, 'click', speakCorrectAnswer);
 safeAddEvent(autoSpeakChip, 'click', toggleAutoSpeak);
 safeAddEvent(autoSpeakChip, 'keydown', function(e) {
   if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleAutoSpeak(); }
+});
+safeAddEvent(japaneseVolumeInput, 'input', function() {
+  japaneseVolume = Math.max(0, Math.min(1, parseInt(japaneseVolumeInput.value, 10) / 100));
+  saveAudioLevels(); renderAudioControls(); updateActiveAudioLevel();
+});
+safeAddEvent(chineseVolumeInput, 'input', function() {
+  chineseVolume = Math.max(0, Math.min(1, parseInt(chineseVolumeInput.value, 10) / 100));
+  saveAudioLevels(); renderAudioControls(); updateActiveAudioLevel();
+});
+safeAddEvent(chineseRateInput, 'input', function() {
+  chineseRate = Math.max(0.70, Math.min(1.05, parseFloat(chineseRateInput.value)));
+  saveAudioLevels(); renderAudioControls(); updateActiveAudioLevel();
 });
 
 // 词频、考试重要度、变形练习价值筛选
@@ -1134,10 +1224,8 @@ function loadQuestion(autoFocus) {
   elNext.classList.add('hidden'); elInfo.classList.add('hidden'); ruleBox.classList.add('hidden');
   answered = false;
   questionHadError = false;
+  renderSpeechSetting();
   updateProgress();
-  // 只有“下一题／指定错题”等主动进入题目时自动朗读；调整筛选时保持安静。
-  // 同步触发可兼容要求由点击或按键直接启动语音的移动浏览器。
-  if ((autoSpeak || activeEntry === 'voice-test') && autoFocus && curVerb === item.verb && curForm === item.form) speakCurrentWord();
 }
 
 function checkAns() {
@@ -1182,12 +1270,10 @@ function checkAns() {
     }
     elInfo.classList.remove('hidden');
     answered = true;
-    // 出题时读原形；回答正确后依次读正确变形和对应的中文意思。
+    renderSpeechSetting();
+    // 只在答对后依次朗读正确变形和对应中文；不再朗读出题原形。
     if ((autoSpeak || isVoiceTest) && !isClassify) {
-      var answerMeaning = speechMeaningForForm(curVerb, curForm);
-      speakJapanese(curAnswer, function(sequence) {
-        speakChinese(answerMeaning, sequence);
-      });
+      speakCorrectAnswer();
     }
   } else {
     if (!questionHadError) {
@@ -1254,6 +1340,7 @@ safeAddEvent(document.getElementById('resetBtn'), 'click', function() {
   else rebuildPool();
 });
 
+renderAudioControls();
 renderSpeechSetting();
 loadFixedVoiceManifest();
 loadFixedChineseVoiceManifest();

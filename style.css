@@ -33,6 +33,12 @@
     .label{font-size:0.7rem;color:#7c705b;margin-bottom:2px}
     .filter-summary{background:#f2eee6;border-radius:10px;padding:8px 9px;margin-top:7px;font-size:.68rem;line-height:1.45;color:#6f604d}
     .pilot-note{font-size:.64rem;line-height:1.45;color:#9b7c56;margin:2px 0 8px;padding-left:2px}
+    .voice-controls{display:grid;gap:8px;margin:7px 0 8px;padding:10px;border:1px solid #e8dfd1;border-radius:12px;background:#fffdf9}
+    .voice-control{display:grid;grid-template-columns:106px minmax(0,1fr);align-items:center;gap:10px;color:#655847;font-size:.7rem;font-weight:700}
+    .voice-control>span{display:flex;justify-content:space-between;gap:5px;white-space:nowrap}
+    .voice-control output{color:#8b6841;font-variant-numeric:tabular-nums}
+    .voice-control input[type="range"]{width:100%;min-height:32px;height:32px;margin:0;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;accent-color:#a77e4b;cursor:pointer}
+    .voice-control input[type="range"]:focus{box-shadow:none;outline:2px solid rgba(167,126,75,.22);outline-offset:2px}
     .card{text-align:center;background:#fdfcfa;border:1px solid #ede7db;border-radius:16px;padding:20px 10px;margin-bottom:12px;position:relative}
     .verb{font-size:2.5rem;font-weight:700;color:#2b2a24}
     .kana{color:#9b8e7c;font-size:0.9rem;margin:4px 0}
@@ -91,6 +97,7 @@
       .chip-row{gap:6px;margin-bottom:7px}.chip{display:inline-flex;align-items:center;min-height:36px;padding:7px 10px;font-size:.75rem}
       .label{font-size:.75rem;margin-bottom:4px}
       .preset-note,.filter-summary{font-size:.72rem;padding:9px 10px}.pilot-note{font-size:.68rem}.meta-tag{font-size:.67rem;padding:4px 9px}
+      .voice-controls{padding:11px;gap:10px}.voice-control{grid-template-columns:115px minmax(0,1fr);font-size:.74rem}
       .card{padding:22px 10px 18px;border-radius:16px;margin-bottom:10px}
       .verb{font-size:clamp(2.25rem,12vw,3.15rem)}.kana{font-size:.82rem;line-height:1.5}.form-badge{font-size:.86rem;margin:7px 0}
       input{min-height:52px;font-size:1.15rem;margin:10px 0}
@@ -114,6 +121,7 @@
       .chip-row{gap:8px;margin-bottom:9px}.chip{display:inline-flex;align-items:center;min-height:40px;padding:8px 13px;font-size:.8rem}
       .label{font-size:.78rem;margin-bottom:5px}
       .preset-note,.filter-summary{font-size:.78rem;padding:11px 13px}.pilot-note{font-size:.72rem}.meta-tag{font-size:.72rem;padding:5px 10px}
+      .voice-controls{padding:14px;gap:12px}.voice-control{grid-template-columns:135px minmax(0,1fr);font-size:.8rem}.voice-control input[type="range"]{min-height:38px;height:38px}
       .card{padding:30px 16px;border-radius:22px;margin-bottom:16px}.verb{font-size:3.35rem}.kana{font-size:1rem}.form-badge{font-size:1rem;padding:5px 20px}
       input{min-height:58px;font-size:1.35rem;margin:12px 0}.btn-row{gap:10px}.btn-row button{min-height:52px;font-size:1rem}
       .rule-box{font-size:.82rem;padding:14px}.info,.example{font-size:.88rem;padding:11px}.stats{font-size:.8rem;padding:9px 16px}

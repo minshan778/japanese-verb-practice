@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>动词变形练习 · 全功能版</title>
-  <link rel="stylesheet" href="style.css?v=voice-test-3">
+  <link rel="stylesheet" href="style.css?v=audio-logic-1">
 </head>
 <body>
 <div class="container">
@@ -30,7 +30,7 @@
     <button type="button" class="entry-card" data-entry="mistakes">
       <span class="entry-icon">🔥</span><strong>错题强化</strong><small>集中重练错误组合</small>
     </button>
-    <a class="voice-test-link" href="voice-test.html?v=voice-test-3">
+    <a class="voice-test-link" href="voice-test.html?v=audio-logic-1">
       <span class="entry-icon">🎧</span><strong>语音测试</strong><small>固定22题 · 依次检查日语与中文语音</small>
     </a>
   </div>
@@ -104,9 +104,23 @@
       <span class="chip on" data-trans="vi">自动词</span>
       <span class="chip on" data-trans="vt">他动词</span>
     </div>
-    <div class="label">单词朗读</div>
+    <div class="label">答对后的语音</div>
     <div class="chip-row" id="speechChips">
-      <span class="chip" id="autoSpeakChip" role="button" tabindex="0" aria-pressed="false">🔊 出题时自动朗读</span>
+      <span class="chip on" id="autoSpeakChip" role="button" tabindex="0" aria-pressed="true">🔊 答对后自动朗读</span>
+    </div>
+    <div class="voice-controls" aria-label="语音音量和语速设置">
+      <label class="voice-control" for="japaneseVolume">
+        <span>日语音量 <output id="japaneseVolumeValue">85%</output></span>
+        <input id="japaneseVolume" type="range" min="0" max="100" step="5" value="85">
+      </label>
+      <label class="voice-control" for="chineseVolume">
+        <span>中文音量 <output id="chineseVolumeValue">100%</output></span>
+        <input id="chineseVolume" type="range" min="0" max="100" step="5" value="100">
+      </label>
+      <label class="voice-control" for="chineseRate">
+        <span>中文语速 <output id="chineseRateValue">0.88×</output></span>
+        <input id="chineseRate" type="range" min="0.70" max="1.05" step="0.01" value="0.88">
+      </label>
     </div>
     <div class="pilot-note" id="voiceStatus">正在载入日语和中文固定语音…</div>
     <div class="label">每轮数量</div>
@@ -121,7 +135,7 @@
 
   <div id="practiceArea">
     <div class="card">
-      <button type="button" class="speak-btn" id="speakBtn" title="朗读当前单词" aria-label="朗读当前单词">🔊</button>
+      <button type="button" class="speak-btn" id="speakBtn" title="答对后可重播日语和中文" aria-label="答对后重播日语和中文" disabled>🔊</button>
       <button class="rule-btn" id="ruleBtn" title="变形规则">📖</button>
       <div class="verb" id="verb"></div>
       <div class="kana" id="kana"></div>
@@ -178,7 +192,7 @@
   </div>
 </div>
 
-<script src="verbs.js?v=voice-test-3"></script>
-<script src="app.js?v=voice-test-3"></script>
+<script src="verbs.js?v=audio-logic-1"></script>
+<script src="app.js?v=audio-logic-1"></script>
 </body>
 </html>
