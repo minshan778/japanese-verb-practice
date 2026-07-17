@@ -1,0 +1,97 @@
+{
+  "version": 2,
+  "language": "zh-CN",
+  "voice": "MeloTTS 中文女声",
+  "model": "myshell-ai/MeloTTS-Chinese",
+  "license": "MIT",
+  "processing": {
+    "loudness": "-18 LUFS",
+    "leading_silence_ms": 180,
+    "trailing_silence_ms": 320,
+    "recommended_playback_rate": 0.88
+  },
+  "generated_at": "2026-07-17T07:57:51.508250+00:00",
+  "audio_count": 20,
+  "phrases": {
+    "吃": {
+      "id": "chi",
+      "src": "audio/zh-melo-v2/chi.mp3"
+    },
+    "能吃": {
+      "id": "neng-chi",
+      "src": "audio/zh-melo-v2/neng-chi.mp3"
+    },
+    "被吃": {
+      "id": "bei-chi",
+      "src": "audio/zh-melo-v2/bei-chi.mp3"
+    },
+    "被迫吃": {
+      "id": "bei-po-chi",
+      "src": "audio/zh-melo-v2/bei-po-chi.mp3"
+    },
+    "去": {
+      "id": "qu",
+      "src": "audio/zh-melo-v2/qu.mp3"
+    },
+    "去了": {
+      "id": "qu-le",
+      "src": "audio/zh-melo-v2/qu-le.mp3"
+    },
+    "不来": {
+      "id": "bu-lai",
+      "src": "audio/zh-melo-v2/bu-lai.mp3"
+    },
+    "能来": {
+      "id": "neng-lai",
+      "src": "audio/zh-melo-v2/neng-lai.mp3"
+    },
+    "因为有人来而受到影响": {
+      "id": "yin-lai-er-shou-ying-xiang",
+      "src": "audio/zh-melo-v2/yin-lai-er-shou-ying-xiang.mp3"
+    },
+    "做": {
+      "id": "zuo",
+      "src": "audio/zh-melo-v2/zuo.mp3"
+    },
+    "能做": {
+      "id": "neng-zuo",
+      "src": "audio/zh-melo-v2/neng-zuo.mp3"
+    },
+    "读": {
+      "id": "du",
+      "src": "audio/zh-melo-v2/du.mp3"
+    },
+    "写": {
+      "id": "xie",
+      "src": "audio/zh-melo-v2/xie.mp3"
+    },
+    "如果写": {
+      "id": "ru-guo-xie",
+      "src": "audio/zh-melo-v2/ru-guo-xie.mp3"
+    },
+    "说": {
+      "id": "shuo",
+      "src": "audio/zh-melo-v2/shuo.mp3"
+    },
+    "被迫说": {
+      "id": "bei-po-shuo",
+      "src": "audio/zh-melo-v2/bei-po-shuo.mp3"
+    },
+    "看": {
+      "id": "kan",
+      "src": "audio/zh-melo-v2/kan.mp3"
+    },
+    "不看": {
+      "id": "bu-kan",
+      "src": "audio/zh-melo-v2/bu-kan.mp3"
+    },
+    "起床吧": {
+      "id": "qi-chuang-ba",
+      "src": "audio/zh-melo-v2/qi-chuang-ba.mp3"
+    },
+    "游泳了": {
+      "id": "you-yong-le",
+      "src": "audio/zh-melo-v2/you-yong-le.mp3"
+    }
+  }
+}

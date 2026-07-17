@@ -1,0 +1,6 @@
+中文固定语音修正版
+
+语音模型：MeloTTS Chinese
+项目：https://github.com/myshell-ai/MeloTTS
+许可证：MIT
+处理：统一响度并增加播放缓冲。
