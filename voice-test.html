@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <title>固定22题语音测试</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{min-height:100vh;min-height:100dvh;background:#f5f1f8;color:#3f3448;font-family:system-ui,-apple-system,"Noto Sans SC","Noto Sans JP",sans-serif;padding:12px}
+    .page{width:min(100%,680px);margin:0 auto;background:#fff;border-radius:22px;padding:18px;box-shadow:0 12px 36px rgba(76,50,94,.09)}
+    .top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .back{display:inline-flex;align-items:center;min-height:42px;padding:8px 13px;border:1px solid #cebadd;border-radius:14px;background:#fff;color:#654a79;text-decoration:none;font-weight:700;font-size:.86rem}
+    .counter{font-size:1rem;font-weight:800;color:#654a79;white-space:nowrap}
+    h1{text-align:center;font-size:1.45rem;margin:12px 0 4px;color:#5d4372}
+    .sub{text-align:center;color:#826e90;font-size:.82rem;line-height:1.5}
+    .bar-wrap{height:8px;background:#eadff1;border-radius:999px;overflow:hidden;margin:14px 0}
+    .bar{height:100%;width:4.55%;background:#a889c0;border-radius:999px;transition:width .2s ease}
+    .audio-status{min-height:42px;padding:10px 12px;border-radius:12px;background:#f7f2fa;color:#745d84;text-align:center;font-size:.78rem;line-height:1.45;margin-bottom:10px}
+    .voice-controls{display:grid;gap:9px;margin-bottom:12px;padding:11px;border:1px solid #e5d9eb;border-radius:14px;background:#fdfafe}
+    .voice-control{display:grid;grid-template-columns:115px minmax(0,1fr);align-items:center;gap:10px;color:#654f74;font-size:.75rem;font-weight:800}
+    .voice-control>span{display:flex;justify-content:space-between;gap:5px;white-space:nowrap}.voice-control output{color:#7b5793;font-variant-numeric:tabular-nums}
+    .voice-control input[type="range"]{width:100%;min-height:32px;height:32px;margin:0;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;accent-color:#8d68a8;cursor:pointer}
+    .question{position:relative;text-align:center;border:1px solid #e7dceb;border-radius:18px;padding:24px 12px 18px;background:#fdfbfe}
+    .speak{position:absolute;left:12px;top:12px;width:44px;height:44px;border:1px solid #cdb9dc;border-radius:50%;background:#f3eaf8;color:#654a79;font-size:1.2rem;cursor:pointer}
+    .speak:disabled{opacity:.38;cursor:not-allowed}
+    .verb{font-size:clamp(2.5rem,11vw,4rem);font-weight:800;color:#2d2731;line-height:1.2}
+    .reading{margin-top:5px;color:#8d8094;font-size:1rem}
+    .form{display:inline-block;margin-top:12px;padding:5px 18px;border-radius:999px;background:#eaddf1;color:#5f4672;font-size:1rem;font-weight:800}
+    .meaning{margin-top:9px;color:#7c668b;font-size:.86rem}
+    input{width:100%;min-height:56px;margin:14px 0 9px;padding:10px 14px;border:2px solid #dfd2e6;border-radius:15px;text-align:center;font-size:1.25rem;outline:none}
+    input:focus{border-color:#a889c0;box-shadow:0 0 0 3px rgba(168,137,192,.14)}
+    input.wrong{border-color:#d88478;background:#fff8f7}
+    input:disabled{background:#f2eff3;color:#9a929e}
+    .message{min-height:30px;text-align:center;font-weight:800;line-height:1.45;margin-bottom:6px}
+    .ok{color:#477445}.bad{color:#b3483c}
+    button{min-height:50px;border:1px solid #b69acb;border-radius:16px;background:#a889c0;color:#fff;font-weight:800;font-size:1rem;cursor:pointer}
+    .actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+    .next{background:#6d9b68;border-color:#5e895a}
+    .hidden{display:none!important}
+    .answer-info{margin-top:10px;padding:13px;border-radius:14px;background:#eef7eb;border-left:5px solid #7da676;color:#355e34;line-height:1.6}
+    .answer-info strong{display:block;font-size:1.3rem}
+    .stats{display:flex;justify-content:space-between;gap:8px;margin-top:12px;padding:9px 12px;border-radius:14px;background:#f7f3f8;font-size:.78rem}
+    .finish{text-align:center;padding:28px 12px}
+    .finish h2{color:#4d7549;margin-bottom:10px}
+    .finish p{line-height:1.7;color:#5f5266}
+    .finish a{display:block;margin-top:16px;padding:13px;border-radius:15px;background:#76558e;color:#fff;text-decoration:none;font-weight:800}
+    audio{display:none}
+    @media(max-width:599px){body{padding:0;background:#fff}.page{min-height:100vh;min-height:100dvh;border-radius:0;box-shadow:none;padding:max(15px,env(safe-area-inset-top)) max(15px,env(safe-area-inset-right)) max(15px,env(safe-area-inset-bottom)) max(15px,env(safe-area-inset-left))}.question{padding-top:28px}.stats{font-size:.74rem}}
+  </style>
+</head>
+<body>
+<main class="page">
+  <div class="top">
+    <a class="back" href="index.html?v=audio-logic-1">← 返回练习</a>
+    <span class="counter" id="counter">第1/22题</span>
+  </div>
+  <h1>🎧 固定语音测试</h1>
+  <p class="sub">这里只载入固定22题，不读取普通动词题库，也不记录成绩。</p>
+  <div class="bar-wrap"><div class="bar" id="bar"></div></div>
+  <div class="audio-status" id="audioStatus">出题时不播放。答对后自动播放“正确变形日语 → 中文”。</div>
+
+  <div class="voice-controls" aria-label="语音音量和语速设置">
+    <label class="voice-control" for="japaneseVolume">
+      <span>日语音量 <output id="japaneseVolumeValue">85%</output></span>
+      <input id="japaneseVolume" type="range" min="0" max="100" step="5" value="85">
+    </label>
+    <label class="voice-control" for="chineseVolume">
+      <span>中文音量 <output id="chineseVolumeValue">100%</output></span>
+      <input id="chineseVolume" type="range" min="0" max="100" step="5" value="100">
+    </label>
+    <label class="voice-control" for="chineseRate">
+      <span>中文语速 <output id="chineseRateValue">0.88×</output></span>
+      <input id="chineseRate" type="range" min="0.70" max="1.05" step="0.01" value="0.88">
+    </label>
+  </div>
+
+  <section id="testArea">
+    <div class="question">
+      <button type="button" class="speak" id="speakBtn" aria-label="答对后重播日语和中文" title="答对后可重播日语和中文" disabled>🔊</button>
+      <div class="verb" id="verb"></div>
+      <div class="reading" id="reading"></div>
+      <div class="form" id="form"></div>
+      <div class="meaning" id="meaningHint">回答正确后显示并朗读中文</div>
+    </div>
+    <input type="text" id="answer" placeholder="输入日语变形（平假名或汉字）" autocomplete="off" autocapitalize="off" spellcheck="false">
+    <div class="message" id="message"></div>
+    <div class="actions" id="actions">
+      <button type="button" id="submitBtn">决定</button>
+      <button type="button" class="next hidden" id="nextBtn">下一题</button>
+    </div>
+    <div class="answer-info hidden" id="answerInfo"></div>
+    <div class="stats"><span>✅ <b id="okCount">0</b></span><span>❌ <b id="wrongCount">0</b></span><span>固定题数 <b>22</b></span></div>
+  </section>
+
+  <section class="finish hidden" id="finishArea">
+    <h2>22题语音测试完成</h2>
+    <p id="finishText"></p>
+    <a href="voice-test.html?v=audio-logic-1">重新测试22题</a>
+    <a href="index.html?v=audio-logic-1">返回普通练习</a>
+  </section>
+  <audio id="voicePlayer" preload="auto" playsinline></audio>
+</main>
+
+<script>
+(function() {
+  'use strict';
+
+  var QUESTIONS = [
+    {base:'食べる',baseReading:'たべる',form:'原形（辞书形）',answer:'たべる',japanese:'食べる',meaning:'吃',jp:'audio/nemo-f6/taberu.mp3',zh:'audio/zh-melo-v2/chi.mp3'},
+    {base:'食べる',baseReading:'たべる',form:'可能形',answer:'たべられる',japanese:'食べられる',meaning:'能吃',jp:'audio/nemo-f6/taberareru.mp3',zh:'audio/zh-melo-v2/neng-chi.mp3'},
+    {base:'食べる',baseReading:'たべる',form:'被动形',answer:'たべられる',japanese:'食べられる',meaning:'被吃',jp:'audio/nemo-f6/taberareru.mp3',zh:'audio/zh-melo-v2/bei-chi.mp3'},
+    {base:'食べる',baseReading:'たべる',form:'使役被动形',answer:'たべさせられる',japanese:'食べさせられる',meaning:'被迫吃',jp:'audio/nemo-f6/tabesaserareru.mp3',zh:'audio/zh-melo-v2/bei-po-chi.mp3'},
+    {base:'行く',baseReading:'いく',form:'原形（辞书形）',answer:'いく',japanese:'行く',meaning:'去',jp:'audio/nemo-f6/iku.mp3',zh:'audio/zh-melo-v2/qu.mp3'},
+    {base:'行く',baseReading:'いく',form:'て形',answer:'いって',japanese:'行って',meaning:'去',jp:'audio/nemo-f6/itte.mp3',zh:'audio/zh-melo-v2/qu.mp3'},
+    {base:'行く',baseReading:'いく',form:'过去形（た形）',answer:'いった',japanese:'行った',meaning:'去了',jp:'audio/nemo-f6/itta.mp3',zh:'audio/zh-melo-v2/qu-le.mp3'},
+    {base:'来る',baseReading:'くる',form:'否定形（ない形）',answer:'こない',japanese:'来ない',meaning:'不来',jp:'audio/nemo-f6/konai.mp3',zh:'audio/zh-melo-v2/bu-lai.mp3'},
+    {base:'来る',baseReading:'くる',form:'可能形',answer:'こられる',japanese:'来られる',meaning:'能来',jp:'audio/nemo-f6/korareru.mp3',zh:'audio/zh-melo-v2/neng-lai.mp3'},
+    {base:'来る',baseReading:'くる',form:'被动形',answer:'こられる',japanese:'来られる',meaning:'因为有人来而受到影响',jp:'audio/nemo-f6/korareru.mp3',zh:'audio/zh-melo-v2/yin-lai-er-shou-ying-xiang.mp3'},
+    {base:'する',baseReading:'する',form:'原形（辞书形）',answer:'する',japanese:'する',meaning:'做',jp:'audio/nemo-f6/suru.mp3',zh:'audio/zh-melo-v2/zuo.mp3'},
+    {base:'する',baseReading:'する',form:'可能形',answer:'できる',japanese:'できる',meaning:'能做',jp:'audio/nemo-f6/dekiru.mp3',zh:'audio/zh-melo-v2/neng-zuo.mp3'},
+    {base:'読む',baseReading:'よむ',form:'原形（辞书形）',answer:'よむ',japanese:'読む',meaning:'读',jp:'audio/nemo-f6/yomu.mp3',zh:'audio/zh-melo-v2/du.mp3'},
+    {base:'読む',baseReading:'よむ',form:'て形',answer:'よんで',japanese:'読んで',meaning:'读',jp:'audio/nemo-f6/yonde.mp3',zh:'audio/zh-melo-v2/du.mp3'},
+    {base:'書く',baseReading:'かく',form:'原形（辞书形）',answer:'かく',japanese:'書く',meaning:'写',jp:'audio/nemo-f6/kaku.mp3',zh:'audio/zh-melo-v2/xie.mp3'},
+    {base:'書く',baseReading:'かく',form:'假定形（ば形）',answer:'かけば',japanese:'書けば',meaning:'如果写',jp:'audio/nemo-f6/kakeba.mp3',zh:'audio/zh-melo-v2/ru-guo-xie.mp3'},
+    {base:'話す',baseReading:'はなす',form:'原形（辞书形）',answer:'はなす',japanese:'話す',meaning:'说',jp:'audio/nemo-f6/hanasu.mp3',zh:'audio/zh-melo-v2/shuo.mp3'},
+    {base:'話す',baseReading:'はなす',form:'使役被动形',answer:'はなさせられる',japanese:'話させられる',meaning:'被迫说',jp:'audio/nemo-f6/hanasaserareru.mp3',zh:'audio/zh-melo-v2/bei-po-shuo.mp3'},
+    {base:'見る',baseReading:'みる',form:'原形（辞书形）',answer:'みる',japanese:'見る',meaning:'看',jp:'audio/nemo-f6/miru.mp3',zh:'audio/zh-melo-v2/kan.mp3'},
+    {base:'見る',baseReading:'みる',form:'否定形（ない形）',answer:'みない',japanese:'見ない',meaning:'不看',jp:'audio/nemo-f6/minai.mp3',zh:'audio/zh-melo-v2/bu-kan.mp3'},
+    {base:'起きる',baseReading:'おきる',form:'意志形',answer:'おきよう',japanese:'起きよう',meaning:'起床吧',jp:'audio/nemo-f6/okiyou.mp3',zh:'audio/zh-melo-v2/qi-chuang-ba.mp3'},
+    {base:'泳ぐ',baseReading:'およぐ',form:'过去形（た形）',answer:'およいだ',japanese:'泳いだ',meaning:'游泳了',jp:'audio/nemo-f6/oyoida.mp3',zh:'audio/zh-melo-v2/you-yong-le.mp3'}
+  ];
+
+  var index = 0;
+  var answered = false;
+  var hadError = false;
+  var okCount = 0;
+  var wrongCount = 0;
+  var audioQueue = [];
+  var currentAudioKind = '';
+  var nextAudioTimer = null;
+
+  function readStoredNumber(key, fallback, min, max) {
+    try {
+      var value = parseFloat(localStorage.getItem(key));
+      if (Number.isFinite(value) && value >= min && value <= max) return value;
+    } catch (error) {}
+    return fallback;
+  }
+
+  var japaneseVolume = readStoredNumber('verb_japanese_volume', 0.85, 0, 1);
+  var chineseVolume = readStoredNumber('verb_chinese_volume', 1, 0, 1);
+  var chineseRate = readStoredNumber('verb_chinese_rate', 0.88, 0.70, 1.05);
+
+  var counter = document.getElementById('counter');
+  var bar = document.getElementById('bar');
+  var verb = document.getElementById('verb');
+  var reading = document.getElementById('reading');
+  var form = document.getElementById('form');
+  var meaningHint = document.getElementById('meaningHint');
+  var audioStatus = document.getElementById('audioStatus');
+  var speakBtn = document.getElementById('speakBtn');
+  var answer = document.getElementById('answer');
+  var message = document.getElementById('message');
+  var submitBtn = document.getElementById('submitBtn');
+  var nextBtn = document.getElementById('nextBtn');
+  var answerInfo = document.getElementById('answerInfo');
+  var player = document.getElementById('voicePlayer');
+  var japaneseVolumeInput = document.getElementById('japaneseVolume');
+  var japaneseVolumeValue = document.getElementById('japaneseVolumeValue');
+  var chineseVolumeInput = document.getElementById('chineseVolume');
+  var chineseVolumeValue = document.getElementById('chineseVolumeValue');
+  var chineseRateInput = document.getElementById('chineseRate');
+  var chineseRateValue = document.getElementById('chineseRateValue');
+
+  function currentQuestion() { return QUESTIONS[index]; }
+
+  function normalize(value) {
+    return String(value || '').normalize('NFKC').replace(/[\s。．.]/g, '').replace(/[ァ-ヶ]/g, function(character) {
+      return String.fromCharCode(character.charCodeAt(0) - 96);
+    });
+  }
+
+  function audioUrl(path) {
+    return new URL(path, window.location.href).href;
+  }
+
+  function saveAudioSettings() {
+    try {
+      localStorage.setItem('verb_japanese_volume', String(japaneseVolume));
+      localStorage.setItem('verb_chinese_volume', String(chineseVolume));
+      localStorage.setItem('verb_chinese_rate', String(chineseRate));
+    } catch (error) {}
+  }
+
+  function renderAudioSettings() {
+    japaneseVolumeInput.value = String(Math.round(japaneseVolume * 100));
+    japaneseVolumeValue.textContent = Math.round(japaneseVolume * 100) + '%';
+    chineseVolumeInput.value = String(Math.round(chineseVolume * 100));
+    chineseVolumeValue.textContent = Math.round(chineseVolume * 100) + '%';
+    chineseRateInput.value = chineseRate.toFixed(2);
+    chineseRateValue.textContent = chineseRate.toFixed(2) + '×';
+  }
+
+  function applyCurrentAudioSettings() {
+    if (currentAudioKind === 'zh') {
+      player.volume = chineseVolume;
+      player.playbackRate = chineseRate;
+      player.defaultPlaybackRate = chineseRate;
+    } else {
+      player.volume = japaneseVolume;
+      player.playbackRate = 1;
+      player.defaultPlaybackRate = 1;
+    }
+    player.preservesPitch = true;
+    player.webkitPreservesPitch = true;
+  }
+
+  function stopAudio() {
+    audioQueue = [];
+    currentAudioKind = '';
+    if (nextAudioTimer !== null) {
+      clearTimeout(nextAudioTimer);
+      nextAudioTimer = null;
+    }
+    try { player.pause(); player.currentTime = 0; } catch (error) {}
+  }
+
+  function playNextAudio() {
+    nextAudioTimer = null;
+    if (!audioQueue.length) {
+      currentAudioKind = '';
+      audioStatus.textContent = '播放完成。';
+      return;
+    }
+    var item = audioQueue.shift();
+    currentAudioKind = item.kind;
+    player.src = audioUrl(item.path);
+    applyCurrentAudioSettings();
+    player.load();
+    audioStatus.textContent = item.label;
+    var playResult;
+    try { playResult = player.play(); }
+    catch (error) {
+      audioQueue = [];
+      audioStatus.textContent = '播放失败，请在答对后点左侧扬声器重试。';
+      return;
+    }
+    if (playResult && typeof playResult.catch === 'function') {
+      playResult.catch(function() {
+        audioQueue = [];
+        audioStatus.textContent = '浏览器阻止了播放，请在答对后点左侧扬声器重试。';
+      });
+    }
+  }
+
+  function continueAudioQueue() {
+    if (currentAudioKind === 'ja' && audioQueue.length && audioQueue[0].kind === 'zh') {
+      audioStatus.textContent = '日语播放完成，准备播放中文…';
+      nextAudioTimer = setTimeout(playNextAudio, 260);
+    } else {
+      playNextAudio();
+    }
+  }
+
+  function playItems(items) {
+    stopAudio();
+    audioQueue = items.slice();
+    playNextAudio();
+  }
+
+  player.addEventListener('ended', continueAudioQueue);
+  player.addEventListener('error', function() {
+    var failed = player.currentSrc ? player.currentSrc.split('/').pop() : '未知文件';
+    audioStatus.textContent = '语音文件读取失败：' + failed;
+    continueAudioQueue();
+  });
+
+  function playCorrectSequence() {
+    if (!answered) return;
+    var question = currentQuestion();
+    playItems([
+      {kind:'ja',path:question.jp,label:'正在播放正确变形日语：' + question.japanese},
+      {kind:'zh',path:question.zh,label:'正在播放中文：' + question.meaning}
+    ]);
+  }
+
+  function renderQuestion(autoFocus) {
+    stopAudio();
+    var question = currentQuestion();
+    counter.textContent = '第' + (index + 1) + '/22题';
+    bar.style.width = (((index + 1) / QUESTIONS.length) * 100).toFixed(2) + '%';
+    verb.textContent = question.base;
+    reading.textContent = '（' + question.baseReading + '）';
+    form.textContent = question.form;
+    meaningHint.textContent = '回答正确后显示并朗读中文';
+    audioStatus.textContent = '出题时不播放。答对后自动播放“正确变形日语 → 中文”。';
+    answer.value = '';
+    answer.className = '';
+    answer.disabled = false;
+    message.textContent = '';
+    answerInfo.classList.add('hidden');
+    answerInfo.innerHTML = '';
+    submitBtn.classList.remove('hidden');
+    nextBtn.classList.add('hidden');
+    speakBtn.disabled = true;
+    answered = false;
+    hadError = false;
+    if (autoFocus) {
+      try { answer.focus({preventScroll:true}); } catch (error) { answer.focus(); }
+    } else {
+      answer.blur();
+    }
+  }
+
+  function checkAnswer() {
+    if (answered) return;
+    var question = currentQuestion();
+    var value = normalize(answer.value);
+    if (!value) return;
+    var correct = value === normalize(question.answer) || value === normalize(question.japanese);
+    if (!correct) {
+      if (!hadError) { wrongCount++; document.getElementById('wrongCount').textContent = wrongCount; }
+      hadError = true;
+      answer.value = '';
+      answer.className = 'wrong';
+      message.innerHTML = '<span class="bad">错误，正确答案：' + question.japanese + '（' + question.answer + '）<br>请重新输入正确答案</span>';
+      try { answer.focus({preventScroll:true}); } catch (error) { answer.focus(); }
+      return;
+    }
+
+    if (!hadError) { okCount++; document.getElementById('okCount').textContent = okCount; }
+    answered = true;
+    answer.className = '';
+    answer.disabled = true;
+    speakBtn.disabled = false;
+    message.innerHTML = '<span class="ok">✔ 正确</span>';
+    answerInfo.innerHTML = '<span>正确变形</span><strong>' + question.japanese + '（' + question.answer + '）</strong><span>中文：' + question.meaning + '</span>';
+    answerInfo.classList.remove('hidden');
+    meaningHint.textContent = '中文：' + question.meaning;
+    submitBtn.classList.add('hidden');
+    nextBtn.classList.remove('hidden');
+    nextBtn.textContent = index === QUESTIONS.length - 1 ? '完成测试' : '下一题';
+    playCorrectSequence();
+  }
+
+  function nextQuestion() {
+    if (!answered) return;
+    if (index >= QUESTIONS.length - 1) {
+      stopAudio();
+      document.getElementById('testArea').classList.add('hidden');
+      document.getElementById('finishArea').classList.remove('hidden');
+      counter.textContent = '第22/22题 · 已完成';
+      bar.style.width = '100%';
+      document.getElementById('finishText').textContent = '固定22题已全部完成。首次答对 ' + okCount + ' 题，答错过 ' + wrongCount + ' 题。';
+      audioStatus.textContent = '语音测试完成。';
+      return;
+    }
+    index++;
+    renderQuestion(true);
+  }
+
+  speakBtn.addEventListener('click', playCorrectSequence);
+  submitBtn.addEventListener('click', checkAnswer);
+  nextBtn.addEventListener('click', nextQuestion);
+  answer.addEventListener('keydown', function(event) {
+    if (event.key !== 'Enter') return;
+    if (answered) nextQuestion();
+    else checkAnswer();
+  });
+  japaneseVolumeInput.addEventListener('input', function() {
+    japaneseVolume = Math.max(0, Math.min(1, parseInt(japaneseVolumeInput.value, 10) / 100));
+    saveAudioSettings(); renderAudioSettings(); applyCurrentAudioSettings();
+  });
+  chineseVolumeInput.addEventListener('input', function() {
+    chineseVolume = Math.max(0, Math.min(1, parseInt(chineseVolumeInput.value, 10) / 100));
+    saveAudioSettings(); renderAudioSettings(); applyCurrentAudioSettings();
+  });
+  chineseRateInput.addEventListener('input', function() {
+    chineseRate = Math.max(0.70, Math.min(1.05, parseFloat(chineseRateInput.value)));
+    saveAudioSettings(); renderAudioSettings(); applyCurrentAudioSettings();
+  });
+
+  window.__VOICE_TEST_QUESTIONS__ = QUESTIONS;
+  window.__VOICE_TEST_STATE__ = function() {
+    return {index:index,answered:answered,okCount:okCount,wrongCount:wrongCount,audioQueue:audioQueue.slice(),currentAudioKind:currentAudioKind};
+  };
+  renderAudioSettings();
+  renderQuestion(false);
+})();
+</script>
+</body>
+</html>
