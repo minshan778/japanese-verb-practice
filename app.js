@@ -1,1245 +1,198 @@
-// ========== 变形引擎 ==========
-var allForms = ['masu','te','ta','nai','potential','volitional','passive','causative','ba','imperative','causativePassive','prohibition'];
-var formNames = {
-  original:'原形（辞书形）', masu:'礼貌形（ます形）', te:'连接形（て形）', ta:'过去形（た形）', nai:'否定形（ない形）', potential:'可能形',
-  volitional:'意志形', passive:'被动形', causative:'使役态', ba:'假定形（ば形）',
-  imperative:'命令形', causativePassive:'使役动词形', prohibition:'禁止形（な）', classify:'动词区分'
-};
-
-var ruleTexts = {
-  masu: { title:'礼貌形（ます形）', desc:'礼貌体，用于正式场合、对长辈或陌生人说话。', usage:'动词连用形+ます。否定形式是「ません」，过去形式是「ました」。', I:'一类动词：词尾う段→い段+ます\n例：书く→书きます、话す→话します\n注意：買う→买います（う→い）', II:'二类动词：去る+ます\n例：食べる→食べます', III:'三类动词：する→します\n来る→きます' },
-  te: { title:'连接形（て形）', desc:'连接句子、表示动作进行中（〜ている）、请求（〜てください）等。', usage:'て形不能结句，需后接成分。①て+いる（正在做）②て+ください（请做）③て+から（做完后）。', I:'一类动词音便规则：\nく→いて（书く→书いて）\nぐ→いで（泳ぐ→泳いで）\nう・つ・る→って（買う→买って、待つ→待って、終わる→終わって）\nぬ・ぶ・む→んで（死ぬ→死んで、游ぶ→游んで、読む→読んで）\nす→して（话す→话して）\n⚠️ 例外：行く→行って', II:'二类动词：去る+て\n例：食べる→食べて', III:'三类动词：する→して\n来る→きて' },
-  ta: { title:'过去形（た形）', desc:'表示动作已完成、过去发生的事。变形规则与て形完全相同，只是把て换成た、で换成だ。', usage:'①过去：昨日見た②完了：もう食べた③状态：壊れた。', I:'与て形规则相同，结尾变た/だ：书いた・泳いだ・买った・死んだ・话した\n⚠️ 行区→行った', II:'二类动词：去る+た\n例：食べる→食べた', III:'三类动词：する→した\n来る→きた' },
-  nai: { title:'否定形（ない形）', desc:'表示"不…""没…"，是简体否定形式。', usage:'①否定陈述：行かない②请求否定：行かないで③必须：行かなければならない。', I:'一类动词：词尾う段→あ段+ない\n例：书く→书かない、话す→话さない\n⚠️ 買う→买わない（う→わ）\n⚠️ 特殊：ある→ない', II:'二类动词：去る+ない\n例：食べる→食べない', III:'三类动词：する→しない\n来る→こない' },
-  potential: { title:'可能形（能／会）', desc:'表示"能…""会…""可以…"，有能力或条件做某事。', usage:'①能力：日本语が话せる②可能性：明日来られる③属性：この鱼は食べられない。', I:'一类动词：词尾う段→え段+る（书ける、话せる）。注意：变化后的可能动词按二类动词变化。', II:'二类动词：去る+られる（食べられる）\n口语可省略ら：食べれる', III:'三类动词：する→できる\n来る→こられる' },
-  volitional: { title:'意志形', desc:'表示"…吧""想要…""让我们一起…"，表达意志或劝诱。', usage:'①意志：明日早く起きよう②劝诱：一绪に行こう③〜と思う：留学しようと思う。', I:'一类动词：词尾う段→お段+う（书こう、话そう）', II:'二类动词：去る+よう（食べよう）', III:'三类动词：する→しよう\n来る→こよう' },
-  passive: { title:'被动形', desc:'表示"被…""受到…"，主语承受动作。也用于尊敬或客观叙述。', usage:'①直接被动：先生に叱られた②受害：雨に降られた③尊敬：社长が来られた。', I:'一类动词：词尾う段→あ段+れる（书かれる、话される）', II:'二类动词：去る+られる（食べられる）※与可能形同形，靠语境区分', III:'三类动词：する→される\n来る→こられる' },
-  causative: { title:'使役态', desc:'表示"让…做…""使…做…"，强制、指示或允许某人做某事。', usage:'①强制：母は私に部屋を扫除させた②允许：子供を游ばせる③〜てください：行かせてください。', I:'一类动词：词尾う段→あ段+せる（书かせる、话させる）', II:'二类动词：去る+させる（食べさせる）', III:'三类动词：する→させる\n来る→こさせる' },
-  ba: { title:'假定形（ば形）', desc:'表示"如果…""假如…"，用于条件假设。', usage:'①假设：お金があれば買う②必然：春になれば桜が咲く③建议：早く行けばよかった。', I:'一类动词：词尾う段→え段+ば（书けば、话せば）', II:'二类动词：去る+れば（食べれば）', III:'三类动词：する→すれば\n来る→くれば' },
-  imperative: { title:'命令形', desc:'表示命令，语气非常强硬，多用于男性、紧急情况、口号或亲密关系之间。', usage:'①紧急：逃げろ！②口号：顽张れ！③交通标志：止まれ。日常建议用「〜てください」。', I:'一类动词：词尾う段→え段（书け、话せ）', II:'二类动词：去る+ろ（食べろ）', III:'三类动词：する→しろ（或せよ）\n来る→こい' },
-  causativePassive: { title:'使役被动形', desc:'表示"被迫做…""不得不做…"，带有不情愿、被迫的语气。是使役态+被动形的结合。', usage:'①被迫：母に野菜を食べさせられた②不得不：会议に出させられた。', I:'一类动词：词尾う段→あ段+せられる（口语约音为される）\n例：书かせられる→书かされる', II:'二类动词：去る+させられる（食べさせられる）', III:'三类动词：する→させられる\n来る→こさせられる' },
-  prohibition: { title:'禁止形', desc:'表示"不准…""禁止…"，语气非常强烈的否定命令。', usage:'①规则：ここでタバコを吸うな②警告：触るな！③标语：入るな。日常建议用「〜ないでください」。', I:'一类动词：辞书形+な（书くな）', II:'二类动词：辞书形+な（食べるな）', III:'三类动词：するな\n来る→くるな' }
-};
-
-function conjugate(verb, form) {
-  var k = verb.kana, last = k[k.length-1];
-  if (form === 'original') return k;
-  var aRow = {う:'わ',く:'か',ぐ:'が',す:'さ',つ:'た',ぬ:'な',ぶ:'ば',む:'ま',る:'ら'};
-  var iRow = {う:'い',く:'き',ぐ:'ぎ',す:'し',つ:'ち',ぬ:'に',ぶ:'び',む:'み',る:'り'};
-  var eRow = {う:'え',く:'け',ぐ:'げ',す:'せ',つ:'て',ぬ:'ね',ぶ:'べ',む:'め',る:'れ'};
-  var oRow = {う:'お',く:'こ',ぐ:'ご',す:'そ',つ:'と',ぬ:'联',ぶ:'ぼ',む:'も',る:'ろ'};
-  if (verb.exceptions && verb.exceptions[form]) return verb.exceptions[form];
-  if (verb.type === 'II') {
-    var stem = k.slice(0, -1);
-    var map = { masu:'ます', te:'て', ta:'た', nai:'ない', potential:'られる', volitional:'よう',
-      passive:'られる', causative:'させる', ba:'れば', imperative:'ろ', causativePassive:'させられる', prohibition:'るな' };
-    return stem + (map[form] || '');
-  }
-  if (verb.type === 'III') {
-    if (verb.kanji === '来る') {
-      var fk = { masu:'きます', te:'きて', ta:'きた', nai:'こない', potential:'こられる',
-        volitional:'こよう', passive:'こられる', causative:'こさせる', ba:'くれば', imperative:'こい',
-        causativePassive:'こさせられる', prohibition:'くるな' };
-      return fk[form] || '';
-    } else {
-      var sk = k.endsWith('する') ? k.slice(0, -2) : k;
-      var base = (k === 'する') ? '' : sk;
-      var fs = { masu:'します', te:'して', ta:'した', nai:'しない', potential:'できる',
-        volitional:'しよう', passive:'される', causative:'させる', ba:'すれば', imperative:'しろ',
-        causativePassive:'させられる', prohibition:'するな' };
-      return base + (fs[form] || '');
-    }
-  }
-  var stem = k.slice(0, -1);
-  if (form === 'masu') return stem + iRow[last] + 'ます';
-  if (form === 'nai') return stem + aRow[last] + 'ない';
-  if (form === 'potential') return stem + eRow[last] + 'る';
-  if (form === 'volitional') return stem + oRow[last] + 'う';
-  if (form === 'passive') return stem + aRow[last] + 'れる';
-  if (form === 'causative') return stem + aRow[last] + 'せる';
-  if (form === 'ba') return stem + eRow[last] + 'ば';
-  if (form === 'imperative') return stem + eRow[last];
-  if (form === 'causativePassive') return stem + aRow[last] + 'せられる';
-  if (form === 'prohibition') return k + 'な';
-  if (form === 'te') {
-    if (last === 'く') return stem + 'いて';
-    if (last === 'ぐ') return stem + 'いで';
-    if (last === 'す') return stem + 'して';
-    if (last === 'う' || last === 'つ' || last === 'る') return stem + 'って';
-    if (last === 'ぬ' || last === 'ぶ' || last === 'む') return stem + 'んで';
-    return k + 'て';
-  }
-  if (form === 'ta') {
-    if (last === 'く') return stem + 'いた';
-    if (last === 'ぐ') return stem + 'いだ';
-    if (last === 'す') return stem + 'した';
-    if (last === 'う' || last === 'つ' || last === 'る') return stem + 'った';
-    if (last === 'ぬ' || last === 'ぶ' || last === 'む') return stem + 'んだ';
-    return k + 'た';
-  }
-  return '';
-}
-
-// ===== 输入转换 =====
-var katakanaMap = {
-  'ア':'あ','防':'い','ウ':'う','エ':'え','オ':'お','カ':'か','キ':'き','ク':'く','ケ':'け','コ':'こ',
-  'サ':'さ','シ':'し','ス':'す','セ':'せ','ソ':'そ','タ':'た','チ':'ち','ツ':'つ','テ':'て','ト':'と',
-  'ナ':'な','ニ':'に','ヌ':'ぬ','ネ':'ね','ノ':'の','ハ':'は','ヒ':'ひ','フ':'ふ','ヘ':'へ','ホ':'ほ',
-  'マ':'ま','ミ':'み','ム':'む','メ':'め','モ':'も','ヤ':'や','ユ':'ゆ','ヨ':'よ','ラ':'ら','リ':'り',
-  'ル':'る','レ':'れ','ロ':'ろ','ワ':'わ','ヲ':'を','ン':'ん','ガ':'が','ギ':'ぎ','グ':'ぐ','ゲ':'げ',
-  'ゴ':'ご','ザ':'ざ','ジ':'じ','ズ':'ず','ゼ':'ぜ','ゾ':'ぞ','ダ':'だ','ヂ':'ぢ','ヅ':'づ','デ':'で',
-  'ド':'ど','バ':'ば','ビ':'び','ブ':'ぶ','ベ':'べ','ボ':'ぼ','パ':'ぱ','ピ':'ぴ','プ':'ぷ','ペ':'ぺ',
-  'ポ':'ぽ','ャ':'ゃ','ュ':'ゅ','ョ':'ょ','ッ':'っ'
-};
-var romajiMap = {
-  'a':'あ','i':'い','u':'う','e':'え','o':'お','ka':'か','ki':'き','ku':'く','ke':'け','ko':'こ',
-  'sa':'さ','shi':'し','su':'す','se':'せ','so':'そ','ta':'た','chi':'ち','tsu':'つ','te':'て','to':'と',
-  'na':'な','ni':'に','nu':'ぬ','ne':'ね','no':'清','ha':'は','hi':'ひ','fu':'ふ','he':'へ','ho':'ほ',
-  'ma':'ま','mi':'み','mu':'む','me':'め','mo':'も','ya':'や','yu':'ゆ','yo':'よ','ra':'ら','ri':'り',
-  'ru':'る','re':'れ','ro':'ろ','wa':'わ','wo':'を','n':'ん','ga':'が','gi':'ぎ','gu':'ぐ','ge':'ge',
-  'go':'ご','za':'ざ','ji':'じ','zu':'ず','ze':'ぜ','zo':'ぞ','da':'だ','de':'で','do':'ど','ba':'ば',
-  'bi':'び','bu':'ぶ','be':'べ','bo':'ぼ','pa':'ぱ','pi':'ぴ','pu':'ぷ','pe':'ぺ','po':'ぽ',
-  'kya':'きゃ','kyu':'きゅ','kyo':'きょ','sha':'しゃ','shu':'しゅ','sho':'しょ','cha':'ちゃ','chu':'ちゅ',
-  'cho':'ちょ','nya':'にゃ','nyu':'にゅ','nyo':'にょ','hya':'ひゃ','hyu':'ひゅ','hyo':'ひょ',
-  'mya':'みゃ','myu':'みゅ','myo':'みょ','rya':'りゃ','ryu':'りゅ','ryo':'りょ','gya':'ぎゃ',
-  'gyu':'ぎゅ','gyo':'ぎょ','ja':'じゃ','ju':'じゅ','jo':'じょ','bya':'びゃ','byu':'びゅ','byo':'びょ',
-  'pya':'ぴゃ','pyu':'ぴゅ','pyo':'ぴょ','tte':'って','tta':'った','nde':'んで','nda':'んだ'
-};
-function buildKanjiMap() {
-  var map = {};
-  verbs.forEach(function(v) {
-    map[v.kanji] = v.kana;
-    if (v.type === 'II' || v.kanji === '来る') { map[v.kanji.slice(0,-1)] = v.kana.slice(0,-1); }
-    if (v.type === 'III' && v.kanji !== '来る') { var s = v.kanji.replace('する',''); if(s) map[s] = v.kana.replace('する',''); }
-  });
-  return map;
-}
-var kanjiMap = buildKanjiMap();
-function normalizeInput(input) {
-  var str = input.trim();
-  if (/^[a-zA-Z\s]+$/.test(str)) {
-    str = str.toLowerCase().replace(/\s+/g, '');
-    var out = '', i = 0;
-    while (i < str.length) {
-      var m = false;
-      for (var l = 3; l >= 1; l--) {
-        var sub = str.substring(i, i+l);
-        if (romajiMap[sub]) { out += romajiMap[sub]; i += l; m = true; break; }
-      }
-      if (!m) { out += str[i]; i++; }
-    }
-    return out;
-  }
-  var kout = '';
-  for (var j = 0; j < str.length; j++) { kout += katakanaMap[str[j]] || str[j]; }
-  str = kout;
-  var keys = Object.keys(kanjiMap).sort(function(a,b){return b.length-a.length;});
-  for (var k = 0; k < keys.length; k++) {
-    if (str.indexOf(keys[k]) !== -1) { str = str.replace(new RegExp(keys[k],'g'), kanjiMap[keys[k]]); }
-  }
-  return str;
-}
-
-// 保留汉字或假名原样比较，并统一全角、空格和片假名。
-function normalizePlain(input) {
-  var str = (input || '').normalize('NFKC').replace(/[\s　]/g, '');
-  return str.replace(/[ァ-ヶ]/g, function(ch) { return String.fromCharCode(ch.charCodeAt(0) - 0x60); });
-}
-
-// 根据假名答案生成常用汉字写法，例如「かきます」→「書きます」。
-function buildKanjiAnswer(verb, kanaAnswer) {
-  if (verb.kanji === verb.kana) return kanaAnswer;
-  if (verb.kanji === '来る') return '来' + kanaAnswer.slice(1);
-  if (verb.type === 'III' && verb.kana.endsWith('する')) {
-    var suruKanaStem = verb.kana.slice(0, -2);
-    var suruKanjiStem = verb.kanji.slice(0, -2);
-    return suruKanjiStem + kanaAnswer.slice(suruKanaStem.length);
-  }
-  var kanaStem = verb.kana.slice(0, -1);
-  var kanjiStem = verb.kanji.slice(0, -1);
-  return kanjiStem + kanaAnswer.slice(kanaStem.length);
-}
-
-function displayCorrectAnswer(verb, kanaAnswer) {
-  var kanjiAnswer = buildKanjiAnswer(verb, kanaAnswer);
-  return kanjiAnswer === kanaAnswer ? kanaAnswer : kanjiAnswer + '（' + kanaAnswer + '）';
-}
-
-function escapeHtml(value) {
-  return String(value).replace(/[&<>"']/g, function(ch) {
-    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];
-  });
-}
-
-// 把中文原形释义按当前变形转换。分隔符只在括号外生效，
-// 避免把「穿（鞋/裤）」这类说明错误拆开。
-function mapMeaningSenses(meaning, transform) {
-  var source = String(meaning || '');
-  var parts = [], separators = [], buffer = '', depth = 0;
-  for (var i = 0; i < source.length; i++) {
-    var ch = source[i];
-    if (ch === '（' || ch === '(') depth++;
-    if (ch === '）' || ch === ')') depth = Math.max(0, depth - 1);
-    if (depth === 0 && (ch === '、' || ch === '/' || ch === '／')) {
-      parts.push(buffer.trim());
-      separators.push(ch === '、' ? '、' : '／');
-      buffer = '';
-    } else {
-      buffer += ch;
-    }
-  }
-  parts.push(buffer.trim());
-  var result = '';
-  for (var j = 0; j < parts.length; j++) {
-    result += transform(parts[j]);
-    if (separators[j]) result += separators[j];
-  }
-  return result;
-}
-
-// 「了、吧」等放在自动/他动等补充说明之前：开（自动）→开了（自动）。
-function appendBeforeMeaningNote(meaning, suffix) {
-  var match = String(meaning).match(/^([\s\S]*?)([（(][^）)]*[）)])$/);
-  return match ? match[1] + suffix + match[2] : meaning + suffix;
-}
-
-// 少数变形不能只靠“能／被／让”等前缀机械翻译。
-// 这些内容跟随单词数据保存，既能显示“特殊翻译”标签，也能单独指定朗读文本。
-function getMeaningOverride(verb, form) {
-  if (!verb || !verb.meaningOverrides || !verb.meaningOverrides[form]) return null;
-  var value = verb.meaningOverrides[form];
-  if (typeof value === 'string') return { text:value, speech:value, special:false, sense:'' };
-  return {
-    text:value.text || '',
-    speech:value.speech || value.text || '',
-    special:!!value.special,
-    sense:value.sense || ''
-  };
-}
-
-function meaningForForm(verb, form) {
-  var override = getMeaningOverride(verb, form);
-  if (override && override.text) return override.text;
-  var base = verb.meaning || '';
-  var map = function(transform) { return mapMeaningSenses(base, transform); };
-  if (form === 'classify') return base;
-  if (form === 'masu') return base + '（礼貌表达）';
-  if (form === 'te') return base + '……（连接后句，具体译法要看后项）';
-  if (form === 'ta') return map(function(s) { return appendBeforeMeaningNote(s, '了'); });
-  if (form === 'nai') return map(function(s) { return '不' + s; });
-  if (form === 'potential') return map(function(s) { return '能' + s; });
-  if (form === 'volitional') return map(function(s) { return appendBeforeMeaningNote(s, '吧'); });
-  if (form === 'passive') {
-    if (getTransitivity(verb) === 'vi') return '因“' + base + '”而受到影响（间接被动）';
-    return map(function(s) { return '被' + s; });
-  }
-  if (form === 'causative') return map(function(s) { return '让（某人／某物）' + s; });
-  if (form === 'ba') return map(function(s) { return '如果' + s; });
-  if (form === 'imperative') return map(function(s) { return appendBeforeMeaningNote(s, '！'); });
-  if (form === 'causativePassive') return map(function(s) { return '被迫' + s; });
-  if (form === 'prohibition') return map(function(s) { return '不准' + s; });
-  return base;
-}
-
-// 专供语音引擎朗读的含义函数
-function speechMeaningForForm(verb, form) {
-  var override = getMeaningOverride(verb, form);
-  if (override && override.speech) return override.speech;
-  var base = verb.speechMeaning || verb.meaning || '';
-  var map = function(transform) { return mapMeaningSenses(base, transform); };
-  if (form === 'classify' || form === 'masu' || form === 'te') return base;
-  if (form === 'ta') return map(function(s) { return appendBeforeMeaningNote(s, '了'); });
-  if (form === 'nai') return map(function(s) { return '不' + s; });
-  if (form === 'potential') return map(function(s) { return '能' + s; });
-  if (form === 'volitional') return map(function(s) { return appendBeforeMeaningNote(s, '吧'); });
-  if (form === 'passive') {
-    if (getTransitivity(verb) === 'vi') return '因为“' + base + '”而受到影响';
-    return map(function(s) { return '被' + s; });
-  }
-  if (form === 'causative') return map(function(s) { return '让某人' + s; });
-  if (form === 'ba') return map(function(s) { return '如果' + s; });
-  if (form === 'imperative') return base;
-  if (form === 'causativePassive') return map(function(s) { return '被迫' + s; });
-  if (form === 'prohibition') return map(function(s) { return '不准' + s; });
-  return base;
-}
-
-function renderMeaningHtml(verb, form) {
-  var isClassify = form === 'classify';
-  var label = isClassify ? '🌏 原形的中文意思' : '🌏 ' + formNames[form] + '的中文意思';
-  var html = '<span class="meaning-label">' + escapeHtml(label) + '</span>' +
-    '<strong class="meaning-answer">' + escapeHtml(meaningForForm(verb, form)) + '</strong>';
-  if (!isClassify && form !== 'original') {
-    html += '<span class="meaning-origin">原形：' + escapeHtml(verb.kanji) + '（' + escapeHtml(verb.kana) + '）＝' + escapeHtml(verb.meaning) + '</span>';
-  }
-  return html;
-}
-
-// ===== 存储 =====
-var mem = {}; try { mem = JSON.parse(localStorage.getItem('verb_mem')) || {}; } catch(e) {}
-function saveMem() { try { localStorage.setItem('verb_mem', JSON.stringify(mem)); } catch(e) {} }
-var errLog = []; try { errLog = JSON.parse(localStorage.getItem('verb_errlog')) || []; } catch(e) {}
-function saveErrLog() { try { localStorage.setItem('verb_errlog', JSON.stringify(errLog)); } catch(e) {} }
-
-var autoSpeak = true;
-try {
-  var savedAnswerSpeak = localStorage.getItem('verb_answer_speak');
-  if (savedAnswerSpeak !== null) autoSpeak = savedAnswerSpeak === '1';
-} catch(e) {}
-function saveSpeechSetting() { try { localStorage.setItem('verb_answer_speak', autoSpeak ? '1' : '0'); } catch(e) {} }
-
-function readStoredNumber(key, fallback, min, max) {
-  try {
-    var value = parseFloat(localStorage.getItem(key));
-    if (Number.isFinite(value) && value >= min && value <= max) return value;
-  } catch(e) {}
-  return fallback;
-}
-
-var japaneseVolume = readStoredNumber('verb_japanese_volume', 0.85, 0, 1);
-var chineseVolume = readStoredNumber('verb_chinese_volume', 1, 0, 1);
-var chineseRate = readStoredNumber('verb_chinese_rate', 0.88, 0.70, 1.05);
-
-function saveAudioLevels() {
-  try {
-    localStorage.setItem('verb_japanese_volume', String(japaneseVolume));
-    localStorage.setItem('verb_chinese_volume', String(chineseVolume));
-    localStorage.setItem('verb_chinese_rate', String(chineseRate));
-  } catch(e) {}
-}
-
-// ===== 应用状态 =====
-var mode = 'new';
-var selectedForms = allForms.slice();
-var levels = ['N5','N4','N3','N2'];
-var types = ['I','II','III'];
-var transTypes = ['vi','vt'];
-var usageFilters = ['high','normal'];
-var examFilters = ['focus','common','supplement','pending'];
-var formStatusFilters = ['core'];
-var activeEntry = 'daily';
-var applyingPreset = false;
-var numPerRound = 10;
-var pool = [], index = 0;
-var okTotal = 0, ngTotal = 0;
-var curVerb, curForm, curAnswer;
-var answered = false;
-var questionHadError = false;
-var selectedClassType = '';
-var selectedClassTrans = '';
-
-var voiceTestPlan = [
-  {verb:'食べる', form:'original'},
-  {verb:'食べる', form:'potential'},
-  {verb:'食べる', form:'passive'},
-  {verb:'食べる', form:'causativePassive'},
-  {verb:'行く', form:'original'},
-  {verb:'行く', form:'te'},
-  {verb:'行く', form:'ta'},
-  {verb:'来る', form:'nai'},
-  {verb:'来る', form:'potential'},
-  {verb:'来る', form:'passive'},
-  {verb:'する', form:'original'},
-  {verb:'する', form:'potential'},
-  {verb:'読む', form:'original'},
-  {verb:'読む', form:'te'},
-  {verb:'書く', form:'original'},
-  {verb:'書く', form:'ba'},
-  {verb:'话す', form:'original'},
-  {verb:'话す', form:'causativePassive'},
-  {verb:'見る', form:'original'},
-  {verb:'見る', form:'nai'},
-  {verb:'起きる', form:'volitional'},
-  {verb:'泳ぐ', form:'ta'}
-];
-
-// DOM
-var prog = document.getElementById('progressBar');
-var globalProg = document.getElementById('globalProgressBar');
-var globalProgText = document.getElementById('globalProgressText');
-var elVerb = document.getElementById('verb');
-var elKana = document.getElementById('kana');
-var elForm = document.getElementById('form');
-var elVerbTags = document.getElementById('verbTags');
-var elAns = document.getElementById('answer');
-var elMsg = document.getElementById('msg');
-var elSub = document.getElementById('submitBtn');
-var elNext = document.getElementById('nextBtn');
-var elInfo = document.getElementById('resultInfo');
-var elMean = document.getElementById('meaning');
-var elExam = document.getElementById('example');
-var elOk = document.getElementById('ok');
-var elNg = document.getElementById('ng');
-var elRate = document.getElementById('rate');
-var practiceArea = document.getElementById('practiceArea');
-var resultArea = document.getElementById('resultArea');
-var resultText = document.getElementById('resultText');
-var ruleBtn = document.getElementById('ruleBtn');
-var ruleBox = document.getElementById('ruleBox');
-var errModal = document.getElementById('errModal');
-var errList = document.getElementById('errList');
-var settingsPanel = document.getElementById('settingsPanel');
-var classifyArea = document.getElementById('classifyArea');
-var presetNote = document.getElementById('presetNote');
-var filterSummary = document.getElementById('filterSummary');
-var pilotNote = document.getElementById('pilotNote');
-var speakBtn = document.getElementById('speakBtn');
-var autoSpeakChip = document.getElementById('autoSpeakChip');
-var voiceStatus = document.getElementById('voiceStatus');
-var japaneseVolumeInput = document.getElementById('japaneseVolume');
-var japaneseVolumeValue = document.getElementById('japaneseVolumeValue');
-var chineseVolumeInput = document.getElementById('chineseVolume');
-var chineseVolumeValue = document.getElementById('chineseVolumeValue');
-var chineseRateInput = document.getElementById('chineseRate');
-var chineseRateValue = document.getElementById('chineseRateValue');
-var normalPracticeControls = document.getElementById('normalPracticeControls');
-var voiceTestScreen = document.getElementById('voiceTestScreen');
-var voiceTestCounter = document.getElementById('voiceTestCounter');
-var voiceTestProgressBar = document.getElementById('voiceTestProgressBar');
-var exitVoiceTestBtn = document.getElementById('exitVoiceTestBtn');
-var speechSupported = 'speechSynthesis' in window && typeof window.SpeechSynthesisUtterance === 'function';
-var audioSupported = typeof window.Audio === 'function';
-var speechSequence = 0;
-var fixedVoiceItems = {};
-var fixedVoiceReady = false;
-var fixedVoiceLoadFinished = false;
-var fixedChineseVoiceItems = {};
-var fixedChineseVoiceReady = false;
-var fixedChineseVoiceLoadFinished = false;
-var activeAudio = null;
-var speechDelayTimer = null;
-
-function safeAddEvent(el, event, fn) {
-  if (el) el.addEventListener(event, function(e) { try { fn(e); } catch(err) { console.error(err); } });
-}
-
-function hasSpeechFeature() {
-  return audioSupported;
-}
-
-function updateVoiceStatus(message) {
-  if (voiceStatus) voiceStatus.textContent = message;
-}
-
-function refreshVoiceStatus() {
-  updateVoiceStatus('已启用 Cloudflare Worker 高清双语真人发音引擎。出题时静音，答对后先读正确变形，再读对应中文。');
-}
-
-function loadFixedVoiceManifest() {
-  fixedVoiceLoadFinished = true;
-  refreshVoiceStatus();
-  renderSpeechSetting();
-}
-
-function loadFixedChineseVoiceManifest() {
-  fixedChineseVoiceLoadFinished = true;
-  refreshVoiceStatus();
-}
-
-function getJapaneseVoice() {
-  return null; 
-}
-
-function setSpeakingState(isSpeaking) {
-  if (!speakBtn) return;
-  speakBtn.classList.toggle('speaking', !!isSpeaking);
-  speakBtn.setAttribute('aria-label', isSpeaking ? '正在朗读当前单词' : '朗读当前单词');
-}
-
-function stopActivePlayback() {
-  if (speechDelayTimer !== null) {
-    clearTimeout(speechDelayTimer);
-    speechDelayTimer = null;
-  }
-  if (activeAudio) {
-    activeAudio.onplay = null;
-    activeAudio.onended = null;
-    activeAudio.onerror = null;
-    try {
-      activeAudio.pause();
-      activeAudio.currentTime = 0;
-    } catch(e) {}
-    activeAudio = null;
-  }
-  if (speechSupported) window.speechSynthesis.cancel();
-}
-
-function stopSpeech() {
-  speechSequence++;
-  stopActivePlayback();
-  setSpeakingState(false);
-}
-
-function finishSpeechStep(sequence, onComplete) {
-  if (sequence !== speechSequence) return;
-  setSpeakingState(false);
-  if (typeof onComplete === 'function') onComplete(sequence);
-}
-
-// ========== 全新纯净版 Worker 双语真人发音引擎 ==========
-var workerUrl = "https://holy-silence-088a.minshan2831.workers.dev/v1/audio/speech";
-
-function speakWithWorkerVoice(text, lang, sequence, onComplete) {
-  if (sequence !== speechSequence) {
-    finishSpeechStep(sequence, onComplete);
-    return;
-  }
-
-  var requestBody = {
-    model: "tts-1",
-    input: text,
-    voice: lang === 'zh' ? 'shimmer' : 'alloy'
-  };
-
-  window.fetch(workerUrl, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer abc'
-    },
-    body: JSON.stringify(requestBody)
-  })
-  .then(function(response) {
-    if (!response.ok) throw new Error('Worker 语音合成失败');
-    return response.blob();
-  })
-  .then(function(blob) {
-    if (sequence !== speechSequence) return;
-    var audioUrl = window.URL.createObjectURL(blob);
-    var audio = new window.Audio(audioUrl);
-    activeAudio = audio;
-    
-    audio.volume = lang === 'zh' ? chineseVolume : japaneseVolume;
-    if (lang === 'zh') {
-      audio.playbackRate = chineseRate;
-      audio._voiceLanguage = 'zh';
-    } else {
-      audio._voiceLanguage = 'ja';
-    }
-
-    audio.onplay = function() {
-      if (sequence === speechSequence) setSpeakingState(true);
-    };
-    audio.onended = function() {
-      window.URL.revokeObjectURL(audioUrl);
-      if (sequence === speechSequence) {
-        activeAudio = null;
-        finishSpeechStep(sequence, onComplete);
-      }
-    };
-    audio.onerror = function() {
-      window.URL.revokeObjectURL(audioUrl);
-      if (sequence === speechSequence) {
-        activeAudio = null;
-        finishSpeechStep(sequence, onComplete);
-      }
-    };
-    audio.play().catch(function() {
-      if (sequence === speechSequence) {
-        activeAudio = null;
-        finishSpeechStep(sequence, onComplete);
-      }
-    });
-  })
-  .catch(function(err) {
-    console.error('Worker 发音失败:', err);
-    finishSpeechStep(sequence, onComplete);
-  });
-}
-
-function speakJapanese(text, onComplete) {
-  if (!text) return;
-  var sequence = ++speechSequence;
-  stopActivePlayback();
-  if (!hasSpeechFeature()) {
-    finishSpeechStep(sequence, onComplete);
-    return;
-  }
-  speakWithWorkerVoice(text, 'ja', sequence, onComplete);
-}
-
-function speakChinese(text, sequence) {
-  if (!text || sequence !== speechSequence) {
-    if (sequence === speechSequence) setSpeakingState(false);
-    return;
-  }
-  setSpeakingState(false);
-  speechDelayTimer = setTimeout(function() {
-    speechDelayTimer = null;
-    if (sequence !== speechSequence) return;
-    speakWithWorkerVoice(text, 'zh', sequence);
-  }, 260);
-}
-
-function speakCorrectAnswer() {
-  if (!answered || !curVerb || curForm === 'classify' || pool.length === 0 || index >= pool.length) return;
-  var answerMeaning = speechMeaningForForm(curVerb, curForm);
-  speakJapanese(curAnswer, function(sequence) {
-    speakChinese(answerMeaning, sequence);
-  });
-}
-
-function renderSpeechSetting() {
-  if (!autoSpeakChip) return;
-  var available = hasSpeechFeature();
-  autoSpeakChip.classList.toggle('on', autoSpeak && available);
-  autoSpeakChip.setAttribute('aria-pressed', autoSpeak && available ? 'true' : 'false');
-  autoSpeakChip.style.opacity = available ? '' : '.45';
-  autoSpeakChip.style.cursor = available ? '' : 'not-allowed';
-  autoSpeakChip.setAttribute('aria-disabled', available ? 'false' : 'true');
-  autoSpeakChip.title = available ? '答对后自动朗读正确变形和中文' : '当前浏览器不支持语音朗读';
-  if (speakBtn) {
-    var canReplay = available && answered && curForm !== 'classify';
-    speakBtn.disabled = !canReplay;
-    speakBtn.title = !available ? '当前浏览器不支持语音朗读' : (canReplay ? '重播正确变形日语和中文' : '答对后可重播日语和中文');
-    speakBtn.setAttribute('aria-label', canReplay ? '重播正确变形日语和中文' : '答对后可重播日语和中文');
-  }
-}
-
-function toggleAutoSpeak() {
-  if (!hasSpeechFeature()) return;
-  autoSpeak = !autoSpeak;
-  saveSpeechSetting();
-  renderSpeechSetting();
-  if (!autoSpeak) stopSpeech();
-}
-
-function renderAudioControls() {
-  if (japaneseVolumeInput) japaneseVolumeInput.value = String(Math.round(japaneseVolume * 100));
-  if (japaneseVolumeValue) japaneseVolumeValue.textContent = Math.round(japaneseVolume * 100) + '%';
-  if (chineseVolumeInput) chineseVolumeInput.value = String(Math.round(chineseVolume * 100));
-  if (chineseVolumeValue) chineseVolumeValue.textContent = Math.round(chineseVolume * 100) + '%';
-  if (chineseRateInput) chineseRateInput.value = chineseRate.toFixed(2);
-  if (chineseRateValue) chineseRateValue.textContent = chineseRate.toFixed(2) + '×';
-}
-
-function updateActiveAudioLevel() {
-  if (!activeAudio) return;
-  if (activeAudio._voiceLanguage === 'zh') {
-    activeAudio.volume = chineseVolume;
-    activeAudio.playbackRate = chineseRate;
-  } else if (activeAudio._voiceLanguage === 'ja') {
-    activeAudio.volume = japaneseVolume;
-  }
-}
-
-function verbMetaText(verb) {
-  var typeName = verb.type === 'I' ? '一类动词' : verb.type === 'II' ? '二类动词' : '三类动词';
-  var trans = getTransitivity(verb);
-  var transName = trans === 'vi' ? '自动词' : trans === 'vt' ? '他动词' : '自动词／他动词';
-  return '（' + verb.kana + ' · ' + typeName + ' · ' + transName + (verb.exceptions ? ' · 特殊变化' : '') + '）';
-}
-
-function classificationText(verb) {
-  return classificationTextByCodes(verb.type, getTransitivity(verb));
-}
-
-function classificationTextByCodes(type, trans) {
-  var typeName = type === 'I' ? '一类动词' : type === 'II' ? '二类动词' : '三类动词';
-  var transName = trans === 'vi' ? '自动词' : '他动词';
-  return typeName + '＋' + transName;
-}
-
-function matchesVerbProfile(verb) {
-  var profile = getVerbProfile(verb);
-  return usageFilters.indexOf(profile.daily) !== -1 && examFilters.indexOf(profile.exam) !== -1;
-}
-
-function matchesFormStatus(verb, form) {
-  return formStatusFilters.indexOf(getFormPracticeStatus(verb, form)) !== -1;
-}
-
-function setChipValues(selector, datasetKey, values) {
-  document.querySelectorAll(selector + ' .chip').forEach(function(chip) {
-    chip.classList.toggle('on', values.indexOf(chip.dataset[datasetKey]) !== -1);
-  });
-}
-
-function setModeButtons(nextMode) {
-  mode = nextMode;
-  document.querySelectorAll('.mode-btn').forEach(function(btn) {
-    btn.classList.toggle('on', btn.dataset.mode === nextMode);
-  });
-}
-
-function markScopeCustom() {
-  if (applyingPreset) return;
-  activeEntry = 'custom';
-  document.querySelectorAll('.entry-card').forEach(function(card) { card.classList.remove('on'); });
-  presetNote.textContent = '自定义筛选：已按你当前选择的词频、考试重要度和变形价值出题。';
-}
-
-function setVoiceTestLayout(enabled) {
-  if (normalPracticeControls) normalPracticeControls.classList.toggle('hidden', enabled);
-  if (voiceTestScreen) voiceTestScreen.classList.toggle('hidden', !enabled);
-}
-
-function updateVoiceTestScreen() {
-  if (activeEntry !== 'voice-test') return;
-  var total = pool.length || voiceTestPlan.length;
-  var current = total ? Math.min(index + 1, total) : 1;
-  if (voiceTestCounter) voiceTestCounter.textContent = '第' + current + '/' + total + '题';
-  if (voiceTestProgressBar) {
-    voiceTestProgressBar.style.width = total ? Math.round((index / total) * 100) + '%' : '0%';
-  }
-}
-
-function applyEntryPreset(entry) {
-  applyingPreset = true;
-  activeEntry = entry;
-  setVoiceTestLayout(entry === 'voice-test');
-  levels = ['N5','N4','N3','N2'];
-  types = ['I','II','III'];
-  transTypes = ['vi','vt'];
-  selectedForms = allForms.slice();
-
-  if (entry === 'daily') {
-    usageFilters = ['high','normal'];
-    examFilters = ['focus','common','supplement','pending'];
-    formStatusFilters = ['core'];
-    setModeButtons('new');
-    presetNote.textContent = '日常核心：先练已标记的常用词和常用变形。';
-    settingsPanel.classList.add('hidden');
-  } else if (entry === 'jlpt') {
-    usageFilters = ['high','normal','low','pending'];
-    examFilters = ['focus','common'];
-    formStatusFilters = ['core','exam'];
-    setModeButtons('new');
-    presetNote.textContent = 'JLPT重点：练初稿中的重点／常见词，并保留考试有价值的变形。';
-    settingsPanel.classList.add('hidden');
-  } else if (entry === 'forms') {
-    usageFilters = ['high','normal','low','pending'];
-    examFilters = ['focus','common','supplement','pending'];
-    formStatusFilters = ['core','exam'];
-    setModeButtons('new');
-    presetNote.textContent = '变形专项：已打开详细筛选；低频变形仍默认关闭，可手动加入。';
-    settingsPanel.classList.remove('hidden');
-  } else if (entry === 'mistakes') {
-    usageFilters = ['high','normal','low','pending'];
-    examFilters = ['focus','common','supplement','pending'];
-    formStatusFilters = ['core','exam','rare'];
-    setModeButtons('error');
-    presetNote.textContent = '错题强化：不受词频限制，集中重练已经答错的组合。';
-    settingsPanel.classList.add('hidden');
-  } else if (entry === 'voice-test') {
-    usageFilters = ['high','normal','low','pending'];
-    examFilters = ['focus','common','supplement','pending'];
-    formStatusFilters = ['core','exam','rare'];
-    setModeButtons('new');
-    presetNote.textContent = '语音测试：固定22题，按顺序检查20个日语音频及其全部中文意思。';
-    settingsPanel.classList.add('hidden');
-  }
-
-  document.querySelectorAll('.entry-card').forEach(function(card) {
-    card.classList.toggle('on', card.dataset.entry === entry);
-  });
-  setChipValues('#usageChips', 'usage', usageFilters);
-  setChipValues('#examChips', 'exam', examFilters);
-  setChipValues('#formStatusChips', 'formStatus', formStatusFilters);
-  setChipValues('#formChips', 'form', selectedForms);
-  setChipValues('#levelChips', 'level', levels);
-  setChipValues('#typeChips', 'type', types);
-  setChipValues('#transChips', 'trans', transTypes);
-  applyingPreset = false;
-  rebuildPool();
-}
-
-function renderVerbTags(verb, form) {
-  if (!elVerbTags) return;
-  var profile = getVerbProfile(verb);
-  var tags = [
-    '<span class="meta-tag tag-level">' + escapeHtml(verb.level) + '</span>',
-    '<span class="meta-tag tag-daily-' + profile.daily + '">' + escapeHtml(dailyProfileLabels[profile.daily]) + '</span>',
-    '<span class="meta-tag tag-exam-' + profile.exam + '">' + escapeHtml(examProfileLabels[profile.exam]) + '</span>'
-  ];
-  if (activeEntry === 'voice-test') {
-    tags.push('<span class="meta-tag tag-voice-test">语音测试 ' + (index + 1) + '/' + pool.length + '</span>');
-  }
-  if (form !== 'classify') {
-    if (form !== 'original') {
-      var status = getFormPracticeStatus(verb, form);
-      var statusLabels = {core:'常用变形', exam:'考试保留', rare:'低频变形'};
-      if (statusLabels[status]) tags.push('<span class="meta-tag tag-form-' + status + '">' + statusLabels[status] + '</span>');
-    }
-    var meaningOverride = getMeaningOverride(verb, form);
-    if (meaningOverride && meaningOverride.special) {
-      tags.push('<span class="meta-tag tag-special-translation">特殊翻译</span>');
-    }
-    if (meaningOverride && meaningOverride.sense) {
-      tags.push('<span class="meta-tag tag-meaning-sense">词义：' + escapeHtml(meaningOverride.sense) + '</span>');
-    }
-  }
-  elVerbTags.innerHTML = tags.join('');
-}
-
-function updateFilterSummary() {
-  var verbCount = 0, combinationCount = 0;
-  verbs.forEach(function(verb) {
-    if (levels.indexOf(verb.level) === -1 || types.indexOf(verb.type) === -1 || !matchesTransitivity(verb) || !matchesVerbProfile(verb)) return;
-    if (mode === 'classify') {
-      if (getTransitivity(verb) !== 'both') { verbCount++; combinationCount++; }
-      return;
-    }
-    var before = combinationCount;
-    selectedForms.forEach(function(form) {
-      if (isValidFormForVerb(verb, form) && matchesFormStatus(verb, form)) combinationCount++;
-    });
-    if (combinationCount > before) verbCount++;
-  });
-  if (filterSummary) filterSummary.textContent = '当前筛选：' + verbCount + ' 个动词 · ' + combinationCount + ' 个可练组合 · 每轮 ' + numPerRound + ' 题';
-  if (pilotNote) {
-    var profiledCount = verbs.filter(function(verb) { return !!verbProfiles[verb.kanji] || !!(verb.daily && verb.exam); }).length;
-    pilotNote.textContent = '初稿已标记 ' + profiledCount + '/' + verbs.length + ' 个动词；未标记内容显示“待补充”。';
-  }
-}
-
-// 快捷练习入口
-document.querySelectorAll('.entry-card').forEach(function(card) {
-  safeAddEvent(card, 'click', function() { applyEntryPreset(card.dataset.entry); });
-});
-
-// 折叠设置
-safeAddEvent(document.getElementById('settingsToggle'), 'click', function() {
-  settingsPanel.classList.toggle('hidden');
-});
-
-// 答对后自动朗读事件绑定
-safeAddEvent(speakBtn, 'click', speakCorrectAnswer);
-safeAddEvent(autoSpeakChip, 'click', toggleAutoSpeak);
-safeAddEvent(autoSpeakChip, 'keydown', function(e) {
-  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleAutoSpeak(); }
-});
-safeAddEvent(japaneseVolumeInput, 'input', function() {
-  japaneseVolume = Math.max(0, Math.min(1, parseInt(japaneseVolumeInput.value, 10) / 100));
-  saveAudioLevels(); renderAudioControls(); updateActiveAudioLevel();
-});
-safeAddEvent(chineseVolumeInput, 'input', function() {
-  chineseVolume = Math.max(0, Math.min(1, parseInt(chineseVolumeInput.value, 10) / 100));
-  saveAudioLevels(); renderAudioControls(); updateActiveAudioLevel();
-});
-safeAddEvent(chineseRateInput, 'input', function() {
-  chineseRate = Math.max(0.70, Math.min(1.05, parseFloat(chineseRateInput.value)));
-  saveAudioLevels(); renderAudioControls(); updateActiveAudioLevel();
-});
-
-// 词频、考试重要度、变形练习价值筛选
-document.querySelectorAll('#usageChips .chip').forEach(function(chip) {
-  safeAddEvent(chip, 'click', function() {
-    chip.classList.toggle('on');
-    usageFilters = [];
-    document.querySelectorAll('#usageChips .chip.on').forEach(function(c) { usageFilters.push(c.dataset.usage); });
-    markScopeCustom();
-    rebuildPool();
-  });
-});
-document.querySelectorAll('#examChips .chip').forEach(function(chip) {
-  safeAddEvent(chip, 'click', function() {
-    chip.classList.toggle('on');
-    examFilters = [];
-    document.querySelectorAll('#examChips .chip.on').forEach(function(c) { examFilters.push(c.dataset.exam); });
-    markScopeCustom();
-    rebuildPool();
-  });
-});
-document.querySelectorAll('#formStatusChips .chip').forEach(function(chip) {
-  safeAddEvent(chip, 'click', function() {
-    chip.classList.toggle('on');
-    formStatusFilters = [];
-    document.querySelectorAll('#formStatusChips .chip.on').forEach(function(c) { formStatusFilters.push(c.dataset.formStatus); });
-    markScopeCustom();
-    rebuildPool();
-  });
-});
-
-// 变形种类多选
-document.querySelectorAll('#formChips .chip').forEach(function(chip) {
-  safeAddEvent(chip, 'click', function() {
-    chip.classList.toggle('on');
-    selectedForms = [];
-    document.querySelectorAll('#formChips .chip.on').forEach(function(c) { selectedForms.push(c.dataset.form); });
-    markScopeCustom();
-    rebuildPool();
-  });
-});
-
-// 模式
-document.querySelectorAll('.mode-btn').forEach(function(btn) {
-  safeAddEvent(btn, 'click', function() {
-    document.querySelectorAll('.mode-btn').forEach(function(b){b.classList.remove('on');});
-    btn.classList.add('on');
-    mode = btn.dataset.mode;
-    if ((activeEntry === 'mistakes' && mode !== 'error') || activeEntry === 'voice-test') markScopeCustom();
-    rebuildPool();
-  });
-});
-
-// 难度
-document.querySelectorAll('#levelChips .chip').forEach(function(chip) {
-  safeAddEvent(chip, 'click', function() {
-    chip.classList.toggle('on');
-    levels = [];
-    document.querySelectorAll('#levelChips .chip.on').forEach(function(c){levels.push(c.dataset.level);});
-    markScopeCustom();
-    rebuildPool();
-  });
-});
-
-// 类型
-document.querySelectorAll('#typeChips .chip').forEach(function(chip) {
-  safeAddEvent(chip, 'click', function() {
-    chip.classList.toggle('on');
-    types = [];
-    document.querySelectorAll('#typeChips .chip.on').forEach(function(c){types.push(c.dataset.type);});
-    markScopeCustom();
-    rebuildPool();
-  });
-});
-
-// 自动词／他动词
-document.querySelectorAll('#transChips .chip').forEach(function(chip) {
-  safeAddEvent(chip, 'click', function() {
-    chip.classList.toggle('on');
-    transTypes = [];
-    document.querySelectorAll('#transChips .chip.on').forEach(function(c){transTypes.push(c.dataset.trans);});
-    markScopeCustom();
-    rebuildPool();
-  });
-});
-
-// 动词区分题的答案选择
-document.querySelectorAll('#classTypeAnswers .chip').forEach(function(chip) {
-  safeAddEvent(chip, 'click', function() {
-    document.querySelectorAll('#classTypeAnswers .chip').forEach(function(c){c.classList.remove('on');});
-    chip.classList.add('on'); selectedClassType = chip.dataset.answerType;
-  });
-});
-document.querySelectorAll('#classTransAnswers .chip').forEach(function(chip) {
-  safeAddEvent(chip, 'click', function() {
-    document.querySelectorAll('#classTransAnswers .chip').forEach(function(c){c.classList.remove('on');});
-    chip.classList.add('on'); selectedClassTrans = chip.dataset.answerTrans;
-  });
-});
-
-// 数量
-document.querySelectorAll('#numChips .chip').forEach(function(chip) {
-  safeAddEvent(chip, 'click', function() {
-    document.querySelectorAll('#numChips .chip').forEach(function(c){c.classList.remove('on');});
-    chip.classList.add('on');
-    numPerRound = parseInt(chip.dataset.num);
-    rebuildPool();
-  });
-});
-
-// 规则按钮
-safeAddEvent(ruleBtn, 'click', function() {
-  ruleBox.classList.toggle('hidden');
-  var r = ruleTexts[curForm];
-  if (r) {
-    var typeKey = curVerb.type === 'I' ? 'I' : curVerb.type === 'II' ? 'II' : 'III';
-    var typeName = curVerb.type === 'I' ? '一类动词（五段）' : curVerb.type === 'II' ? '二类动词（一段）' : '三类动词（不规则）';
-    ruleBox.innerHTML = '<strong>📖 ' + r.title + '</strong><br><br>💬 <em>含义：</em>' + r.desc + '<br><br>📝 <em>用法：</em>' + r.usage + '<br><br>🔧 <em>' + typeName + '的变化方法：</em><br>' + r[typeKey].replace(/\n/g, '<br>');
-  }
-});
-
-// 错题本
-safeAddEvent(document.getElementById('errBookBtn'), 'click', function() {
-  errModal.classList.remove('hidden');
-  renderErrList();
-});
-safeAddEvent(document.getElementById('closeErrBtn'), 'click', function() { errModal.classList.add('hidden'); });
-safeAddEvent(document.getElementById('clearErrBtn'), 'click', function() {
-  errLog = [];
-  Object.keys(mem).forEach(function(key) {
-    mem[key].wrong = 0;
-    mem[key].errorStreak = 0;
-  });
-  saveMem(); saveErrLog(); renderErrList(); rebuildPool();
-});
-
-function renderErrList() {
-  if (!errList) return;
-  if (errLog.length === 0) { errList.innerHTML = '<p style="color:#888;font-size:0.7rem;">暂无错题</p>'; return; }
-  var html = '';
-  for (var i = 0; i < errLog.length; i++) {
-    var e = errLog[i];
-    html += '<div class="err-item"><span><strong>' + escapeHtml(e.verb) + '</strong> ' + escapeHtml(formNames[e.form] || e.form) + '<br>❌' + escapeHtml(e.user) + ' → ✅' + escapeHtml(e.correct) + '</span><button class="retry-err-btn" data-index="' + i + '">练习</button></div>';
-  }
-  errList.innerHTML = html;
-  errList.querySelectorAll('.retry-err-btn').forEach(function(btn) {
-    safeAddEvent(btn, 'click', function() { retryErrItem(parseInt(btn.dataset.index)); });
-  });
-}
-
-function retryErrItem(i) {
-  var e = errLog[i]; if(!e) return;
-  for (var j = 0; j < verbs.length; j++) {
-    if (verbs[j].kanji === e.verb) {
-      mode = 'error';
-      document.querySelectorAll('.mode-btn').forEach(function(b){b.classList.toggle('on', b.dataset.mode === 'error');});
-      pool = [{verb:verbs[j], form:e.form}]; index = 0;
-      okTotal = 0; ngTotal = 0;
-      errModal.classList.add('hidden'); practiceArea.classList.remove('hidden'); resultArea.classList.add('hidden');
-      loadQuestion(true);
-      break;
-    }
-  }
-}
-
-function updateGlobalProgress() {
-  var total = 0, practiced = 0;
-  verbs.forEach(function(v) {
-    if (levels.indexOf(v.level) === -1 || types.indexOf(v.type) === -1 || !matchesTransitivity(v) || !matchesVerbProfile(v)) return;
-    for (var i = 0; i < selectedForms.length; i++) {
-      if (!isValidFormForVerb(v, selectedForms[i]) || !matchesFormStatus(v, selectedForms[i])) continue;
-      total++;
-      var key = v.kanji + '_' + selectedForms[i];
-      if (mem[key]) practiced++;
-    }
-  });
-  globalProgText.textContent = practiced + '/' + total;
-  globalProg.style.width = total ? Math.round((practiced / total) * 100) + '%' : '0%';
-}
-
-function findVerbForVoiceTest(kanji) {
-  for (var i = 0; i < verbs.length; i++) {
-    if (verbs[i].kanji === kanji) return verbs[i];
-  }
-  return null;
-}
-
-function rebuildVoiceTestPool() {
-  stopSpeech();
-  pool = [];
-  okTotal = 0;
-  ngTotal = 0;
-  elOk.textContent = '0';
-  elNg.textContent = '0';
-  elRate.textContent = '-';
-
-  voiceTestPlan.forEach(function(item) {
-    var verb = findVerbForVoiceTest(item.verb);
-    if (verb) pool.push({verb:verb, form:item.form, voiceTest:true});
-  });
-
-  index = 0;
-  updateProgress();
-  practiceArea.classList.remove('hidden');
-  resultArea.classList.add('hidden');
-
-  if (pool.length === voiceTestPlan.length) {
-    loadQuestion(true);
-  } else {
-    elVerb.textContent = '语音测试数据不完整';
-    elKana.textContent = '请检查测试动词是否仍在单词表中';
-    if (elVerbTags) elVerbTags.innerHTML = '';
-    elForm.textContent = '';
-    elAns.blur();
-    elAns.disabled = true;
-  }
-  updateGlobalProgress();
-}
-
-function rebuildPool() {
-  if (activeEntry === 'voice-test') {
-    rebuildVoiceTestPool();
-    return;
-  }
-  stopSpeech();
-  pool = [];
-  okTotal = 0; ngTotal = 0;
-  elOk.textContent = '0'; elNg.textContent = '0'; elRate.textContent = '-';
-  verbs.forEach(function(v) {
-    if (levels.indexOf(v.level) === -1 || types.indexOf(v.type) === -1 || !matchesTransitivity(v) || !matchesVerbProfile(v)) return;
-    if (mode === 'classify') {
-      if (getTransitivity(v) !== 'both') pool.push({verb:v, form:'classify'});
-      return;
-    }
-    selectedForms.forEach(function(f) {
-      if (!isValidFormForVerb(v, f) || !matchesFormStatus(v, f)) return;
-      var key = v.kanji + '_' + f;
-      if (mode === 'new' && !mem[key]) pool.push({ verb: v, form: f });
-      else if (mode === 'review' && mem[key]) pool.push({ verb: v, form: f });
-      else if (mode === 'error' && mem[key] && mem[key].wrong > 0) pool.push({ verb: v, form: f });
-    });
-    var classifyKey = v.kanji + '_classify';
-    if (mode === 'error' && getTransitivity(v) !== 'both' && mem[classifyKey] && mem[classifyKey].wrong > 0) {
-      pool.push({verb:v, form:'classify'});
-    }
-  });
-  updateFilterSummary();
-  pool.sort(function() { return Math.random() - 0.5; });
-  if (pool.length > numPerRound) pool = pool.slice(0, numPerRound);
-  index = 0;
-  updateProgress();
-  if (pool.length > 0) {
-    practiceArea.classList.remove('hidden');
-    resultArea.classList.add('hidden');
-    loadQuestion(false);
-  } else {
-    elVerb.textContent = '暂无题目';
-    elKana.textContent = mode === 'error' ? '当前筛选范围内还没有错题' : '请调整筛选条件或切换练习方式';
-    if (elVerbTags) elVerbTags.innerHTML = '';
-    elForm.textContent = '';
-    elAns.blur();
-    elAns.disabled = true;
-  }
-  updateGlobalProgress();
-}
-
-function updateProgress() {
-  if (pool.length === 0) prog.style.width = '0%';
-  else prog.style.width = Math.round((index / pool.length) * 100) + '%';
-  updateVoiceTestScreen();
-}
-
-function focusAnswerWithoutScroll() {
-  try { elAns.focus({preventScroll:true}); }
-  catch(e) { elAns.focus(); }
-}
-
-function loadQuestion(autoFocus) {
-  if (typeof autoFocus === 'undefined') autoFocus = true;
-  if (index >= pool.length) { showResult(); return; }
-  stopSpeech();
-  var item = pool[index];
-  curVerb = item.verb; curForm = item.form;
-  curAnswer = curForm === 'classify' ? curVerb.type + '|' + getTransitivity(curVerb) : conjugate(curVerb, curForm);
-  elVerb.textContent = curVerb.kanji;
-  elKana.textContent = curForm === 'classify' ? '（' + curVerb.kana + (curVerb.exceptions ? ' · 特殊变化' : '') + '）' : verbMetaText(curVerb);
-  renderVerbTags(curVerb, curForm);
-  elForm.textContent = formNames[curForm] + (activeEntry === 'voice-test' ? ' · ' + (index + 1) + '/' + pool.length : '');
-  selectedClassType = ''; selectedClassTrans = '';
-  document.querySelectorAll('#classifyArea .chip').forEach(function(c){c.classList.remove('on');});
-  if (curForm === 'classify') {
-    classifyArea.classList.remove('hidden'); elAns.classList.add('hidden'); ruleBtn.style.display = 'none';
-  } else {
-    classifyArea.classList.add('hidden'); elAns.classList.remove('hidden'); ruleBtn.style.display = curForm === 'original' ? 'none' : '';
-    elAns.value = ''; elAns.className = ''; elAns.disabled = false;
-    if (autoFocus) focusAnswerWithoutScroll();
-    else elAns.blur();
-  }
-  elMsg.innerHTML = ''; elSub.style.display = ''; elSub.textContent = '决定';
-  elNext.classList.add('hidden'); elInfo.classList.add('hidden'); ruleBox.classList.add('hidden');
-  answered = false;
-  questionHadError = false;
-  renderSpeechSetting();
-  updateProgress();
-}
-
-function checkAns() {
-  if (answered) return;
-  var isClassify = curForm === 'classify';
-  var isVoiceTest = activeEntry === 'voice-test';
-  var raw = isClassify ? selectedClassType + '|' + selectedClassTrans : elAns.value.trim();
-  if (isClassify && (!selectedClassType || !selectedClassTrans)) {
-    elMsg.innerHTML = '<span class="red">请分别选择活用分类和自他分类</span>'; return;
-  }
-  if (!raw) return;
-  var ua = isClassify ? raw : normalizeInput(raw);
-  var plain = isClassify ? raw : normalizePlain(raw);
-  var kanjiAnswer = isClassify ? '' : buildKanjiAnswer(curVerb, curAnswer);
-  var correct = isClassify ? raw === curAnswer : (ua === curAnswer || plain === normalizePlain(curAnswer) || plain === normalizePlain(kanjiAnswer));
-  var key = curVerb.kanji + '_' + curForm;
-  if (!isVoiceTest && !mem[key]) mem[key] = { correct: 0, wrong: 0, errorStreak: 0 };
-  if (correct) {
-    if (!questionHadError) {
-      okTotal++;
-      if (!isVoiceTest) {
-        mem[key].correct++;
-        if (mode === 'error' && mem[key].wrong > 0) {
-          mem[key].errorStreak = (mem[key].errorStreak || 0) + 1;
-          if (mem[key].errorStreak >= 2) {
-            mem[key].wrong = 0;
-            mem[key].errorStreak = 0;
-            errLog = errLog.filter(function(e){return !(e.verb === curVerb.kanji && e.form === curForm);});
-            saveErrLog();
-          }
-        }
-      }
-    }
-    if (!isVoiceTest) saveMem();
-    elMsg.innerHTML = '<span class="green">✔ ' + (questionHadError ? '纠正正确！' : '正确！') + '</span>';
-    elSub.style.display = 'none'; elNext.classList.remove('hidden');
-    elMean.innerHTML = renderMeaningHtml(curVerb, curForm);
-    if (isVoiceTest) {
-      elExam.textContent = '🎧 语音测试 ' + (index + 1) + '/' + pool.length + '：先读正确日语，再读对应中文。';
-    } else {
-      elExam.textContent = isClassify ? '📎 分类：' + classificationText(curVerb) : '📎 例：' + (curVerb.example || curVerb.kanji + 'の' + formNames[curForm] + 'は ' + curAnswer + ' です');
-    }
-    elInfo.classList.remove('hidden');
-    answered = true;
-    renderSpeechSetting();
-    if ((autoSpeak || isVoiceTest) && !isClassify) {
-      speakCorrectAnswer();
-    }
-  } else {
-    if (!questionHadError) {
-      ngTotal++;
-      if (!isVoiceTest) {
-        mem[key].wrong++;
-        mem[key].errorStreak = 0;
-        var oldIndex = -1;
-        for (var i = 0; i < errLog.length; i++) {
-          if (errLog[i].verb === curVerb.kanji && errLog[i].form === curForm) { oldIndex = i; break; }
-        }
-        if (oldIndex >= 0) errLog.splice(oldIndex, 1);
-        errLog.unshift({ verb: curVerb.kanji, form: curForm, user: isClassify ? classificationTextByCodes(selectedClassType, selectedClassTrans) : raw, correct: isClassify ? classificationText(curVerb) : displayCorrectAnswer(curVerb, curAnswer) });
-        if (errLog.length > 50) errLog.pop();
-        saveMem(); saveErrLog();
-      }
-    }
-    questionHadError = true;
-    elMsg.innerHTML = '<span class="red">✘ 错误，正确答案：' + escapeHtml(isClassify ? classificationText(curVerb) : displayCorrectAnswer(curVerb, curAnswer)) + '<br>请重新回答正确答案</span>';
-    if (isClassify) {
-      selectedClassType = ''; selectedClassTrans = '';
-      document.querySelectorAll('#classifyArea .chip').forEach(function(c){c.classList.remove('on');});
-    } else {
-      elAns.className = 'wrong'; elAns.value = ''; focusAnswerWithoutScroll();
-    }
-    elSub.textContent = '重试';
-    answered = false;
-  }
-  elOk.textContent = okTotal; elNg.textContent = ngTotal;
-  var total = okTotal + ngTotal;
-  elRate.textContent = total ? Math.round((okTotal / total) * 100) : '-';
-  if (!isVoiceTest) updateGlobalProgress();
-}
-
-function nextQ() { index++; loadQuestion(true); }
-
-function showResult() {
-  stopSpeech();
-  practiceArea.classList.add('hidden');
-  resultArea.classList.remove('hidden');
-  var total = pool.length;
-  var rate = total ? Math.round((okTotal / total) * 100) : 0;
-  resultText.textContent = '共 ' + total + ' 题，首次答对 ' + okTotal + ' 题，首次正确率 ' + rate + '%';
-  if (activeEntry === 'voice-test') {
-    if (voiceTestCounter) voiceTestCounter.textContent = '第' + total + '/' + total + '题 · 已完成';
-    if (voiceTestProgressBar) voiceTestProgressBar.style.width = '100%';
-  }
-}
-
-safeAddEvent(elSub, 'click', checkAns);
-safeAddEvent(elNext, 'click', nextQ);
-safeAddEvent(exitVoiceTestBtn, 'click', function() { applyEntryPreset('daily'); });
-safeAddEvent(elAns, 'keydown', function(e) {
-  if (e.key === 'Enter') {
-    if (!elNext.classList.contains('hidden')) nextQ();
-    else checkAns();
-  }
-});
-safeAddEvent(document.getElementById('retryBtn'), 'click', function() { rebuildPool(); });
-safeAddEvent(document.getElementById('resetBtn'), 'click', function() {
-  practiceArea.classList.remove('hidden');
-  resultArea.classList.add('hidden');
-  if (activeEntry === 'voice-test') applyEntryPreset('daily');
-  else rebuildPool();
-});
-
-renderAudioControls();
-renderSpeechSetting();
-loadFixedVoiceManifest();
-loadFixedChineseVoiceManifest();
-applyEntryPreset('daily');
-elOk.textContent = okTotal; elNg.textContent = ngTotal; elRate.textContent = '-';
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>动词变形练习 · 全功能版</title>
+  <link rel="stylesheet" href="style.css?v=audio-logic-1">
+</head>
+<body>
+<div class="container">
+  <h2>📘 动词变形练习</h2>
+  
+  <div class="label" style="display:flex;justify-content:space-between">
+    <span>📊 全局掌握</span><span id="globalProgressText">0/0</span>
+  </div>
+  <div class="global-bar-wrap"><div class="global-bar" id="globalProgressBar"></div></div>
+  <div class="bar-wrap"><div class="bar" id="progressBar"></div></div>
+
+  <div class="entry-title"><span>选择练习入口</span><span>初稿测试版</span></div>
+  <div class="entry-grid" id="entryGrid">
+    <button type="button" class="entry-card on" data-entry="daily">
+      <span class="entry-icon">🌿</span><strong>日常核心</strong><small>常用词 × 常用变形</small>
+    </button>
+    <button type="button" class="entry-card" data-entry="jlpt">
+      <span class="entry-icon">🎯</span><strong>JLPT重点</strong><small>重点词 × 考试保留形</small>
+    </button>
+    <button type="button" class="entry-card" data-entry="forms">
+      <span class="entry-icon">🧩</span><strong>变形专项</strong><small>按等级与变形筛选</small>
+    </button>
+    <button type="button" class="entry-card" data-entry="mistakes">
+      <span class="entry-icon">🔥</span><strong>错题强化</strong><small>集中重练错误组合</small>
+    </button>
+    <a class="voice-test-link" href="voice-test.html?v=audio-logic-1">
+      <span class="entry-icon">🎧</span><strong>语音测试</strong><small>固定22题 · 依次检查日语与中文语音</small>
+    </a>
+  </div>
+  <div class="preset-note" id="presetNote">日常核心：先练已标记的常用词和常用变形。</div>
+  
+  <div class="label">练习方式</div>
+  <div class="mode-row">
+    <div class="mode-btn on" data-mode="new">新单词</div>
+    <div class="mode-btn" data-mode="review">复习</div>
+    <div class="mode-btn" data-mode="error">错题</div>
+    <div class="mode-btn" data-mode="classify">动词区分</div>
+  </div>
+
+  <div class="top-actions">
+    <button class="btn-small" id="settingsToggle">⚙️ 练习设置</button>
+    <button class="btn-small" id="errBookBtn">📋 错题本</button>
+  </div>
+
+  <div class="collapsible hidden" id="settingsPanel">
+    <div class="label">日常使用频率（可多选）</div>
+    <div class="chip-row" id="usageChips">
+      <span class="chip on" data-usage="high">常用</span>
+      <span class="chip on" data-usage="normal">一般</span>
+      <span class="chip" data-usage="low">不常用</span>
+      <span class="chip" data-usage="pending">待补充</span>
+    </div>
+    <div class="label">JLPT重要度（初稿，可多选）</div>
+    <div class="chip-row" id="examChips">
+      <span class="chip on" data-exam="focus">考试重点</span>
+      <span class="chip on" data-exam="common">考试常见</span>
+      <span class="chip on" data-exam="supplement">补充词</span>
+      <span class="chip on" data-exam="pending">待补充</span>
+    </div>
+    <div class="label">变形练习价值（可多选）</div>
+    <div class="chip-row" id="formStatusChips">
+      <span class="chip on" data-form-status="core">常用变形</span>
+      <span class="chip" data-form-status="exam">考试保留</span>
+      <span class="chip" data-form-status="rare">低频变形</span>
+    </div>
+    <div class="pilot-note" id="pilotNote">初稿只标记一部分代表词；未标记内容显示“待补充”。</div>
+    <div class="label">变形种类（可多选）</div>
+    <div class="chip-row" id="formChips">
+      <span class="chip on" data-form="masu">礼貌形（ます）</span>
+      <span class="chip on" data-form="te">て形（连接）</span>
+      <span class="chip on" data-form="ta">た形（过去）</span>
+      <span class="chip on" data-form="nai">ない形（否定）</span>
+      <span class="chip on" data-form="potential">可能</span>
+      <span class="chip on" data-form="volitional">意志</span>
+      <span class="chip on" data-form="passive">被动形</span>
+      <span class="chip on" data-form="causative">使役态</span>
+      <span class="chip on" data-form="ba">假定形（ば）</span>
+      <span class="chip on" data-form="imperative">命令</span>
+      <span class="chip on" data-form="causativePassive">使役被动形</span>
+      <span class="chip on" data-form="prohibition">禁止形（な）</span>
+    </div>
+    <div class="label">难度</div>
+    <div class="chip-row" id="levelChips">
+      <span class="chip on" data-level="N5">N5</span>
+      <span class="chip on" data-level="N4">N4</span>
+      <span class="chip on" data-level="N3">N3</span>
+      <span class="chip on" data-level="N2">N2</span>
+    </div>
+    <div class="label">活用分类（可多选）</div>
+    <div class="chip-row" id="typeChips">
+      <span class="chip on" data-type="I">一类动词</span>
+      <span class="chip on" data-type="II">二类动词</span>
+      <span class="chip on" data-type="III">三类动词</span>
+    </div>
+    <div class="label">自他分类（可多选）</div>
+    <div class="chip-row" id="transChips">
+      <span class="chip on" data-trans="vi">自动词</span>
+      <span class="chip on" data-trans="vt">他动词</span>
+    </div>
+    <div class="label">答对后的语音</div>
+    <div class="chip-row" id="speechChips">
+      <span class="chip on" id="autoSpeakChip" role="button" tabindex="0" aria-pressed="true">🔊 答对后自动朗读</span>
+    </div>
+    <div class="voice-controls" aria-label="语音音量和语速设置">
+      <label class="voice-control" for="japaneseVolume">
+        <span>日语音量 <output id="japaneseVolumeValue">85%</output></span>
+        <input id="japaneseVolume" type="range" min="0" max="100" step="5" value="85">
+      </label>
+      <label class="voice-control" for="chineseVolume">
+        <span>中文音量 <output id="chineseVolumeValue">100%</output></span>
+        <input id="chineseVolume" type="range" min="0" max="100" step="5" value="100">
+      </label>
+      <label class="voice-control" for="chineseRate">
+        <span>中文语速 <output id="chineseRateValue">0.88×</output></span>
+        <input id="chineseRate" type="range" min="0.70" max="1.05" step="0.01" value="0.88">
+      </label>
+    </div>
+    <div class="pilot-note" id="voiceStatus">正在载入日语和中文固定语音…</div>
+    <div class="label">每轮数量</div>
+    <div class="chip-row" id="numChips">
+      <span class="chip on" data-num="10">10</span>
+      <span class="chip" data-num="20">20</span>
+      <span class="chip" data-num="30">30</span>
+      <span class="chip" data-num="50">50</span>
+    </div>
+    <div class="filter-summary" id="filterSummary">正在计算当前范围…</div>
+  </div>
+
+  <div id="practiceArea">
+    <div class="card">
+      <button type="button" class="speak-btn" id="speakBtn" title="答对后可重播日语和中文" aria-label="答对后重播日语和中文" disabled>🔊</button>
+      <button class="rule-btn" id="ruleBtn" title="变形规则">📖</button>
+      <div class="verb" id="verb"></div>
+      <div class="kana" id="kana"></div>
+      <div class="question-tags" id="verbTags"></div>
+      <div class="form-badge" id="form"></div>
+      <div class="rule-box hidden" id="ruleBox"></div>
+    </div>
+    <div class="collapsible hidden" id="classifyArea">
+      <div class="label">选择活用分类</div>
+      <div class="chip-row" id="classTypeAnswers">
+        <span class="chip" data-answer-type="I">一类动词</span>
+        <span class="chip" data-answer-type="II">二类动词</span>
+        <span class="chip" data-answer-type="III">三类动词</span>
+      </div>
+      <div class="label">选择自他分类</div>
+      <div class="chip-row" id="classTransAnswers">
+        <span class="chip" data-answer-trans="vi">自动词</span>
+        <span class="chip" data-answer-trans="vt">他动词</span>
+      </div>
+    </div>
+    <input type="text" id="answer" placeholder="">
+    <div class="msg" id="msg"></div>
+    <div class="btn-row">
+      <button id="submitBtn">决定</button>
+      <button id="nextBtn" class="next hidden">下一题</button>
+    </div>
+    <div id="resultInfo" class="hidden">
+      <div class="info" id="meaning"></div>
+      <div class="example" id="example"></div>
+    </div>
+    <div class="stats">
+      <span>✅ <span id="ok">0</span></span>
+      <span>❌ <span id="ng">0</span></span>
+      <span>首次正确率 <span id="rate">-</span>%</span>
+    </div>
+  </div>
+
+  <div id="resultArea" class="hidden">
+    <div class="result-box">
+      <h3>🎉 本轮完成</h3>
+      <p id="resultText"></p>
+    </div>
+    <button id="retryBtn" style="width:100%;margin-bottom:6px">同样条件再来一组</button>
+    <button id="resetBtn" style="width:100%;background:white;border:1px solid #ccc">返回设置</button>
+  </div>
+</div>
+
+<div class="modal hidden" id="errModal">
+  <div class="modal-box">
+    <h3>📋 错题本</h3>
+    <div id="errList"></div>
+    <button id="closeErrBtn" style="width:100%;margin-top:8px">关闭</button>
+    <button id="clearErrBtn" style="width:100%;background:#fae3e3;margin-top:4px">清空错题</button>
+  </div>
+</div>
+
+<script src="verbs.js?v=audio-logic-1"></script>
+<script src="app.js?v=audio-logic-2"></script>
+</body>
+</html>
